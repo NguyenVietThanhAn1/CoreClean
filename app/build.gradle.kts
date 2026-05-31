@@ -7,12 +7,17 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+// Room: nơi xuất schema JSON cho migration
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 android {
-    namespace   = "com.cleaner.app"
+    namespace   = "com.coreclean.app"
     compileSdk  = 36
 
     defaultConfig {
-        applicationId = "com.cleaner.app"
+        applicationId = "com.coreclean.app"
         minSdk        = 26
         targetSdk     = 36
         versionCode   = 1
@@ -103,6 +108,7 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.coroutines.test)
     testImplementation("junit:junit:4.13.2")
+    testImplementation("io.mockk:mockk:1.13.12")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
