@@ -1,7 +1,7 @@
 package com.coreclean.app.data.repository
 
 import android.content.ContentResolver
-import android.net.Uri
+import android.content.IntentSender
 import android.os.Build
 import android.provider.MediaStore
 import com.coreclean.app.core.di.IoDispatcher
@@ -37,18 +37,28 @@ class MediaRepositoryImpl @Inject constructor(
     override suspend fun deleteImages(
         images: List<MediaImage>
     ): Result<Int> = withContext(ioDispatcher) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return@withContext Result.failure(
+                UnsupportedOperationException("Android 11+: use createDeleteRequest instead.")
+            )
+        }
         runCatching {
             var deleted = 0
             images.forEach { image ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    // Android 11+ — dùng createDeleteRequest, cần user confirm
-                    // Xử lý ở ViewModel với ActivityResultLauncher
-                } else {
-                    val rows = contentResolver.delete(image.uri, null, null)
-                    if (rows > 0) deleted++
-                }
+                if (contentResolver.delete(image.uri, null, null) > 0) deleted++
             }
             deleted
+        }
+    }
+
+    override suspend fun createDeleteRequest(
+        images: List<MediaImage>
+    ): IntentSender = withContext(ioDispatcher) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val uris = images.map { it.uri }
+            MediaStore.createDeleteRequest(contentResolver, uris).intentSender
+        } else {
+            throw UnsupportedOperationException("createDeleteRequest requires Android 11+")
         }
     }
 }

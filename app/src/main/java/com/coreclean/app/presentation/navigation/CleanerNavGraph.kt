@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
 import com.coreclean.app.presentation.home.HomeScreen
+import com.coreclean.app.presentation.review.SafetyReviewScreen
 import com.coreclean.app.ui.media.MediaScreen
 import kotlinx.serialization.Serializable
 
@@ -28,18 +28,22 @@ fun CleanerNavGraph(navController: NavHostController) {
         composable<HomeRoute> {
             HomeScreen(navController = navController)
         }
-        composable<StorageRoute> {
-            // StorageScreen(navController)
-        }
+        composable<StorageRoute> { }
         composable<MediaRoute> {
-            MediaScreen()
+            MediaScreen(
+                onNavigateToReview = { navController.navigate(ReviewRoute("media")) }
+            )
         }
         composable<ContactRoute> { }
         composable<BatteryRoute> { }
         composable<AppUsageRoute> { }
-        composable<ReviewRoute> { backStackEntry ->
-            // val route = backStackEntry.toRoute<ReviewRoute>()
-            // SafetyReviewScreen(moduleId = route.moduleId)
+        composable<ReviewRoute> {
+            SafetyReviewScreen(
+                onNavigateBack   = { navController.popBackStack() },
+                onDeleteComplete = {
+                    navController.popBackStack(MediaRoute, inclusive = false)
+                }
+            )
         }
     }
 }
