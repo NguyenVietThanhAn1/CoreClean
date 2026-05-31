@@ -1,13 +1,13 @@
 package com.coreclean.app.presentation
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.rememberNavController
 import com.coreclean.app.presentation.navigation.CleanerNavGraph
+import com.coreclean.app.presentation.theme.CoreCleanTheme
 
 @Composable
 fun CoreCleanApp() {
-    MaterialTheme {
+    CoreCleanTheme {
         val navController = rememberNavController()
         CleanerNavGraph(navController)
     }
