@@ -121,6 +121,64 @@
     <string name="settings_section_about">About</string>
     <string name="settings_version">Version</string>
 
+    <!-- Suggestions (Home) -->
+    <string name="home_suggestions_title">Cleaning suggestions</string>
+    <string name="suggestion_duplicate_title">Duplicate photos</string>
+    <string name="suggestion_unused_app_title">Uninstall %1$s</string>
+    <string name="suggestion_download_title">Large downloads</string>
+    <string name="suggestion_screenshot_title">%1$d old screenshots</string>
+    <string name="suggestion_storage_full_title">Storage almost full</string>
+    <string name="suggestion_save_mb">Save about %1$d MB</string>
+    <string name="suggestion_storage_free_pct">%1$d%% storage remaining</string>
+
+    <!-- Battery prediction -->
+    <string name="battery_prediction_estimate">About %1$d h %2$d min remaining</string>
+    <string name="battery_prediction_collecting">Collecting data…</string>
+    <string name="battery_prediction_disclaimer">(Estimate based on last 24 h usage)</string>
+
+    <!-- Auto-clean settings -->
+    <string name="settings_section_auto_clean">Auto-cleaning</string>
+    <string name="settings_auto_clean_enable">Enable auto-cleaning</string>
+    <string name="settings_auto_clean_freq">Frequency</string>
+    <string name="settings_auto_clean_daily">Daily</string>
+    <string name="settings_auto_clean_weekly">Weekly</string>
+    <string name="settings_auto_clean_monthly">Monthly</string>
+    <string name="settings_auto_clean_time">Run at</string>
+    <string name="settings_auto_clean_categories">Categories to clean</string>
+
+    <!-- Notification channels -->
+    <string name="notif_channel_auto_clean">Auto-clean results</string>
+    <string name="notif_channel_recommendations">Cleaning recommendations</string>
+    <string name="notif_channel_recommendations_desc">Periodic cleaning suggestions</string>
+    <string name="notif_auto_clean_title">Auto-clean completed</string>
+    <string name="notif_auto_clean_body">Freed %1$d MB</string>
+    <string name="notif_storage_full_title">Storage almost full</string>
+    <string name="notif_storage_full_body">Only %1$d%% remaining — view suggestions</string>
+    <string name="notif_duplicate_title">Duplicate photos found</string>
+    <string name="notif_duplicate_body">~%1$d MB could be freed</string>
+
+    <!-- Settings — Notifications -->
+    <string name="settings_section_notifications">Notifications</string>
+    <string name="settings_recommendations_notif">Cleaning recommendation alerts</string>
+
+    <!-- Privacy additions -->
+    <string name="privacy_last_access">Last access</string>
+    <string name="privacy_battery_history">Battery history</string>
+    <string name="privacy_clear_battery_history">Clear battery history</string>
+    <string name="privacy_policy_link">Privacy Policy</string>
+    <string name="privacy_battery_count">%1$d data points</string>
+
+    <!-- Content descriptions (A11y) -->
+    <string name="cd_settings">Open settings</string>
+    <string name="cd_back">Go back</string>
+    <string name="cd_battery_circle">Current battery level: %1$d percent</string>
+    <string name="cd_battery_prediction">Battery forecast: %1$s</string>
+    <string name="cd_storage_donut">Storage chart: %1$s used of %2$s total</string>
+    <string name="cd_permission_granted">%1$s permission granted</string>
+    <string name="cd_permission_denied">%1$s permission denied</string>
+    <string name="cd_check">Granted</string>
+    <string name="cd_close">Denied</string>
+
     <!-- Privacy -->
     <string name="privacy_title">Privacy Dashboard</string>
     <string name="privacy_permissions">App permissions</string>
@@ -131,6 +189,10 @@
     <string name="privacy_actions">Actions</string>
     <string name="privacy_clear_history">Clear all scan history</string>
     <string name="privacy_open_app_settings">Open app settings</string>
+    <string name="privacy_battery_history">Battery history</string>
+    <string name="privacy_clear_battery_history">Clear battery history</string>
+    <string name="privacy_policy_link">Privacy Policy</string>
+    <string name="privacy_battery_count">%1$d data points</string>
 
     <!-- Onboarding -->
     <string name="onboarding_step_storage_title">Storage &amp; Media</string>

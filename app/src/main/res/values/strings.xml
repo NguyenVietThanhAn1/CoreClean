@@ -145,6 +145,64 @@
     <string name="onboarding_open_settings">Mo Cai dat</string>
     <string name="onboarding_start">Bat dau</string>
 
+    <!-- Suggestions (Home) -->
+    <string name="home_suggestions_title">Goi y don dep</string>
+    <string name="suggestion_duplicate_title">Anh trung lap</string>
+    <string name="suggestion_unused_app_title">Go cap dat %1$s</string>
+    <string name="suggestion_download_title">File tai xuong lon</string>
+    <string name="suggestion_screenshot_title">%1$d anh chup man hinh cu</string>
+    <string name="suggestion_storage_full_title">Bo nho sap day</string>
+    <string name="suggestion_save_mb">Tiet kiem khoang %1$d MB</string>
+    <string name="suggestion_storage_free_pct">Con %1$d%% bo nho</string>
+
+    <!-- Battery prediction -->
+    <string name="battery_prediction_estimate">Con khoang %1$d gio %2$d phut</string>
+    <string name="battery_prediction_collecting">Dang thu thap du lieu...</string>
+    <string name="battery_prediction_disclaimer">(Uoc tinh dua tren thoi quen 24 gio)</string>
+
+    <!-- Auto-clean settings -->
+    <string name="settings_section_auto_clean">Don dep tu dong</string>
+    <string name="settings_auto_clean_enable">Bat don dep tu dong</string>
+    <string name="settings_auto_clean_freq">Tan suat</string>
+    <string name="settings_auto_clean_daily">Hang ngay</string>
+    <string name="settings_auto_clean_weekly">Hang tuan</string>
+    <string name="settings_auto_clean_monthly">Hang thang</string>
+    <string name="settings_auto_clean_time">Gio chay</string>
+    <string name="settings_auto_clean_categories">Danh muc don dep</string>
+
+    <!-- Notification channels -->
+    <string name="notif_channel_auto_clean">Ket qua don dep tu dong</string>
+    <string name="notif_channel_recommendations">Goi y toi uu</string>
+    <string name="notif_channel_recommendations_desc">Thong bao goi y don dep dinh ky</string>
+    <string name="notif_auto_clean_title">Don dep tu dong hoan tat</string>
+    <string name="notif_auto_clean_body">Giai phong %1$d MB</string>
+    <string name="notif_storage_full_title">Bo nho gan day</string>
+    <string name="notif_storage_full_body">Chi con %1$d%% — xem goi y don dep</string>
+    <string name="notif_duplicate_title">Phat hien anh trung lap</string>
+    <string name="notif_duplicate_body">Uoc tinh %1$d MB co the giai phong</string>
+
+    <!-- Settings — Recommendations notifications -->
+    <string name="settings_section_notifications">Thong bao</string>
+    <string name="settings_recommendations_notif">Thong bao goi y don dep</string>
+
+    <!-- Privacy additions -->
+    <string name="privacy_last_access">Lan truy cap cuoi</string>
+    <string name="privacy_battery_history">Lich su pin</string>
+    <string name="privacy_clear_battery_history">Xoa lich su pin</string>
+    <string name="privacy_policy_link">Chinh sach quyen rieng tu</string>
+    <string name="privacy_battery_count">%1$d diem du lieu pin</string>
+
+    <!-- Content descriptions (A11y) -->
+    <string name="cd_settings">Mo cai dat</string>
+    <string name="cd_back">Quay lai</string>
+    <string name="cd_battery_circle">Muc pin hien tai: %1$d phan tram</string>
+    <string name="cd_battery_prediction">Du bao pin: %1$s</string>
+    <string name="cd_storage_donut">Bieu do luu tru: %1$s da dung trong tong so %2$s</string>
+    <string name="cd_permission_granted">Quyen %1$s da duoc cap</string>
+    <string name="cd_permission_denied">Quyen %1$s bi tu choi</string>
+    <string name="cd_check">Da cap quyen</string>
+    <string name="cd_close">Bi tu choi</string>
+
     <!-- Common -->
     <string name="cancel">Huy</string>
     <string name="confirm">Xac nhan</string>

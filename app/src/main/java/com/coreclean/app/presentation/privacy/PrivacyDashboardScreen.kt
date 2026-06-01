@@ -1,6 +1,7 @@
 package com.coreclean.app.presentation.privacy
 
 import android.content.Intent
+import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -46,7 +47,7 @@ fun PrivacyDashboardScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.nav_back))
+                            contentDescription = stringResource(R.string.cd_back))
                     }
                 }
             )
@@ -89,11 +90,16 @@ fun PrivacyDashboardScreen(
                     DataRow(stringResource(R.string.privacy_scan_results), "${state.scanResultCount}")
                     DataRow(stringResource(R.string.privacy_pending_review), "${state.pendingReviewCount}")
                     DataRow(stringResource(R.string.privacy_datastore_keys), "${state.dataStoreKeyCount}")
+                    DataRow(
+                        stringResource(R.string.privacy_battery_history),
+                        stringResource(R.string.privacy_battery_count, state.batteryHistoryCount)
+                    )
                 }
             }
 
             // Actions section
             SectionTitle(stringResource(R.string.privacy_actions))
+
             OutlinedButton(
                 onClick  = viewModel::clearHistory,
                 modifier = Modifier.fillMaxWidth(),
@@ -102,12 +108,33 @@ fun PrivacyDashboardScreen(
                 )
             ) { Text(stringResource(R.string.privacy_clear_history)) }
 
+            OutlinedButton(
+                onClick  = viewModel::clearBatteryHistory,
+                modifier = Modifier.fillMaxWidth(),
+                colors   = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) { Text(stringResource(R.string.privacy_clear_battery_history)) }
+
             Button(
-                onClick  = { context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                    data = android.net.Uri.fromParts("package", context.packageName, null)
-                }) },
+                onClick  = {
+                    context.startActivity(
+                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = Uri.fromParts("package", context.packageName, null)
+                        }
+                    )
+                },
                 modifier = Modifier.fillMaxWidth()
             ) { Text(stringResource(R.string.privacy_open_app_settings)) }
+
+            // Privacy Policy link
+            TextButton(
+                onClick  = {
+                    val url = "https://raw.githubusercontent.com/NguyenVietThanhAn1/CoreClean/master/docs/PrivacyPolicy.md"
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) { Text(stringResource(R.string.privacy_policy_link)) }
 
             Spacer(Modifier.height(8.dp))
         }
@@ -132,7 +159,10 @@ private fun PermissionRow(name: String, granted: Boolean) {
         Text(name, style = MaterialTheme.typography.bodyMedium)
         Icon(
             imageVector        = if (granted) Icons.Default.Check else Icons.Default.Close,
-            contentDescription = null,
+            contentDescription = if (granted)
+                stringResource(R.string.cd_permission_granted, name)
+            else
+                stringResource(R.string.cd_permission_denied, name),
             tint               = if (granted) MaterialTheme.colorScheme.primary
                                  else        MaterialTheme.colorScheme.error,
             modifier           = Modifier.size(18.dp)

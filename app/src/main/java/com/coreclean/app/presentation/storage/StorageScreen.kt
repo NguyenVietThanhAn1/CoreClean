@@ -15,6 +15,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import com.coreclean.app.R
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -211,7 +215,10 @@ private fun StorageDonutChart(
     modifier: Modifier = Modifier
 ) {
     val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
-    Canvas(modifier = modifier) {
+    val usedReadable  = usedBytes.toReadableSize()
+    val totalReadable = totalBytes.toReadableSize()
+    val cd = stringResource(R.string.cd_storage_donut, usedReadable, totalReadable)
+    Canvas(modifier = modifier.semantics { contentDescription = cd }) {
         val strokeWidth = size.minDimension * 0.14f
         val radius  = (size.minDimension / 2f) - strokeWidth
         val topLeft = Offset((size.width / 2f) - radius, (size.height / 2f) - radius)
