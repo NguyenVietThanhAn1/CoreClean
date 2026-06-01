@@ -2,11 +2,13 @@ package com.coreclean.app.ui.media
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.coreclean.app.core.SelectedImagesHolder
+import com.coreclean.app.data.local.dao.PendingReviewDao
+import com.coreclean.app.data.local.entity.PendingReviewEntity
 import com.coreclean.app.domain.model.DuplicateGroup
 import com.coreclean.app.domain.model.MediaImage
 import com.coreclean.app.domain.usecase.media.FindDuplicateImagesUseCase
 import com.coreclean.app.domain.usecase.media.GetAllImagesUseCase
+import com.coreclean.app.presentation.navigation.ReviewRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,11 +18,13 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val ROUTE_ID_LIMIT = 200
+
 @HiltViewModel
 class MediaViewModel @Inject constructor(
     private val getAllImagesUseCase: GetAllImagesUseCase,
     private val findDuplicateImagesUseCase: FindDuplicateImagesUseCase,
-    private val selectedImagesHolder: SelectedImagesHolder
+    private val pendingReviewDao: PendingReviewDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<MediaUiState>(MediaUiState.Idle)
@@ -42,7 +46,7 @@ class MediaViewModel @Inject constructor(
         loadJob = viewModelScope.launch {
             _uiState.value = MediaUiState.Loading
             getAllImagesUseCase()
-                .catch { e -> _uiState.value = MediaUiState.Error(e.message ?: "Không thể tải ảnh") }
+                .catch { e -> _uiState.value = MediaUiState.Error(e.message ?: "Khong the tai anh") }
                 .collect { images -> _uiState.value = MediaUiState.Success(images = images) }
         }
     }
@@ -73,27 +77,32 @@ class MediaViewModel @Inject constructor(
 
     fun clearSelection() {
         _selectedImages.value = emptySet()
-        selectedImagesHolder.images = emptyList()
     }
 
-    /** Copies current selection into the shared holder before navigating to SafetyReviewScreen. */
-    fun prepareReview() {
-        val currentState = _uiState.value
-        if (currentState !is MediaUiState.Success) return
-        val ids = _selectedImages.value
-        selectedImagesHolder.images = currentState.images.filter { it.id in ids }
+    /**
+     * Builds a [ReviewRoute] and calls [onNavigate].
+     * If the selection exceeds [ROUTE_ID_LIMIT] the IDs are persisted in Room
+     * and an empty-list route is returned (SafetyReviewViewModel reads from DB).
+     */
+    fun prepareReview(onNavigate: (ReviewRoute) -> Unit) {
+        val ids = _selectedImages.value.toList()
+        viewModelScope.launch {
+            val route = if (ids.size <= ROUTE_ID_LIMIT) {
+                ReviewRoute("media", ids)
+            } else {
+                pendingReviewDao.clearAll()
+                pendingReviewDao.insertAll(ids.map { PendingReviewEntity(it) })
+                ReviewRoute("media", emptyList())  // signal: read from pending_review DB
+            }
+            onNavigate(route)
+        }
     }
 }
 
-// ── UiState ───────────────────────────────────────────────────────────────────
 sealed class MediaUiState {
-    data object Idle : MediaUiState()
-    data object Loading : MediaUiState()
+    data object Idle             : MediaUiState()
+    data object Loading          : MediaUiState()
     data object PermissionDenied : MediaUiState()
-
-    data class Success(
-        val images: List<MediaImage> = emptyList()
-    ) : MediaUiState()
-
-    data class Error(val message: String) : MediaUiState()
+    data class  Success(val images: List<MediaImage> = emptyList()) : MediaUiState()
+    data class  Error(val message: String) : MediaUiState()
 }

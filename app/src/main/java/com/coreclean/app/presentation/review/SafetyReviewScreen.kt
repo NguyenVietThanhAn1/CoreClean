@@ -2,6 +2,7 @@ package com.coreclean.app.presentation.review
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.IntentSenderRequest
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,28 +27,24 @@ import com.coreclean.app.ui.media.toReadableSize
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SafetyReviewScreen(
-    onNavigateBack: () -> Unit,
-    onDeleteComplete: () -> Unit,
+    onNavigateBack:   () -> Unit = {},
+    onDeleteComplete: () -> Unit = {},
     viewModel: SafetyReviewViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState        by viewModel.uiState.collectAsStateWithLifecycle()
+    val selectedImages by viewModel.selectedImages.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     val deleteLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
-    ) { result ->
-        viewModel.onSystemDeleteDone()
-    }
+    ) { viewModel.onSystemDeleteDone() }
 
     LaunchedEffect(uiState) {
         when (val state = uiState) {
-            is ReviewUiState.RequestIntent -> {
-                deleteLauncher.launch(
-                    androidx.activity.result.IntentSenderRequest.Builder(state.intentSender).build()
-                )
-            }
-            is ReviewUiState.Done -> onDeleteComplete()
-            else -> Unit
+            is ReviewUiState.RequestIntent ->
+                deleteLauncher.launch(IntentSenderRequest.Builder(state.intentSender).build())
+            is ReviewUiState.Done          -> onDeleteComplete()
+            else                           -> Unit
         }
     }
 
@@ -55,72 +52,65 @@ fun SafetyReviewScreen(
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
-                title = { Text("Xác nhận xoá", fontWeight = FontWeight.Bold) },
+                title = { Text("Xac nhan xoa", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lại")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lai")
                     }
                 }
             )
         },
         bottomBar = {
             Surface(tonalElevation = 8.dp, modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text = "Sẽ giải phóng ${viewModel.totalSize.toReadableSize()}",
+                        text  = "Se giai phong ${viewModel.totalSize.toReadableSize()}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Button(
-                        onClick = viewModel::confirmDelete,
-                        enabled = uiState is ReviewUiState.Idle,
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                        onClick  = viewModel::confirmDelete,
+                        enabled  = uiState is ReviewUiState.Idle,
+                        colors   = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         if (uiState is ReviewUiState.Deleting) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
+                                modifier    = Modifier.size(18.dp),
                                 strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onError
+                                color       = MaterialTheme.colorScheme.onError
                             )
                         } else {
-                            Text("Xác nhận xoá ${viewModel.selectedImages.size} ảnh")
+                            Text("Xac nhan xoa ${selectedImages.size} anh")
                         }
                     }
                 }
             }
         }
     ) { paddingValues ->
-        if (viewModel.selectedImages.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Không có ảnh nào được chọn", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (selectedImages.isEmpty()) {
+            Box(Modifier.fillMaxSize().padding(paddingValues), Alignment.Center) {
+                Text("Khong co anh nao duoc chon",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             return@Scaffold
         }
-
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 110.dp),
-            contentPadding = PaddingValues(4.dp),
+            columns               = GridCells.Adaptive(minSize = 110.dp),
+            contentPadding        = PaddingValues(4.dp),
             horizontalArrangement = Arrangement.spacedBy(3.dp),
-            verticalArrangement = Arrangement.spacedBy(3.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+            verticalArrangement   = Arrangement.spacedBy(3.dp),
+            modifier              = Modifier.fillMaxSize().padding(paddingValues)
         ) {
-            items(items = viewModel.selectedImages, key = { it.id }) { image ->
+            items(items = selectedImages, key = { it.id }) { image ->
                 AsyncImage(
                     model = ImageRequest.Builder(context)
-                        .data(image.uri)
-                        .crossfade(true)
-                        .build(),
+                        .data(image.uri).crossfade(true).build(),
                     contentDescription = image.name,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(6.dp))
+                    contentScale       = ContentScale.Crop,
+                    modifier           = Modifier.aspectRatio(1f).clip(RoundedCornerShape(6.dp))
                 )
             }
         }

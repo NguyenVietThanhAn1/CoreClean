@@ -40,7 +40,7 @@ import com.coreclean.app.domain.model.MediaImage
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaScreen(
-    onNavigateToReview: () -> Unit = {},
+    onNavigateToReview: (com.coreclean.app.presentation.navigation.ReviewRoute) -> Unit = {},
     viewModel: MediaViewModel = hiltViewModel()
 ) {
     val uiState         by viewModel.uiState.collectAsStateWithLifecycle()
@@ -83,10 +83,7 @@ fun MediaScreen(
                 SelectionBottomBar(
                     count    = selectedImages.size,
                     onCancel = viewModel::clearSelection,
-                    onDelete = {
-                        viewModel.prepareReview()
-                        onNavigateToReview()
-                    }
+                    onDelete = { viewModel.prepareReview(onNavigateToReview) }
                 )
             }
         }
