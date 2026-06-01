@@ -89,3 +89,16 @@ app/build/compose_compiler/
 app/release/baseline-prof.txt.tmp
 # KSP cache cũ
 app/build/kspCaches/
+
+# Sentry
+sentry.properties
+
+# Release signing
+keystore.properties
+# *.jks and *.keystore already covered above
+
+# Lokalise / translation cache
+.lokalise/
+
+# Macrobenchmark output
+baselineprofile/build/

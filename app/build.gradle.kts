@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -24,6 +26,10 @@ android {
         versionName   = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val localProps = gradleLocalProperties(rootDir, providers)
+        buildConfigField("String", "SENTRY_DSN",
+            "\"${localProps.getProperty("SENTRY_DSN", "")}\"")
     }
 
     compileOptions {
@@ -40,6 +46,18 @@ android {
         buildConfig = true
     }
 
+    val localProps = gradleLocalProperties(rootDir, providers)
+    signingConfigs {
+        if (localProps.containsKey("KEYSTORE_PATH")) {
+            create("release") {
+                storeFile     = file(localProps.getProperty("KEYSTORE_PATH"))
+                storePassword = localProps.getProperty("KEYSTORE_PASSWORD", "")
+                keyAlias      = localProps.getProperty("KEY_ALIAS", "")
+                keyPassword   = localProps.getProperty("KEY_PASSWORD", "")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled    = true
@@ -48,6 +66,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            val releaseSigning = signingConfigs.findByName("release")
+            if (releaseSigning != null) signingConfig = releaseSigning
         }
         debug {
             applicationIdSuffix = ".debug"
@@ -123,8 +143,14 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
 
+    // ── AppCompat (locale switching) ──────────────────────────────
+    implementation(libs.appcompat)
+
     // ── DataStore Preferences ─────────────────────────────────────
     implementation("androidx.datastore:datastore-preferences:1.1.3")
+
+    // ── Sentry crash reporting ────────────────────────────────────
+    implementation(libs.sentry.android)
 
     // ── Serialization (type-safe Navigation) ──────────────────────
     implementation(libs.serialization.json)
@@ -137,6 +163,8 @@ dependencies {
     testImplementation(libs.work.testing)
     testImplementation(libs.robolectric)
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test:core:1.6.1")
+    androidTestImplementation("io.mockk:mockk-android:1.13.12")
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-test-manifest")

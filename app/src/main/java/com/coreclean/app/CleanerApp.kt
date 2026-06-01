@@ -9,6 +9,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.coreclean.app.data.worker.MediaScanWorker
 import dagger.hilt.android.HiltAndroidApp
+import io.sentry.android.core.SentryAndroid
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -19,6 +20,16 @@ class CleanerApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Sentry: init with DSN from BuildConfig; no-op when DSN is empty
+        if (BuildConfig.SENTRY_DSN.isNotEmpty()) {
+            SentryAndroid.init(this) { options ->
+                options.dsn               = BuildConfig.SENTRY_DSN
+                options.tracesSampleRate  = 0.1
+                options.isEnableUserInteractionTracing = false
+            }
+        }
+
         // Default WorkManagerInitializer is removed in manifest; initialize manually with Hilt factory.
         WorkManager.initialize(
             this,

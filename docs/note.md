@@ -8,19 +8,23 @@ cung cap cac cong cu don dep va quan ly he thong hieu qua, bao mat va hien dai.
 - **Kien truc:** Clean Architecture (Domain, Data, Presentation layers)
 - **UI Framework:** Jetpack Compose (Modern UI)
 
-## Trang thai module (Sprint 4 - thang 6/2026)
+## Trang thai module (Sprint 5 - thang 6/2026)
 
-| Module                  | Trang thai          | Ghi chu                                              |
-|-------------------------|---------------------|------------------------------------------------------|
-| Media Scanner           | Implemented         | Scan, dedup (MD5), SafetyReview, Worker              |
-| Storage Analyzer        | Implemented         | StatFs + MediaStore + Large File detector            |
-| Battery Monitor         | Implemented (basic) | BroadcastReceiver reactive Flow                      |
-| App Usage               | Implemented         | UsageStatsManager, 7d/30d range, NoPermission state  |
-| Contacts                | Implemented (lite)  | Detect trung + thieu TT, chua co merge UI            |
-| Junk Cleaner            | Implemented (basic) | APP_CACHE guide, TEMP/APK/EMPTY scan & delete        |
-| Permission Onboarding   | Implemented         | HorizontalPager 3 step, DataStore flag               |
-| Settings                | Implemented         | Theme, Dynamic Color, Background scan, DataStore     |
-| APK Analyzer            | Khong lam           | Sprint 5                                             |
+| Module                  | Trang thai          | Ghi chu                                                  |
+|-------------------------|---------------------|----------------------------------------------------------|
+| Media Scanner           | Implemented         | Scan, dedup (MD5), SafetyReview, Worker                  |
+| Storage Analyzer        | Implemented         | StatFs + MediaStore + Large File detector                 |
+| Battery Monitor         | Implemented (basic) | BroadcastReceiver reactive Flow                          |
+| App Usage               | Implemented         | UsageStatsManager, 7d/30d range, NoPermission state      |
+| Contacts                | Implemented (full)  | Detect + Merge UI (AggregationException)                 |
+| Junk Cleaner            | Implemented         | APP_CACHE guide, TEMP/APK/EMPTY scan & delete, SAF       |
+| Permission Onboarding   | Implemented         | HorizontalPager 3 step, DataStore flag                   |
+| Settings                | Implemented         | Theme, DynamicColor, Language, CrashReporting, Privacy   |
+| RAM Monitor             | Implemented         | ActivityManager reactive flow, top process list          |
+| APK Analyzer            | Implemented         | PackageManager + StorageStatsManager, sort/filter/uninstall |
+| Privacy Dashboard       | Implemented         | Permissions, stored data, clear history                  |
+| Crash Reporting         | Implemented         | Sentry opt-in, CrashReporter interface                   |
+| i18n                    | Implemented         | values/ (vi), values-en/ (en), locale switcher            |
 
 ## Cong nghe su dung (Tech Stack)
 - **Kotlin 2.1.10**, **Jetpack Compose**, **Hilt**, **Room 2**, **Coroutines & Flow**
@@ -50,6 +54,11 @@ app/src/main/java/com/coreclean/app/
 - **Sprint 4:** Permission Onboarding flow, App Usage module, Contacts module (lite),
   Junk Cleaner (basic), Settings screen, Large File detector, CI workflow GitHub Actions,
   DataStore Preferences, WorkManager DI, BuildConfig enabled
+- **Sprint 5:** RAM Monitor, APK Analyzer, Contacts Merge UI, SAF Junk, Privacy Dashboard,
+  Sentry crash reporting (opt-in), i18n vi/en, AppCompat locale switcher, Settings expanded
+  (Language/CrashReporting), ProGuard rules updated, CI matrix (Java 17+21), release-check job,
+  ContactDataSourceTest, ContactRepositoryImplTest, MergeContactsUseCaseTest,
+  MediaScanWorkerInstrumentationTest, updated AppUsageRepositoryImplTest
 
 ---
 *Cap nhat: thang 6/2026*

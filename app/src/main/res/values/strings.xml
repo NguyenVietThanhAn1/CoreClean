@@ -1,3 +1,155 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
+
     <string name="app_name">CoreClean</string>
+
+    <!-- Navigation -->
+    <string name="nav_back">Quay lai</string>
+
+    <!-- Home -->
+    <string name="home_title">CoreClean</string>
+    <string name="home_settings_cd">Cai dat</string>
+    <string name="home_card_media_title">Media Scanner</string>
+    <string name="home_card_media_sub">Quet &amp; don anh trung</string>
+    <string name="home_card_storage_title">Storage Analyzer</string>
+    <string name="home_card_storage_sub">Phan tich bo nho</string>
+    <string name="home_card_battery_title">Battery Monitor</string>
+    <string name="home_card_battery_sub">Giam sat pin</string>
+    <string name="home_card_usage_title">App Usage</string>
+    <string name="home_card_usage_sub">Thong ke su dung</string>
+    <string name="home_card_contacts_title">Contacts</string>
+    <string name="home_card_contacts_sub">Quan ly danh ba</string>
+    <string name="home_card_junk_title">Junk Cleaner</string>
+    <string name="home_card_junk_sub">Don dep file rac</string>
+    <string name="home_card_ram_title">RAM Monitor</string>
+    <string name="home_card_ram_sub">Giam sat bo nho</string>
+    <string name="home_card_apk_title">App Analyzer</string>
+    <string name="home_card_apk_sub">Phan tich ung dung</string>
+    <string name="home_card_coming_soon">Sap ra mat</string>
+
+    <!-- RAM -->
+    <string name="ram_title">RAM Monitor</string>
+    <string name="ram_used">Su dung: %1$d MB</string>
+    <string name="ram_total">Tong: %1$d MB</string>
+    <string name="ram_available">Con trong: %1$d MB</string>
+    <string name="ram_low_memory">⚠ Bo nho thap</string>
+    <string name="ram_top_processes">Tien trinh su dung nhieu nhat</string>
+    <string name="ram_process_note">* Android 5+ chi hien thi tien trinh cua ung dung nay</string>
+    <string name="ram_mb">%1$d MB</string>
+
+    <!-- App Analyzer -->
+    <string name="app_analyzer_title">App Analyzer</string>
+    <string name="app_analyzer_selected">Da chon: %1$d ung dung</string>
+    <string name="app_analyzer_uninstall">Go cai dat</string>
+
+    <!-- Contact -->
+    <string name="contact_title">Danh ba</string>
+    <string name="contact_tab_all">Tat ca</string>
+    <string name="contact_tab_duplicate">Trung</string>
+    <string name="contact_tab_incomplete">Thieu TT</string>
+    <string name="contact_no_items">Khong co danh ba</string>
+    <string name="contact_no_duplicate">Khong co danh ba trung</string>
+    <string name="contact_missing_phone">Thieu so dien thoai</string>
+    <string name="contact_no_name">(Khong ten)</string>
+    <string name="contact_no_permission">Can quyen READ_CONTACTS de hien thi danh ba.</string>
+    <string name="contact_open_settings">Mo Cai dat ung dung</string>
+    <string name="contact_duplicate_group">Nhom trung (%1$d)</string>
+    <string name="contact_merge_title">Gop lien he</string>
+    <string name="contact_merge_subtitle">Gop %1$d lien he thanh mot?</string>
+    <string name="contact_merge_note">Android se ket hop cac lien he nay lai voi nhau.</string>
+    <string name="contact_merge_confirm">Gop</string>
+
+    <!-- Junk -->
+    <string name="junk_title">Junk Cleaner</string>
+    <string name="junk_scan_title">Quet de tim file rac</string>
+    <string name="junk_start_scan">Bat dau quet</string>
+    <string name="junk_scanning">Dang quet…</string>
+    <string name="junk_clean">Don dep</string>
+    <string name="junk_selected">Da chon: %1$s</string>
+    <string name="junk_app_cache">App Cache</string>
+    <string name="junk_empty_folders">Thu muc rong</string>
+    <string name="junk_temp_files">File tam</string>
+    <string name="junk_residual_apk">APK con lai</string>
+    <string name="junk_cache_note">Android 8+ khong cho xoa truc tiep — can mo Settings.</string>
+    <string name="junk_open_app_manager">Mo App Manager</string>
+    <string name="junk_pick_folder">Chon thu muc de quet</string>
+    <string name="junk_no_folder">Chua chon thu muc nao. Nhan "Chon thu muc" de bat dau.</string>
+
+    <!-- Storage -->
+    <string name="storage_title">Storage Analyzer</string>
+    <string name="storage_used">Da dung</string>
+    <string name="storage_free">Trong</string>
+    <string name="storage_total">Tong</string>
+    <string name="storage_breakdown">Chi tiet theo danh muc</string>
+    <string name="storage_large_files">File lon (&gt; 50 MB)</string>
+    <string name="storage_delete_selected">Xoa %1$d file da chon</string>
+    <string name="storage_refresh">Lam moi</string>
+
+    <!-- Battery -->
+    <string name="battery_title">Battery Monitor</string>
+
+    <!-- App Usage -->
+    <string name="usage_title">App Usage</string>
+    <string name="usage_no_permission">Can quyen Usage Stats de xem thong ke su dung app.</string>
+    <string name="usage_open_settings">Mo Cai dat</string>
+    <string name="usage_days_7">7 ngay</string>
+    <string name="usage_days_30">30 ngay</string>
+    <string name="usage_just_now">Vua xong</string>
+    <string name="usage_hours_ago">%1$d gio truoc</string>
+    <string name="usage_days_ago">%1$d ngay truoc</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Cai dat</string>
+    <string name="settings_section_theme">Giao dien</string>
+    <string name="settings_theme_system">Theo he thong</string>
+    <string name="settings_theme_light">Sang</string>
+    <string name="settings_theme_dark">Toi</string>
+    <string name="settings_dynamic_color">Mau dong (Material You)</string>
+    <string name="settings_section_scan">Quet nen</string>
+    <string name="settings_bg_scan">Bat quet nen</string>
+    <string name="settings_scan_now">Quet ngay bay gio</string>
+    <string name="settings_interval_hours">%1$d gio</string>
+    <string name="settings_section_language">Ngon ngu</string>
+    <string name="settings_lang_system">Theo he thong</string>
+    <string name="settings_lang_vi">Tieng Viet</string>
+    <string name="settings_lang_en">English</string>
+    <string name="settings_section_crash">Bao cao loi</string>
+    <string name="settings_crash_toggle">Gui bao cao loi (opt-in)</string>
+    <string name="settings_section_privacy">Quyen rieng tu</string>
+    <string name="settings_privacy_dashboard">Privacy Dashboard</string>
+    <string name="settings_section_debug">Debug</string>
+    <string name="settings_reset_onboarding">Reset onboarding</string>
+    <string name="settings_section_about">Thong tin ung dung</string>
+    <string name="settings_version">Phien ban</string>
+
+    <!-- Privacy -->
+    <string name="privacy_title">Privacy Dashboard</string>
+    <string name="privacy_permissions">Quyen ung dung</string>
+    <string name="privacy_stored_data">Du lieu da luu</string>
+    <string name="privacy_scan_results">Ket qua quet</string>
+    <string name="privacy_pending_review">Cho xem xet</string>
+    <string name="privacy_datastore_keys">DataStore keys</string>
+    <string name="privacy_actions">Hanh dong</string>
+    <string name="privacy_clear_history">Xoa toan bo lich su quet</string>
+    <string name="privacy_open_app_settings">Mo cai dat ung dung</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_step_storage_title">Luu tru &amp; Media</string>
+    <string name="onboarding_step_storage_desc">CoreClean can quyen truy cap anh va video de quet, phat hien trung lap va giai phong bo nho.</string>
+    <string name="onboarding_step_usage_title">Thong ke su dung</string>
+    <string name="onboarding_step_usage_desc">Quyen Usage Stats giup CoreClean hien thi app nao ban su dung nhieu nhat.</string>
+    <string name="onboarding_step_notif_title">Thong bao</string>
+    <string name="onboarding_step_notif_desc">Nhan ket qua quet nen va nhac nho don dep dinh ky.</string>
+    <string name="onboarding_skip">Bo qua</string>
+    <string name="onboarding_grant_storage">Cap quyen luu tru</string>
+    <string name="onboarding_open_settings">Mo Cai dat</string>
+    <string name="onboarding_start">Bat dau</string>
+
+    <!-- Common -->
+    <string name="cancel">Huy</string>
+    <string name="confirm">Xac nhan</string>
+    <string name="ok">OK</string>
+    <string name="loading">Dang tai…</string>
+    <string name="error_generic">Da xay ra loi. Vui long thu lai.</string>
+
 </resources>

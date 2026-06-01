@@ -4,11 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.coreclean.app.presentation.appanalyzer.AppAnalyzerScreen
 import com.coreclean.app.presentation.battery.BatteryScreen
 import com.coreclean.app.presentation.contact.ContactScreen
 import com.coreclean.app.presentation.home.HomeScreen
 import com.coreclean.app.presentation.junk.JunkScreen
 import com.coreclean.app.presentation.onboarding.PermissionOnboardingScreen
+import com.coreclean.app.presentation.privacy.PrivacyDashboardScreen
+import com.coreclean.app.presentation.ram.RamScreen
 import com.coreclean.app.presentation.review.SafetyReviewScreen
 import com.coreclean.app.presentation.settings.SettingsScreen
 import com.coreclean.app.presentation.storage.StorageScreen
@@ -26,6 +29,9 @@ import kotlinx.serialization.Serializable
 @Serializable object AppUsageRoute
 @Serializable object JunkRoute
 @Serializable object SettingsRoute
+@Serializable object RamRoute
+@Serializable object AppAnalyzerRoute
+@Serializable object PrivacyRoute
 @Serializable data class ReviewRoute(val moduleId: String, val imageIds: List<Long> = emptyList())
 
 @Composable
@@ -78,8 +84,23 @@ fun CleanerNavGraph(
             JunkScreen(onNavigateBack = { navController.popBackStack() })
         }
 
+        composable<RamRoute> {
+            RamScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        composable<AppAnalyzerRoute> {
+            AppAnalyzerScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
         composable<SettingsRoute> {
-            SettingsScreen(onNavigateBack = { navController.popBackStack() })
+            SettingsScreen(
+                onNavigateBack      = { navController.popBackStack() },
+                onNavigateToPrivacy = { navController.navigate(PrivacyRoute) }
+            )
+        }
+
+        composable<PrivacyRoute> {
+            PrivacyDashboardScreen(onNavigateBack = { navController.popBackStack() })
         }
 
         composable<ReviewRoute> {

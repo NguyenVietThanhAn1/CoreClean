@@ -5,6 +5,7 @@ import android.provider.Settings
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
@@ -77,8 +78,26 @@ fun ContactScreen(
 
             when (selectedTab) {
                 0 -> ContactList(uiState.allContacts)
-                1 -> DuplicateList(uiState.duplicates)
+                1 -> DuplicateList(uiState.duplicates, onMerge = { viewModel.startMerge(it) })
                 2 -> ContactList(uiState.incomplete, showIncompleteNote = true)
+            }
+        }
+
+        // Merge dialog
+        uiState.mergingGroupIndex?.let { idx ->
+            val group = uiState.duplicates.getOrNull(idx)?.contacts ?: emptyList()
+            MergeContactDialog(
+                group     = group,
+                onConfirm = viewModel::confirmMerge,
+                onDismiss = viewModel::cancelMerge
+            )
+        }
+
+        // Snackbar for merge result
+        uiState.mergeMessage?.let { msg ->
+            androidx.compose.runtime.LaunchedEffect(msg) {
+                kotlinx.coroutines.delay(2_000)
+                viewModel.dismissMergeMessage()
             }
         }
     }
@@ -122,7 +141,10 @@ private fun ContactList(contacts: List<Contact>, showIncompleteNote: Boolean = f
 }
 
 @Composable
-private fun DuplicateList(groups: List<ContactDuplicateGroup>) {
+private fun DuplicateList(
+    groups: List<ContactDuplicateGroup>,
+    onMerge: (Int) -> Unit = {}
+) {
     if (groups.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("Khong co danh ba trung", style = MaterialTheme.typography.bodyLarge,
@@ -131,15 +153,24 @@ private fun DuplicateList(groups: List<ContactDuplicateGroup>) {
         return
     }
     LazyColumn(
-        contentPadding    = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        contentPadding      = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(groups) { group ->
+        itemsIndexed(groups) { index, group ->
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Nhom trung (${group.contacts.size})",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.error)
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment     = Alignment.CenterVertically
+                    ) {
+                        Text("Nhom trung (${group.contacts.size})",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.error)
+                        TextButton(onClick = { onMerge(index) }) {
+                            Text("Gop")
+                        }
+                    }
                     group.contacts.forEach { c ->
                         Text("• ${c.displayName.ifBlank { "(Khong ten)" }}" +
                             if (c.phones.isNotEmpty()) " — ${c.phones.first()}" else "")

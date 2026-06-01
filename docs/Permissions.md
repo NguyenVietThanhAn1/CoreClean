@@ -1,5 +1,7 @@
 # Permissions
 
+**Note:** CoreClean does NOT collect PII (Personally Identifiable Information). Sentry crash reports contain only stack traces and device OS info. No contact names, file names, or media content is ever sent.
+
 | Permission | Ly do | Screen su dung | Fallback neu denied |
 |---|---|---|---|
 | READ_MEDIA_IMAGES (API 33+) | Quet anh MediaStore | Onboarding, MediaScreen | Banner "Can quyen", khong auto popup |
@@ -13,3 +15,4 @@
 | RECEIVE_BOOT_COMPLETED | Restart WorkManager sau reboot | CleanerApp | Worker khong khoi dong lai |
 | FOREGROUND_SERVICE | MediaScanWorker | Worker | N/A — declared |
 | FOREGROUND_SERVICE_DATA_SYNC | Tag foreground service type | Worker | N/A |
+| QUERY_ALL_PACKAGES | APK Analyzer: list all installed packages | AppAnalyzerScreen | Only user-installed apps visible (partial results acceptable) |

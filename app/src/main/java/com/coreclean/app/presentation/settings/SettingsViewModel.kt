@@ -1,5 +1,7 @@
 package com.coreclean.app.presentation.settings
 
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -9,6 +11,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.coreclean.app.core.preferences.AppLanguage
 import com.coreclean.app.core.preferences.AppPreferenceKeys
 import com.coreclean.app.core.preferences.ThemeMode
 import com.coreclean.app.data.worker.MediaScanWorker
@@ -24,7 +27,9 @@ data class SettingsState(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val dynamicColor: Boolean = true,
     val backgroundScan: Boolean = true,
-    val scanIntervalHours: Int = 12
+    val scanIntervalHours: Int = 12,
+    val language: AppLanguage = AppLanguage.SYSTEM,
+    val crashReporting: Boolean = false
 )
 
 @HiltViewModel
@@ -35,10 +40,12 @@ class SettingsViewModel @Inject constructor(
 
     val state = dataStore.data.map { prefs ->
         SettingsState(
-            themeMode        = ThemeMode.valueOf(prefs[AppPreferenceKeys.THEME_MODE] ?: ThemeMode.SYSTEM.name),
-            dynamicColor     = prefs[AppPreferenceKeys.DYNAMIC_COLOR] ?: true,
-            backgroundScan   = prefs[AppPreferenceKeys.BACKGROUND_SCAN] ?: true,
-            scanIntervalHours = prefs[AppPreferenceKeys.SCAN_INTERVAL_HOURS] ?: 12
+            themeMode         = ThemeMode.valueOf(prefs[AppPreferenceKeys.THEME_MODE] ?: ThemeMode.SYSTEM.name),
+            dynamicColor      = prefs[AppPreferenceKeys.DYNAMIC_COLOR] ?: true,
+            backgroundScan    = prefs[AppPreferenceKeys.BACKGROUND_SCAN] ?: true,
+            scanIntervalHours = prefs[AppPreferenceKeys.SCAN_INTERVAL_HOURS] ?: 12,
+            language          = AppLanguage.valueOf(prefs[AppPreferenceKeys.APP_LANGUAGE] ?: AppLanguage.SYSTEM.name),
+            crashReporting    = prefs[AppPreferenceKeys.CRASH_REPORTING] ?: false
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsState())
 
@@ -59,6 +66,20 @@ class SettingsViewModel @Inject constructor(
     fun setScanInterval(hours: Int) = viewModelScope.launch {
         dataStore.edit { it[AppPreferenceKeys.SCAN_INTERVAL_HOURS] = hours }
         if (state.value.backgroundScan) rescheduleWorker(hours)
+    }
+
+    fun setLanguage(lang: AppLanguage) = viewModelScope.launch {
+        dataStore.edit { it[AppPreferenceKeys.APP_LANGUAGE] = lang.name }
+        val locales = if (lang.tag.isEmpty()) LocaleListCompat.getEmptyLocaleList()
+                      else LocaleListCompat.forLanguageTags(lang.tag)
+        AppCompatDelegate.setApplicationLocales(locales)
+    }
+
+    fun setCrashReporting(enabled: Boolean) = viewModelScope.launch {
+        dataStore.edit { it[AppPreferenceKeys.CRASH_REPORTING] = enabled }
+        if (!enabled) {
+            runCatching { io.sentry.Sentry.close() }
+        }
     }
 
     fun runScanNow() {

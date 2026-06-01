@@ -1,6 +1,7 @@
 package com.coreclean.app.presentation.settings
 
 import android.os.Build
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -18,12 +19,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.coreclean.app.BuildConfig
+import com.coreclean.app.core.preferences.AppLanguage
 import com.coreclean.app.core.preferences.ThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit = {},
+    onNavigateToPrivacy: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -123,6 +126,51 @@ fun SettingsScreen(
                 onClick  = viewModel::runScanNow,
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Quet ngay bay gio") }
+
+            // ── Language ───────────────────────────────────────────────
+            SectionHeader("Ngon ngu")
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.selectableGroup()) {
+                    AppLanguage.entries.forEach { lang ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = state.language == lang,
+                                    onClick  = { viewModel.setLanguage(lang) },
+                                    role     = Role.RadioButton
+                                )
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(selected = state.language == lang, onClick = null)
+                            Spacer(Modifier.width(12.dp))
+                            Text(when (lang) {
+                                AppLanguage.SYSTEM     -> "Theo he thong"
+                                AppLanguage.VIETNAMESE -> "Tieng Viet"
+                                AppLanguage.ENGLISH    -> "English"
+                            })
+                        }
+                    }
+                }
+            }
+
+            // ── Crash Reporting ────────────────────────────────────────
+            SectionHeader("Bao cao loi")
+            SettingsToggleRow(
+                title   = "Gui bao cao loi (opt-in)",
+                checked = state.crashReporting,
+                onCheckedChange = viewModel::setCrashReporting
+            )
+
+            // ── Privacy ────────────────────────────────────────────────
+            SectionHeader("Quyen rieng tu")
+            Card(modifier = Modifier.fillMaxWidth()) {
+                ListItem(
+                    headlineContent = { Text("Privacy Dashboard") },
+                    modifier        = Modifier.clickable(onClick = onNavigateToPrivacy)
+                )
+            }
 
             // ── Debug ──────────────────────────────────────────────────
             SectionHeader("Debug")

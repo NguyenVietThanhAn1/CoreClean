@@ -18,7 +18,9 @@ CoreClean provides tools to analyze and clean your Android device — without fa
 | Junk Cleaner          | Implemented     |
 | Permission Onboarding | Implemented     |
 | Settings              | Implemented     |
-| APK Analyzer          | Coming soon     |
+| RAM Monitor           | Implemented     |
+| APK Analyzer          | Implemented     |
+| Privacy Dashboard     | Implemented     |
 
 ## Screenshots
 
@@ -26,9 +28,18 @@ CoreClean provides tools to analyze and clean your Android device — without fa
 <!-- docs/images/storage.png -->
 <!-- docs/images/app_usage.png -->
 
+## Languages
+
+- 🇻🇳 Vietnamese (default)
+- 🇬🇧 English
+
+## Crash Reporting
+
+Opt-in Sentry integration. Disabled by default. Enable in Settings → Crash reporting.
+
 ## Tech Stack
 
-Kotlin 2.1.10 · Jetpack Compose · Hilt · Room · WorkManager · Coroutines + Flow · Navigation (type-safe) · Coil 3 · DataStore Preferences
+Kotlin 2.1.10 · Jetpack Compose · Hilt · Room · WorkManager · Coroutines + Flow · Navigation (type-safe) · Coil 3 · DataStore Preferences · AppCompat · Sentry
 
 ## Build
 

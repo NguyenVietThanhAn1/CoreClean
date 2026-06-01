@@ -38,6 +38,13 @@ class ContactRepositoryImpl @Inject constructor(
     override suspend fun findIncomplete(): List<Contact> =
         getAllContacts().filter { it.phones.isEmpty() || it.displayName.isBlank() }
 
-    private fun normalizePhone(phone: String): String =
-        phone.filter { it.isDigit() }.takeLast(10)
+    private fun normalizePhone(phone: String): String {
+        val digits = phone.filter { it.isDigit() }
+        // Drop country code prefix: if starts with "84" (Vietnam) or "1" (US) strip it
+        return when {
+            digits.startsWith("84") && digits.length > 10 -> digits.drop(2).takeLast(9)
+            digits.startsWith("1")  && digits.length > 10 -> digits.drop(1).takeLast(10)
+            else -> digits.takeLast(9)
+        }
+    }
 }

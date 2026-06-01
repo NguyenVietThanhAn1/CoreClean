@@ -1,5 +1,57 @@
 # Changelog
 
+## [Sprint 5] - 2026-06-01
+
+### Added
+- RAM Monitor module: reactive 2s-tick flow via `ActivityManager.MemoryInfo`, top-process list
+- APK Analyzer module: `PackageManager` + `StorageStatsManager`, sort/filter/uninstall flow
+- Contacts Merge UI: `MergeContactDialog` + `MergeContactsUseCase` (AggregationException)
+- SAF (Storage Access Framework) support for Junk Cleaner: `OpenDocumentTree` folder picker
+- Privacy Dashboard: permission status, stored data stats, clear history, open app settings
+- Sentry crash reporting: `CrashReporter` interface, `SentryCrashReporter` adapter, opt-in toggle
+- i18n: `values/strings.xml` (Vietnamese default), `values-en/strings.xml` (English)
+- AppCompat locale switcher in Settings via `AppCompatDelegate.setApplicationLocales()`
+- Language selector (System / Vietnamese / English) in Settings
+- Crash reporting toggle in Settings
+- Privacy Dashboard link in Settings
+- `RamRoute`, `AppAnalyzerRoute`, `PrivacyRoute` in navigation
+- `count()` queries added to `ScanResultDao` and `PendingReviewDao`
+- `SAF_FOLDER_URIS`, `APP_LANGUAGE`, `CRASH_REPORTING` keys in `AppPreferenceKeys`
+- `AppLanguage` enum in `AppPreferences`
+- `BuildConfig.SENTRY_DSN` from `local.properties`
+- Signing config in `build.gradle.kts` from `local.properties` (optional, skipped in CI)
+- `gradleLocalProperties` import for reading local.properties
+- AppCompat dependency (`libs.appcompat`)
+- Sentry dependency (`libs.sentry.android`)
+- `MockK Android` + `androidx.test:core` for androidTest
+- ProGuard rules: Kotlin, Serialization, Room, Hilt, Coil, Sentry, WorkManager
+- `docs/i18n.md`: guide for adding new locales
+- `docs/Performance.md`: cold-start target, baseline profile notes, R8 config
+- Tests: `ContactDataSourceTest`, `ContactRepositoryImplTest`, `MergeContactsUseCaseTest`
+- Tests: `MediaScanWorkerInstrumentationTest` (androidTest, `TestListenableWorkerBuilder`)
+- CI matrix `java-version: [17, 21]`; added `release-check` job
+
+### Changed
+- `ContactViewModel`: added `startMerge`, `confirmMerge`, `cancelMerge`, `dismissMergeMessage`
+- `ContactScreen`: merge button in Duplicate tab, `MergeContactDialog` shown inline
+- `SettingsViewModel`: added `setLanguage`, `setCrashReporting`
+- `SettingsScreen`: Language selector, Crash reporting toggle, Privacy Dashboard link
+- `CleanerApp.onCreate`: Sentry init when DSN present
+- `AppPreferences`: new keys + `AppLanguage` enum
+- `HomeScreen`: added RAM Monitor and App Analyzer cards
+- `CleanerNavGraph`: 3 new routes (Ram, AppAnalyzer, Privacy)
+- `ScanResultDao` / `PendingReviewDao`: `count()` query added
+- `.gitignore`: sentry.properties, keystore.properties, baselineprofile/build/
+- `proguard-rules.pro`: comprehensive rules for all major dependencies
+- CI workflow: matrix java versions, release-check job
+
+### Fixed
+- Sprint 4 debt: `AppUsageRepositoryImplTest` gains "user-updated system app" case
+- Sprint 4 debt: contacts tests coverage (DataSource, Repository, MergeUseCase)
+- Sprint 4 debt: `MediaScanWorkerInstrumentationTest` added to androidTest
+
+---
+
 ## [Sprint 4] - 2026-06-01
 
 ### Added

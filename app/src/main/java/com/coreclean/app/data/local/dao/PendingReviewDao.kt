@@ -16,4 +16,7 @@ interface PendingReviewDao {
 
     @Query("DELETE FROM pending_review")
     suspend fun clearAll()
+
+    @Query("SELECT COUNT(*) FROM pending_review")
+    suspend fun count(): Int
 }

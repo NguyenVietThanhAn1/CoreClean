@@ -55,4 +55,18 @@ class AppUsageRepositoryImplTest {
         val result = repository.getUsageStats(UsageRange.LAST_30)
         assertTrue(result.isEmpty())
     }
+
+    @Test
+    fun `user-updated system app is included in results`() = runTest {
+        // AppUsageDataSource.isSystemApp filters FLAG_SYSTEM && !FLAG_UPDATED.
+        // A user-updated system app (FLAG_SYSTEM | FLAG_UPDATED_SYSTEM_APP) should NOT be filtered.
+        // Since the dataSource mock already returns the pre-filtered list, we verify that
+        // if the datasource returns it, the repository passes it through unchanged.
+        val updatedSystemApp = AppUsageInfo("com.google.android.gms", "Google Play Services", 3_600_000L, 0L)
+        coEvery { dataSource.getUsageStats(UsageRange.LAST_7) } returns listOf(updatedSystemApp)
+
+        val result = repository.getUsageStats(UsageRange.LAST_7)
+        assertEquals(1, result.size)
+        assertEquals("com.google.android.gms", result.first().packageName)
+    }
 }

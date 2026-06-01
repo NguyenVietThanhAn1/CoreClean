@@ -18,4 +18,7 @@ interface ScanResultDao {
 
     @Query("DELETE FROM scan_results")
     suspend fun clearAll()
+
+    @Query("SELECT COUNT(*) FROM scan_results")
+    suspend fun count(): Int
 }

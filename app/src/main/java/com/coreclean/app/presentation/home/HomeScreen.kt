@@ -5,10 +5,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.BatteryFull
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Contacts
+import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Storage
@@ -39,6 +41,8 @@ fun HomeScreen(navController: NavController) {
         FeatureItem("App Usage",        "Thong ke su dung",         Icons.Default.BarChart,          true,  AppUsageRoute),
         FeatureItem("Contacts",         "Quan ly danh ba",          Icons.Default.Contacts,          true,  ContactRoute),
         FeatureItem("Junk Cleaner",     "Don dep file rac",         Icons.Default.CleaningServices,  true,  JunkRoute),
+        FeatureItem("RAM Monitor",      "Giam sat bo nho",          Icons.Default.Memory,            true,  RamRoute),
+        FeatureItem("App Analyzer",     "Phan tich ung dung",       Icons.Default.Android,           true,  AppAnalyzerRoute),
     )
 
     Scaffold(

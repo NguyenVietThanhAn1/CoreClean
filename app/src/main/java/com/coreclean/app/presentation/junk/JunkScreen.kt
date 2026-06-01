@@ -2,6 +2,8 @@ package com.coreclean.app.presentation.junk
 
 import android.content.Intent
 import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,8 +29,24 @@ fun JunkScreen(
     onNavigateBack: () -> Unit = {},
     viewModel: JunkViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+    val uiState      by viewModel.uiState.collectAsStateWithLifecycle()
+    val safFolders   by viewModel.safFolderUris.collectAsStateWithLifecycle()
+    val context      = LocalContext.current
+
+    val folderPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        if (uri != null) {
+            // Persist permission across reboots
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+            }
+            viewModel.addSafFolder(uri)
+        }
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets.safeDrawing,
@@ -45,7 +63,12 @@ fun JunkScreen(
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             when (val state = uiState) {
-                is JunkUiState.Idle -> IdleContent(onScan = viewModel::scan)
+                is JunkUiState.Idle -> IdleContent(
+                    onScan       = viewModel::scan,
+                    safFolders   = safFolders,
+                    onPickFolder = { folderPicker.launch(null) },
+                    onRemoveFolder = viewModel::removeSafFolder
+                )
 
                 is JunkUiState.Scanning -> Box(
                     Modifier.fillMaxSize(), contentAlignment = Alignment.Center
@@ -129,13 +152,53 @@ fun JunkScreen(
 }
 
 @Composable
-private fun IdleContent(onScan: () -> Unit) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Icon(Icons.Default.CleaningServices, contentDescription = null,
-                modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.primary)
-            Text("Quet de tim file rac", style = MaterialTheme.typography.titleMedium)
-            Button(onClick = onScan) { Text("Bat dau quet") }
+private fun IdleContent(
+    onScan: () -> Unit,
+    safFolders: Set<String> = emptySet(),
+    onPickFolder: () -> Unit = {},
+    onRemoveFolder: (String) -> Unit = {}
+) {
+    Column(
+        modifier            = Modifier.fillMaxSize().padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // SAF folder section
+        Text("Thu muc da chon de quet", style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold)
+        if (safFolders.isEmpty()) {
+            Text("Chua chon thu muc nao. Nhan \"Chon thu muc\" de bat dau.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        } else {
+            safFolders.forEach { uriStr ->
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(uriStr.substringAfterLast('%').take(40),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.weight(1f))
+                    IconButton(onClick = { onRemoveFolder(uriStr) }) {
+                        Icon(Icons.Default.Close, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error)
+                    }
+                }
+            }
+        }
+        OutlinedButton(onClick = onPickFolder, modifier = Modifier.fillMaxWidth()) {
+            Text("Chon thu muc de quet")
+        }
+
+        HorizontalDivider()
+
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Icon(Icons.Default.CleaningServices, contentDescription = null,
+                    modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.primary)
+                Text("Quet de tim file rac", style = MaterialTheme.typography.titleMedium)
+                Button(onClick = onScan) { Text("Bat dau quet") }
+            }
         }
     }
 }
