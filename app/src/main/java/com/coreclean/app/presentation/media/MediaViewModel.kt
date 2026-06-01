@@ -1,4 +1,4 @@
-package com.coreclean.app.ui.media
+package com.coreclean.app.presentation.media
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,4 +1,4 @@
-package com.coreclean.app.ui.media
+package com.coreclean.app.presentation.media
 
 import app.cash.turbine.test
 import com.coreclean.app.MainDispatcherRule

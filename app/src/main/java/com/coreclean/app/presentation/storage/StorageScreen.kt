@@ -32,7 +32,7 @@ import com.coreclean.app.domain.model.MediaImage
 import com.coreclean.app.domain.model.StorageCategory
 import com.coreclean.app.domain.model.StorageInfo
 import com.coreclean.app.presentation.navigation.ReviewRoute
-import com.coreclean.app.ui.media.toReadableSize
+import com.coreclean.app.presentation.media.toReadableSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,10 +47,10 @@ fun StorageScreen(
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
-                title = { Text("Storage Analyzer", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.storage_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lai")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
                     }
                 }
             )
@@ -118,13 +118,13 @@ private fun StorageContent(
         Card(modifier = Modifier.fillMaxWidth()) {
             Row(modifier = Modifier.fillMaxWidth().padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly) {
-                StorageStat("Da dung", info.usedBytes.toReadableSize())
-                StorageStat("Trong",   info.freeBytes.toReadableSize())
-                StorageStat("Tong",    info.totalBytes.toReadableSize())
+                StorageStat(stringResource(R.string.storage_used), info.usedBytes.toReadableSize())
+                StorageStat(stringResource(R.string.storage_free), info.freeBytes.toReadableSize())
+                StorageStat(stringResource(R.string.storage_total), info.totalBytes.toReadableSize())
             }
         }
 
-        Text("Chi tiet theo danh muc",
+        Text(stringResource(R.string.storage_breakdown),
             style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
 
         info.breakdown.filter { it.sizeBytes > 0 }.forEach { cat ->
@@ -135,7 +135,7 @@ private fun StorageContent(
         if (largeFiles.isNotEmpty()) {
             var selectedIds by remember { mutableStateOf(emptySet<Long>()) }
 
-            Text("File lon (> 50 MB)",
+            Text(stringResource(R.string.storage_large_files),
                 style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
 
             largeFiles.take(20).forEach { file ->
@@ -163,12 +163,12 @@ private fun StorageContent(
                         onNavigateToReview(ReviewRoute("storage", selectedIds.toList()))
                     },
                     modifier = Modifier.fillMaxWidth()
-                ) { Text("Xoa ${selectedIds.size} file da chon") }
+                ) { Text(stringResource(R.string.storage_delete_selected, selectedIds.size)) }
             }
         }
 
         Button(onClick = onRefresh, modifier = Modifier.fillMaxWidth()) {
-            Text("Lam moi")
+            Text(stringResource(R.string.storage_refresh))
         }
         Spacer(Modifier.height(8.dp))
     }

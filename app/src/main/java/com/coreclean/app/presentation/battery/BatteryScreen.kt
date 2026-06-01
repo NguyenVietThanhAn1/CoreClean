@@ -40,10 +40,10 @@ fun BatteryScreen(
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
-                title = { Text("Battery Monitor", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.battery_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lai")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
                     }
                 }
             )
@@ -101,7 +101,7 @@ private fun BatteryContent(
                     color      = batteryColor(info.levelPercent)
                 )
                 Text(
-                    text  = if (info.isCharging) "Dang sac" else "Khong sac",
+                    text  = if (info.isCharging) stringResource(R.string.battery_charging) else stringResource(R.string.battery_not_charging),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -109,13 +109,19 @@ private fun BatteryContent(
         }
 
         // Info cards in 2-column grid
+        val healthLabel = stringResource(R.string.battery_label_health)
+        val tempLabel   = stringResource(R.string.battery_label_temp)
+        val voltLabel   = stringResource(R.string.battery_label_voltage)
+        val techLabel   = stringResource(R.string.battery_label_tech)
+        val plugLabel   = stringResource(R.string.battery_label_charge_plug)
+        val remLabel    = stringResource(R.string.battery_label_remaining)
         val cards = listOf(
-            "Suc khoe"      to info.healthLabel,
-            "Nhiet do"      to "${info.temperatureC} oC",
-            "Dien ap"       to "${info.voltageMv} mV",
-            "Cong nghe"     to info.technology,
-            "Nguon sac"     to info.chargePlug,
-            "Con lai (uoc)" to if (info.chargeCounterMah > 0) "${info.chargeCounterMah} mAh" else "N/A"
+            healthLabel to info.healthLabel,
+            tempLabel   to "${info.temperatureC} oC",
+            voltLabel   to "${info.voltageMv} mV",
+            techLabel   to info.technology,
+            plugLabel   to info.chargePlug,
+            remLabel    to if (info.chargeCounterMah > 0) "${info.chargeCounterMah} mAh" else "N/A"
         )
 
         cards.chunked(2).forEach { row ->
