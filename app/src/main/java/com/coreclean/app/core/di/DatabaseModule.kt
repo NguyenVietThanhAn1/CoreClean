@@ -6,6 +6,8 @@ import com.coreclean.app.data.local.AppDatabase
 import com.coreclean.app.data.local.dao.BatteryHistoryDao
 import com.coreclean.app.data.local.dao.PendingReviewDao
 import com.coreclean.app.data.local.dao.ScanResultDao
+import com.coreclean.app.data.local.migration.MIGRATION_1_2
+import com.coreclean.app.data.local.migration.MIGRATION_2_3
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,7 +22,7 @@ object DatabaseModule {
     @Provides @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, "coreclean.db")
-            .fallbackToDestructiveMigration()
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             .build()
 
     @Provides @Singleton

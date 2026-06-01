@@ -9,6 +9,7 @@ object AppPreferenceKeys {
     val ONBOARDING_DONE          = booleanPreferencesKey("onboarding_done")
     val THEME_MODE               = stringPreferencesKey("theme_mode")    // SYSTEM | LIGHT | DARK
     val DYNAMIC_COLOR            = booleanPreferencesKey("dynamic_color")
+    val AMOLED_ENABLED           = booleanPreferencesKey("amoled_enabled")
     val BACKGROUND_SCAN          = booleanPreferencesKey("background_scan")
     val SCAN_INTERVAL_HOURS      = intPreferencesKey("scan_interval_hours")
     val SAF_FOLDER_URIS          = stringSetPreferencesKey("saf_folder_uris")
