@@ -1,6 +1,7 @@
 # CoreClean
 
 ![Android CI](https://github.com/NguyenVietThanhAn1/CoreClean/actions/workflows/android-ci.yml/badge.svg)
+[![codecov](https://codecov.io/gh/NguyenVietThanhAn1/CoreClean/branch/master/graph/badge.svg)](https://codecov.io/gh/NguyenVietThanhAn1/CoreClean)
 
 A modern Android device cleaner app built with Clean Architecture, Jetpack Compose, and Kotlin.
 
@@ -21,6 +22,10 @@ CoreClean provides tools to analyze and clean your Android device — without fa
 | RAM Monitor           | Implemented     |
 | APK Analyzer          | Implemented     |
 | Privacy Dashboard     | Implemented     |
+| Smart Suggestions     | Implemented     |
+| Auto-cleaning         | Implemented     |
+| Battery Prediction    | Implemented     |
+| Accessibility (A11y)  | Implemented     |
 
 ## Screenshots
 
@@ -51,9 +56,28 @@ Kotlin 2.1.10 · Jetpack Compose · Hilt · Room · WorkManager · Coroutines + 
 
 ## Docs
 
-- [Architecture](docs/Architecture.md)
+**Start here:**
+- [Architecture](docs/Architecture.md) — layering, module folders, key flows
+- [Contributing](docs/Contributing.md) — commit convention, branch naming, PR checklist
+- [AI Context](docs/AI%20Context.md) — context for LLM coding assistants
+
+**Product:**
 - [Development Roadmap](docs/DevelopmentRoadmap.md)
-- [Known Issues](docs/knownIssues.md)
-- [Contributing](docs/Contributing.md)
-- [Permissions](docs/Permissions.md)
 - [Planned Features](docs/PlannedFeatures.md)
+- [Known Issues](docs/knownIssues.md)
+- [Anti-Patterns](docs/AntiPatterns.md) — what we never do (scareware, fake numbers, …)
+- [UX Guidelines](docs/UX_Guidelines.md)
+
+**Security & privacy:**
+- [Privacy Policy](docs/PrivacyPolicy.md)
+- [Permissions](docs/Permissions.md)
+- [Security](docs/Security.md) — threat model
+- [Telemetry](docs/Telemetry.md)
+
+**Engineering:**
+- [Testing](docs/Testing.md)
+- [Performance](docs/Performance.md)
+- [Release](docs/Release.md)
+- [i18n](docs/i18n.md)
+- [Supported Devices](docs/SupportedDevices.md)
+- [Changelog](CHANGELOG.md)
