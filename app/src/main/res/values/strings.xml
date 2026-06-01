@@ -228,9 +228,6 @@
     <string name="media_group_header">Nhom %1$d · %2$d anh · %3$s moi anh</string>
     <string name="media_image_count">%1$d anh</string>
 
-    <!-- Settings AMOLED -->
-    <string name="settings_amoled_black">Su dung nen den (AMOLED)</string>
-
     <!-- Content descriptions (A11y) -->
     <string name="cd_settings">Mo cai dat</string>
     <string name="cd_back">Quay lai</string>

@@ -15,8 +15,8 @@ class PerceptualHasherTest {
 
     @Test
     fun `completely different hashes have large hamming distance`() {
-        val a = 0x0000000000000000L
-        val b = 0xFFFFFFFFFFFFFFFFL
+        val a = 0L           // all bits 0
+        val b = -1L          // all bits 1 (0xFFFFFFFFFFFFFFFF in two's complement)
         assertTrue(hasher.hammingDistance(a, b) == 64)
     }
 
@@ -29,8 +29,9 @@ class PerceptualHasherTest {
 
     @Test
     fun `very different hashes have large hamming distance`() {
-        val a = 0x0F0F0F0F0F0F0F0FL
-        val b = 0xF0F0F0F0F0F0F0F0L
+        // 0x0F0F... (all low nibbles set) vs Long.MIN_VALUE (MSB set) + MAX (all other bits set)
+        val a = 0L              // 0 bits set
+        val b = Long.MAX_VALUE  // 63 bits set → 63 > 16
         assertTrue(hasher.hammingDistance(a, b) > 16)
     }
 }

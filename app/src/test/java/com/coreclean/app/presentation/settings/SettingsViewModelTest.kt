@@ -4,11 +4,12 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.work.WorkManager
-import app.cash.turbine.test
 import com.coreclean.app.MainDispatcherRule
 import com.coreclean.app.core.preferences.ThemeMode
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -46,43 +47,54 @@ class SettingsViewModelTest {
 
     @Test
     fun `default state has SYSTEM theme`() = runTest(mainDispatcherRule.testScheduler) {
-        viewModel.state.test {
-            val initial = awaitItem()
-            assertEquals(ThemeMode.SYSTEM, initial.themeMode)
-            cancelAndIgnoreRemainingEvents()
-        }
+        // Subscribe to activate the WhileSubscribed flow, then wait for initial emission
+        val sub = launch { viewModel.state.collect {} }
+        advanceUntilIdle()
+        assertEquals(ThemeMode.SYSTEM, viewModel.state.value.themeMode)
+        sub.cancel()
     }
 
     @Test
     fun `setThemeMode persists DARK theme`() = runTest(mainDispatcherRule.testScheduler) {
-        viewModel.state.test {
-            awaitItem() // initial
-            viewModel.setThemeMode(ThemeMode.DARK)
-            val updated = awaitItem()
-            assertEquals(ThemeMode.DARK, updated.themeMode)
-            cancelAndIgnoreRemainingEvents()
-        }
+        // Subscribe to keep the stateIn flow active
+        val sub = launch { viewModel.state.collect {} }
+        advanceUntilIdle() // settle initial state
+
+        viewModel.setThemeMode(ThemeMode.DARK)
+        advanceUntilIdle() // let the DataStore edit + flow re-emit
+        // Give real-thread IO a moment to flush (DataStore uses Dispatchers.IO internally)
+        kotlinx.coroutines.delay(100)
+        advanceUntilIdle()
+
+        assertEquals(ThemeMode.DARK, viewModel.state.value.themeMode)
+        sub.cancel()
     }
 
     @Test
     fun `setDynamicColor persists false`() = runTest(mainDispatcherRule.testScheduler) {
-        viewModel.state.test {
-            awaitItem() // initial
-            viewModel.setDynamicColor(false)
-            val updated = awaitItem()
-            assertFalse(updated.dynamicColor)
-            cancelAndIgnoreRemainingEvents()
-        }
+        val sub = launch { viewModel.state.collect {} }
+        advanceUntilIdle()
+
+        viewModel.setDynamicColor(false)
+        advanceUntilIdle()
+        kotlinx.coroutines.delay(100)
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.value.dynamicColor)
+        sub.cancel()
     }
 
     @Test
     fun `setBackgroundScan to false disables scan`() = runTest(mainDispatcherRule.testScheduler) {
-        viewModel.state.test {
-            awaitItem() // initial
-            viewModel.setBackgroundScan(false)
-            val updated = awaitItem()
-            assertFalse(updated.backgroundScan)
-            cancelAndIgnoreRemainingEvents()
-        }
+        val sub = launch { viewModel.state.collect {} }
+        advanceUntilIdle()
+
+        viewModel.setBackgroundScan(false)
+        advanceUntilIdle()
+        kotlinx.coroutines.delay(100)
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.value.backgroundScan)
+        sub.cancel()
     }
 }

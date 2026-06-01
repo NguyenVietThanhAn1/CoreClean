@@ -21,7 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.coreclean.app.R
 import com.coreclean.app.domain.model.InstalledApp
-import com.coreclean.app.ui.media.toReadableSize
+import com.coreclean.app.presentation.media.toReadableSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -204,9 +204,6 @@
     <string name="media_group_header">Group %1$d · %2$d photos · %3$s each</string>
     <string name="media_image_count">%1$d photos</string>
 
-    <!-- Settings AMOLED -->
-    <string name="settings_amoled_black">Use black background (AMOLED)</string>
-
     <!-- Content descriptions (A11y) -->
     <string name="cd_settings">Open settings</string>
     <string name="cd_back">Go back</string>

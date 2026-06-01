@@ -40,7 +40,8 @@ class HomeViewModelTest {
             totalBytes = 0L, freeBytes = 0L, usedBytes = 0L, breakdown = emptyList()
         )
         coEvery { mediaRepository.findDuplicates(any()) } returns emptyList()
-        coEvery { generateSuggestions.invoke(any(), any(), any()) } returns emptyList()
+        // GenerateSuggestionsUseCase.invoke has 6 parameters (all have defaults)
+        every { generateSuggestions.invoke(any(), any(), any(), any(), any(), any()) } returns emptyList()
 
         val viewModel = createViewModel()
         advanceUntilIdle()
@@ -64,7 +65,7 @@ class HomeViewModelTest {
             breakdown  = emptyList()
         )
         coEvery { mediaRepository.findDuplicates(any()) } returns emptyList()
-        coEvery { generateSuggestions.invoke(any(), any(), any()) } returns expectedSuggestions
+        every { generateSuggestions.invoke(any(), any(), any(), any(), any(), any()) } returns expectedSuggestions
 
         val viewModel = createViewModel()
         advanceUntilIdle()
