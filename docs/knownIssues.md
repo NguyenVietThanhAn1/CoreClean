@@ -1,9 +1,18 @@
 # Known Issues
 
-- Xoá ảnh trên Android 11+ chưa dùng `MediaStore.createDeleteRequest()` — legacy path sẽ bị từ chối
-- Duplicate detection chỉ dựa size+tên, chưa có content hash
-- Permission denied không có flow recovery — app kẹt ở màn hình trắng
-- Edge-to-edge bật nhưng chưa xử lý WindowInsets — nội dung bị che bởi system bars
-- Room schema khai báo nhưng chưa dùng — ScanResultDao chưa được inject ở đâu
-- Chưa có unit test / instrumentation test
-- Chưa có Worker nào dù đã setup HiltWorkerFactory
+## Active
+
+- Storage breakdown chua cover Document / Downloads / WhatsApp (chi co Images/Video/Audio/Apps/Other)
+- Battery temperature co the sai tren mot so OEM (Xiaomi/Huawei bao x10 nen phai chia 10)
+- MediaScanWorker chua co instrumentation test thuc dia (chi co unit test voi Robolectric)
+- App size trong Storage Analyzer yeu cau quyen PACKAGE_USAGE_STATS; neu chua cap thi bao 0
+
+## Fixed in Sprint 2/3
+
+- ~~Xoa anh tren Android 11+ chua dung MediaStore.createDeleteRequest~~ - Da fix Sprint 2
+- ~~Duplicate detection chi dua size+ten, chua co content hash~~ - Da fix Sprint 2 (MD5 256KB)
+- ~~Permission denied khong co flow recovery~~ - Da fix Sprint 2
+- ~~Edge-to-edge bat nhung chua xu ly WindowInsets~~ - Da fix Sprint 2 (safeDrawing)
+- ~~Room schema khai bao nhung chua dung~~ - Da dung Sprint 2 (ScanResultDao) + Sprint 3 (PendingReview)
+- ~~Chua co unit test~~ - Da them Sprint 2/3
+- ~~SelectedImagesHolder - khong survive process death~~ - Da xoa Sprint 3; dung SavedStateHandle + Room

@@ -1,49 +1,48 @@
 # CoreClean - Android Cleaner App
 
-## Tổng quan dự án
-**CoreClean** là một ứng dụng hỗ trợ tối ưu hóa thiết bị Android, được xây dựng với mục tiêu cung cấp các công cụ dọn dẹp và quản lý hệ thống hiệu quả, bảo mật và hiện đại.
+## Tong quan du an
+**CoreClean** la mot ung dung ho tro toi uu hoa thiet bi Android, duoc xay dung voi muc tieu
+cung cap cac cong cu don dep va quan ly he thong hieu qua, bao mat va hien dai.
 
 - **Package Name:** `com.coreclean.app`
-- **Kiến trúc:** Clean Architecture (Domain, Data, Presentation layers)
+- **Kien truc:** Clean Architecture (Domain, Data, Presentation layers)
 - **UI Framework:** Jetpack Compose (Modern UI)
 
-> **Trạng thái Sprint 2 (tháng 6/2026):**
-> Chỉ **Media Scanner** đã được implement đầy đủ.
-> Các module **Storage Analyzer**, **Battery Monitor**, **App Usage** và **Contacts** hiện là stub — chưa có logic thực.
+## Trang thai module (Sprint 3 - thang 6/2026)
 
-## Công nghệ sử dụng (Tech Stack)
-- **Kotlin 2.1.10**: Ngôn ngữ lập trình chính.
-- **Jetpack Compose**: Xây dựng giao diện người dùng khai báo.
-- **Hilt (Dependency Injection)**: Quản lý các thành phần và phụ thuộc.
-- **Room Database**: Lưu trữ dữ liệu cục bộ (SQLite).
-- **Coroutines & Flow**: Xử lý các tác vụ bất đồng bộ và luồng dữ liệu.
-- **Navigation Compose (Type-safe)**: Điều hướng giữa các màn hình bằng Kotlin Serialization.
-- **Coil 3**: Tải và hiển thị hình ảnh tối ưu.
-- **WorkManager**: Thực hiện các tác vụ quét hoặc dọn dẹp định kỳ dưới nền.
+| Module            | Trang thai          | Ghi chu                        |
+|-------------------|---------------------|--------------------------------|
+| Media Scanner     | Implemented         | Scan, dedup (MD5), SafetyReview, Worker |
+| Storage Analyzer  | Implemented (basic) | StatFs + MediaStore breakdown  |
+| Battery Monitor   | Implemented (basic) | BroadcastReceiver reactive Flow |
+| App Usage         | Stub                | Sprint 4                       |
+| Contacts          | Stub                | Sprint 4                       |
 
-## Các tính năng chính
-1. **Media Scanner (Dọn dẹp ảnh/video):** ✅ Implemented
-   - Quét toàn bộ thư viện ảnh.
-   - Phát hiện ảnh trùng lặp dựa trên content hash (MD5 256KB đầu).
-   - Hỗ trợ xóa ảnh qua Safety Review screen (Android 11+ dùng createDeleteRequest).
-2. **App Usage (Quản lý ứng dụng):** 🔲 Stub — chưa implement.
-3. **Battery Monitor (Giám sát pin):** 🔲 Stub — chưa implement.
-4. **Storage Manager (Quản lý bộ nhớ):** 🔲 Stub — chưa implement.
+## Cong nghe su dung (Tech Stack)
+- **Kotlin 2.1.10**, **Jetpack Compose**, **Hilt**, **Room 2**, **Coroutines & Flow**
+- **Navigation Compose (Type-safe)** voi Kotlin Serialization
+- **Coil 3**, **WorkManager**, **Material Icons Extended**
 
-## Cấu trúc dự án
-- `app/src/main/java/com/coreclean/app/core/`: Chứa các thành phần dùng chung (DI, Utils, Extensions).
-- `app/src/main/java/com/coreclean/app/data/`: Thực thi Repository và DataSources (Local DB, Worker).
-- `app/src/main/java/com/coreclean/app/domain/`: Chứa Business Logic (UseCases, Interfaces, Models).
-- `app/src/main/java/com/coreclean/app/presentation/`: Chứa UI code, ViewModels và Navigation.
-- `app/src/main/java/com/coreclean/app/ui/`: Các màn hình chức năng cụ thể (ví dụ: `MediaScreen`).
+## Cau truc du an
+```
+app/src/main/java/com/coreclean/app/
+  core/di/        # Hilt modules (App, Database, Media, Storage, Battery)
+  data/           # Repository impls, DataSources, Room entities/DAOs, Worker
+  domain/         # Models (MediaImage, StorageInfo, BatteryInfo), Repositories, UseCases
+  presentation/   # Screens + ViewModels (home, storage, battery, review, theme)
+  ui/media/       # MediaScreen + MediaViewModel
+```
 
-## Hướng dẫn cài đặt & Build
-1. **Yêu cầu:** Android Studio Koala trở lên, JDK 17+.
-2. **Gradle Sync:** Đảm bảo sử dụng Gradle 8.10+ và AGP 8.8.2.
-3. **Build:** Chạy lệnh `./gradlew assembleDebug` để tạo file APK.
-4. **Permissions:** Ứng dụng yêu cầu các quyền:
-   - `READ_EXTERNAL_STORAGE` (hoặc `READ_MEDIA_IMAGES` trên Android 13+).
-   - `PACKAGE_USAGE_STATS` (Cần người dùng cấp quyền thủ công trong Cài đặt).
+## Huong dan cai dat & Build
+1. **Yeu cau:** Android Studio Hedgehog+, JDK 17+
+2. **Build:** `./gradlew assembleDebug`
+3. **Test:** `./gradlew testDebugUnitTest`
+
+## Sprint History
+- **Sprint 1 (init):** Project scaffold, Hilt + Room + WorkManager setup
+- **Sprint 2:** Media Scanner full (SafetyReview Android 11+, content-hash dedup, Worker scan)
+- **Sprint 3:** Storage Analyzer (basic), Battery Monitor (reactive), HomeScreen dashboard,
+  SelectedImagesHolder removed (SavedStateHandle + Room pending_review fallback)
 
 ---
-*Ghi chú: Dự án đã được tối ưu hóa cấu trúc package và giải quyết các lỗi build cơ bản vào tháng 4/2026.*
+*Cap nhat: thang 6/2026*

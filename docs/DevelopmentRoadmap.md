@@ -2,11 +2,11 @@
 
 ### Phase 1 - Core Features
 - [x] Media scanner
-- [ ] Storage analyzer
-- [ ] Battery information
-- [x] Duplicate image detection optimization
-- [x] Background scanning service
-- [ ] Cache cleaner
+- [x] Storage analyzer (basic - StatFs + MediaStore)
+- [x] Battery information (reactive Flow)
+- [x] Duplicate image detection (MD5 content hash)
+- [x] Background scanning service (WorkManager 12h periodic)
+- [ ] Cache cleaner (Sprint 4)
 
 ### Phase 2 - Performance Optimization
 - [ ] RAM usage monitor
@@ -24,7 +24,7 @@
 - [ ] Notification recommendations
 
 ### Phase 4 - UX & Security
-- [ ] Material 3 redesign
+- [ ] Material 3 redesign polish
 - [ ] Permission onboarding flow
 - [ ] Accessibility support
 - [ ] Privacy dashboard
