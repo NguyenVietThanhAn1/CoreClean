@@ -1,34 +1,23 @@
 ## Planned Features
 
-### Implemented (Sprint 1-4)
-- [x] Media scanner with duplicate detection (content hash MD5)
-- [x] Safety delete flow with Android 11+ MediaStore.createDeleteRequest
-- [x] Background media scan Worker (12h periodic, BATTERY_NOT_LOW)
-- [x] Storage Analyzer: StatFs + MediaStore breakdown donut chart
-- [x] Battery Monitor: reactive Flow, Canvas level indicator
-- [x] HomeScreen dashboard with module cards
-- [x] App Usage statistics (UsageStatsManager, 7d/30d range)
-- [x] Contacts cleanup — detect duplicate + incomplete (lite)
-- [x] Junk Cleaner: TEMP/APK/Empty folder scan + APP_CACHE guide
-- [x] Large file detection (>50 MB, MediaStore)
-- [x] Permission Onboarding flow (DataStore-backed, 3-step)
-- [x] Settings: Theme / Dynamic Color / Background scan schedule
-- [x] CI pipeline: GitHub Actions android-ci.yml
+> Đã làm: xem [`note.md`](note.md) (module status) và [`../CHANGELOG.md`](../CHANGELOG.md).
+> File này chỉ list các tính năng **chưa làm** — tránh trùng lặp với roadmap.
 
-### File Optimization (Sprint 5)
-- [ ] Download folder cleaner (SAF)
-- [ ] APK extractor / bulk uninstall
-- [ ] Junk scanner expanded (SAF external storage)
+### Phase 3 — Smart Features (chưa làm)
+- [ ] AI-based duplicate image detection (perceptual hash / on-device ML Kit)
+- [ ] Smart cleaning suggestions (gợi ý dọn dựa theo pattern usage)
+- [ ] Battery usage prediction (thời gian còn lại ước tính)
+- [ ] Scheduled auto-cleaning (cron-like cấu hình)
+- [ ] Notification recommendations (khi storage < 10% hoặc duplicate > 1 GB)
 
-### RAM & System (Sprint 5)
-- [ ] Background app monitor
-- [ ] Memory usage stats (RAM monitor)
+### Phase 4 — UX & Security (chưa làm)
+- [ ] Material 3 redesign polish (expressive motion, large screens)
+- [ ] Accessibility support (TalkBack, contrast, font scaling)
+- [ ] Dark mode optimization (true black, AMOLED-friendly)
+- [ ] Tablet & foldable layouts (window size class)
 
-### App Management (Sprint 5)
-- [ ] Contacts merge UI (full delete/merge flow)
-- [ ] APK Analyzer
-
-### Battery (Future)
-- [ ] Battery drain analysis
-- [ ] Charging prediction
-- [ ] OEM quirk detection
+### Out of scope (đã quyết không làm)
+- Phantom RAM booster (xoá process — vô nghĩa với Android 8+)
+- "1-tap fix" buttons không có hành động thực
+- Antivirus / malware scanner (không đủ uy tín, đẩy người dùng sang Play Protect)
+- Battery saver "advanced" (Android Doze đã đủ; thêm chỉ gây xung đột)

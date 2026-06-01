@@ -18,14 +18,14 @@
 
 ### Phase 3 - Smart Features
 - [ ] AI-based duplicate image detection
-- [ ] Smart cleaning suggestions
-- [ ] Battery usage prediction
-- [ ] Scheduled auto-cleaning
-- [ ] Notification recommendations
+- [x] Smart cleaning suggestions (Sprint 6 — rule-based, 5 rules)
+- [x] Battery usage prediction (Sprint 6 — linear regression, 24 h window)
+- [x] Scheduled auto-cleaning (Sprint 6 — AutoCleanWorker, safe categories only)
+- [x] Notification recommendations (Sprint 6 — rate-limited, opt-in)
 
 ### Phase 4 - UX & Security
-- [ ] Material 3 redesign polish
+- [x] Material 3 redesign polish (Sprint 6 — WindowSizeClass, tablet layout)
 - [x] Permission onboarding flow (Sprint 4)
-- [ ] Accessibility support
-- [x] Privacy dashboard (Sprint 5)
+- [x] Accessibility support (Sprint 6 — TalkBack, Canvas semantics, cd_* strings)
+- [x] Privacy dashboard (Sprint 5 + Sprint 6 — battery history, privacy policy link)
 - [ ] Dark mode optimization

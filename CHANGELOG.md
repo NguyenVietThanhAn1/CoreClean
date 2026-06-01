@@ -1,5 +1,41 @@
 # Changelog
 
+## [Sprint 6] - 2026-06-01
+
+### Added
+- **Smart Cleaning Suggestions**: `GenerateSuggestionsUseCase` with 5 rule-based suggestions (duplicates, unused apps, oversized downloads, stale screenshots, low storage); displayed as LazyRow on HomeScreen
+- **Scheduled Auto-Cleaning**: `AutoCleanWorker` + `ScheduleConfig` data class; safe categories only (TEMP_FILES, EMPTY_FOLDERS, RESIDUAL_APK); Settings section with frequency picker + category multi-select
+- **Notification Recommendations**: `RecommendationNotifier` with 7-day rate limit; triggers on <5% storage or >2 GB duplicate detection; `recommendations` notification channel; opt-out toggle in Settings
+- **Battery Usage Prediction**: `BatteryHistoryEntity` + `BatteryHistoryDao`; `BatteryHistoryRecorder` periodic worker (15 min); `PredictBatteryRemainingUseCase` (linear regression, 24 h window, ≥4 samples); prediction card on BatteryScreen with "ước tính" disclaimer
+- **Baseline Profile**: `:baselineprofile` module with `BaselineProfileGenerator` (UiAutomator cold-start → Home → Media Scanner flow); `baseline-prof.txt` committed
+- **Accessibility (A11y)**: All informative icons now have `contentDescription`; Canvas composables (BatteryCircle, StorageDonutChart) wrapped in `semantics { contentDescription }`; `cd_*` strings in `strings.xml`
+- **Tablet/Foldable**: `WindowSizeClass` passed from `MainActivity` → `CoreCleanApp` → `HomeScreen`; compact=2 columns, medium/expanded=3 columns
+- **Dependabot**: `.github/dependabot.yml` for Gradle (weekly) + GitHub Actions (monthly)
+- **JaCoCo coverage**: `jacocoTestReport` task in `app/build.gradle.kts`; Codecov upload in CI
+- **Privacy Dashboard**: "Clear battery history" button; privacy policy link (GitHub raw URL)
+- `BatteryHistoryDao.count()` for privacy data display
+- `SCHEDULE_CONFIG_JSON`, `RECOMMENDATIONS_ENABLED`, `NOTIF_LAST_*` keys in `AppPreferenceKeys`
+- `ScheduleConfig` + `Frequency` domain models (kotlinx.serialization)
+- `HomeViewModel` to load suggestions on home screen
+- `material3-window-size-class` + `profileinstaller` dependencies
+
+### Changed
+- `AppDatabase` bumped to version 3 (adds `battery_history` table; `fallbackToDestructiveMigration`)
+- `BatteryViewModel` now injects `PredictBatteryRemainingUseCase` and exposes `prediction` StateFlow
+- `SettingsState` + `SettingsViewModel` extended with `scheduleConfig` + `recommendationsEnabled`
+- `CoreCleanApp` + `CleanerNavGraph` accept `WindowSizeClass?` parameter
+- `PrivacyViewModel` + `PrivacyDashboardScreen` include battery history count + clear action
+- `BatteryDataSource` gains `getBatteryInfo()` one-shot snapshot method
+- `HomeScreen` uses string resources for all text (was hardcoded)
+- `SettingsScreen` uses string resources throughout
+
+### Fixed
+- Removed `ExampleInstrumentedTest.kt` (wrong package, wrong app ID)
+- `app/lint-baseline.xml` created and configured in `lint { baseline = ... }`
+
+### Removed
+- `ExampleInstrumentedTest.kt` + empty `com.example.coreclean` directory
+
 ## [Sprint 5] - 2026-06-01
 
 ### Added
