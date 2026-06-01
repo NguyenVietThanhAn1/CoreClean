@@ -37,7 +37,7 @@ fun CoreCleanApp(
 
     val resolved = onboardingDone ?: return
 
-    CoreCleanTheme(darkTheme = darkTheme, dynamicColor = settings.dynamicColor) {
+    CoreCleanTheme(darkTheme = darkTheme, dynamicColor = settings.dynamicColor, oledBlack = settings.amoledEnabled) {
         val navController    = rememberNavController()
         val startDestination = if (resolved) HomeRoute else OnboardingRoute
         CleanerNavGraph(

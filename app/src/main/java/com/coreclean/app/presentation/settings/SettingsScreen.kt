@@ -2,6 +2,7 @@ package com.coreclean.app.presentation.settings
 
 import android.os.Build
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -92,6 +93,15 @@ fun SettingsScreen(
                     title           = stringResource(R.string.settings_dynamic_color),
                     checked         = state.dynamicColor,
                     onCheckedChange = viewModel::setDynamicColor
+                )
+            }
+
+            if (state.themeMode == ThemeMode.DARK ||
+                (state.themeMode == ThemeMode.SYSTEM && isSystemInDarkTheme())) {
+                SettingsToggleRow(
+                    title           = stringResource(R.string.settings_amoled_black),
+                    checked         = state.amoledEnabled,
+                    onCheckedChange = viewModel::setAmoledEnabled
                 )
             }
 

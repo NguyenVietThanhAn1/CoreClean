@@ -115,6 +115,7 @@
     <string name="settings_theme_light">Sang</string>
     <string name="settings_theme_dark">Toi</string>
     <string name="settings_dynamic_color">Mau dong (Material You)</string>
+    <string name="settings_amoled_black">Nen den tuyet doi (AMOLED)</string>
     <string name="settings_section_scan">Quet nen</string>
     <string name="settings_bg_scan">Bat quet nen</string>
     <string name="settings_scan_now">Quet ngay bay gio</string>

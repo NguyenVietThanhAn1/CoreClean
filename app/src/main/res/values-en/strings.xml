@@ -114,6 +114,7 @@
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_dynamic_color">Dynamic color (Material You)</string>
+    <string name="settings_amoled_black">Pure black background (AMOLED)</string>
     <string name="settings_section_scan">Background scan</string>
     <string name="settings_bg_scan">Enable background scan</string>
     <string name="settings_scan_now">Scan now</string>

@@ -2,6 +2,7 @@ package com.coreclean.app.domain.model
 
 import kotlinx.serialization.Serializable
 
+@Serializable
 enum class Frequency { DAILY, WEEKLY, MONTHLY }
 
 @Serializable

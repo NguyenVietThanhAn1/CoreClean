@@ -33,6 +33,7 @@ import javax.inject.Inject
 data class SettingsState(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val dynamicColor: Boolean = true,
+    val amoledEnabled: Boolean = false,
     val backgroundScan: Boolean = true,
     val scanIntervalHours: Int = 12,
     val language: AppLanguage = AppLanguage.SYSTEM,
@@ -56,6 +57,7 @@ class SettingsViewModel @Inject constructor(
         SettingsState(
             themeMode               = ThemeMode.valueOf(prefs[AppPreferenceKeys.THEME_MODE] ?: ThemeMode.SYSTEM.name),
             dynamicColor            = prefs[AppPreferenceKeys.DYNAMIC_COLOR] ?: true,
+            amoledEnabled           = prefs[AppPreferenceKeys.AMOLED_ENABLED] ?: false,
             backgroundScan          = prefs[AppPreferenceKeys.BACKGROUND_SCAN] ?: true,
             scanIntervalHours       = prefs[AppPreferenceKeys.SCAN_INTERVAL_HOURS] ?: 12,
             language                = AppLanguage.valueOf(prefs[AppPreferenceKeys.APP_LANGUAGE] ?: AppLanguage.SYSTEM.name),
@@ -71,6 +73,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setDynamicColor(enabled: Boolean) = viewModelScope.launch {
         dataStore.edit { it[AppPreferenceKeys.DYNAMIC_COLOR] = enabled }
+    }
+
+    fun setAmoledEnabled(enabled: Boolean) = viewModelScope.launch {
+        dataStore.edit { it[AppPreferenceKeys.AMOLED_ENABLED] = enabled }
     }
 
     fun setBackgroundScan(enabled: Boolean) = viewModelScope.launch {
