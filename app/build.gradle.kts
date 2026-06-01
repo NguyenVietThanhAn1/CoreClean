@@ -37,6 +37,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     buildTypes {
@@ -121,6 +122,9 @@ dependencies {
     // ── Coil 3 ───────────────────────────────────────────────────
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
+
+    // ── DataStore Preferences ─────────────────────────────────────
+    implementation("androidx.datastore:datastore-preferences:1.1.3")
 
     // ── Serialization (type-safe Navigation) ──────────────────────
     implementation(libs.serialization.json)

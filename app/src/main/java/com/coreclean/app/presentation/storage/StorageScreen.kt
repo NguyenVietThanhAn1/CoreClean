@@ -4,6 +4,10 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -20,14 +24,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.coreclean.app.domain.model.MediaImage
 import com.coreclean.app.domain.model.StorageCategory
 import com.coreclean.app.domain.model.StorageInfo
+import com.coreclean.app.presentation.navigation.ReviewRoute
 import com.coreclean.app.ui.media.toReadableSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StorageScreen(
     onNavigateBack: () -> Unit = {},
+    onNavigateToReview: ((Any) -> Unit)? = null,
     viewModel: StorageViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -60,9 +67,11 @@ fun StorageScreen(
             }
 
             is StorageUiState.Success -> StorageContent(
-                info          = state.info,
-                paddingValues = paddingValues,
-                onRefresh     = viewModel::loadStorageInfo
+                info               = state.info,
+                largeFiles         = state.largeFiles,
+                paddingValues      = paddingValues,
+                onRefresh          = viewModel::loadStorageInfo,
+                onNavigateToReview = onNavigateToReview
             )
         }
     }
@@ -71,8 +80,10 @@ fun StorageScreen(
 @Composable
 private fun StorageContent(
     info: StorageInfo,
+    largeFiles: List<MediaImage> = emptyList(),
     paddingValues: PaddingValues,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onNavigateToReview: ((Any) -> Unit)? = null
 ) {
     Column(
         modifier = Modifier
@@ -116,8 +127,44 @@ private fun StorageContent(
             StorageCategoryRow(category = cat, totalUsed = info.usedBytes)
         }
 
-        Button(onClick = { /* Sprint 4 */ }, enabled = false, modifier = Modifier.fillMaxWidth()) {
-            Text("Quet chi tiet (Sprint 4)")
+        // Large files section
+        if (largeFiles.isNotEmpty()) {
+            var selectedIds by remember { mutableStateOf(emptySet<Long>()) }
+
+            Text("File lon (> 50 MB)",
+                style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+
+            largeFiles.take(20).forEach { file ->
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked  = file.id in selectedIds,
+                        onCheckedChange = {
+                            selectedIds = if (it) selectedIds + file.id else selectedIds - file.id
+                        }
+                    )
+                    Column(Modifier.weight(1f)) {
+                        Text(file.name, style = MaterialTheme.typography.bodyMedium, maxLines = 1)
+                        Text(file.size.toReadableSize(), style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+
+            if (selectedIds.isNotEmpty() && onNavigateToReview != null) {
+                Button(
+                    onClick  = {
+                        onNavigateToReview(ReviewRoute("storage", selectedIds.toList()))
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Xoa ${selectedIds.size} file da chon") }
+            }
+        }
+
+        Button(onClick = onRefresh, modifier = Modifier.fillMaxWidth()) {
+            Text("Lam moi")
         }
         Spacer(Modifier.height(8.dp))
     }

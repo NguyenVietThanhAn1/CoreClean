@@ -1,22 +1,34 @@
 # CoreClean
 
+![Android CI](https://github.com/NguyenVietThanhAn1/CoreClean/actions/workflows/android-ci.yml/badge.svg)
+
 A modern Android device cleaner app built with Clean Architecture, Jetpack Compose, and Kotlin.
 
 ## Overview
 
 CoreClean provides tools to analyze and clean your Android device — without fake metrics or scam patterns.
 
-| Module            | Status          |
-|-------------------|-----------------|
-| Media Scanner     | Implemented     |
-| Storage Analyzer  | Implemented     |
-| Battery Monitor   | Implemented     |
-| App Usage         | Coming soon     |
-| Contacts          | Coming soon     |
+| Module                | Status          |
+|-----------------------|-----------------|
+| Media Scanner         | Implemented     |
+| Storage Analyzer      | Implemented     |
+| Battery Monitor       | Implemented     |
+| App Usage             | Implemented     |
+| Contacts              | Implemented     |
+| Junk Cleaner          | Implemented     |
+| Permission Onboarding | Implemented     |
+| Settings              | Implemented     |
+| APK Analyzer          | Coming soon     |
+
+## Screenshots
+
+<!-- docs/images/home.png -->
+<!-- docs/images/storage.png -->
+<!-- docs/images/app_usage.png -->
 
 ## Tech Stack
 
-Kotlin 2.1.10 · Jetpack Compose · Hilt · Room · WorkManager · Coroutines + Flow · Navigation (type-safe) · Coil 3
+Kotlin 2.1.10 · Jetpack Compose · Hilt · Room · WorkManager · Coroutines + Flow · Navigation (type-safe) · Coil 3 · DataStore Preferences
 
 ## Build
 
@@ -32,4 +44,5 @@ Kotlin 2.1.10 · Jetpack Compose · Hilt · Room · WorkManager · Coroutines + 
 - [Development Roadmap](docs/DevelopmentRoadmap.md)
 - [Known Issues](docs/knownIssues.md)
 - [Contributing](docs/Contributing.md)
+- [Permissions](docs/Permissions.md)
 - [Planned Features](docs/PlannedFeatures.md)

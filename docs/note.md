@@ -8,15 +8,19 @@ cung cap cac cong cu don dep va quan ly he thong hieu qua, bao mat va hien dai.
 - **Kien truc:** Clean Architecture (Domain, Data, Presentation layers)
 - **UI Framework:** Jetpack Compose (Modern UI)
 
-## Trang thai module (Sprint 3 - thang 6/2026)
+## Trang thai module (Sprint 4 - thang 6/2026)
 
-| Module            | Trang thai          | Ghi chu                        |
-|-------------------|---------------------|--------------------------------|
-| Media Scanner     | Implemented         | Scan, dedup (MD5), SafetyReview, Worker |
-| Storage Analyzer  | Implemented (basic) | StatFs + MediaStore breakdown  |
-| Battery Monitor   | Implemented (basic) | BroadcastReceiver reactive Flow |
-| App Usage         | Stub                | Sprint 4                       |
-| Contacts          | Stub                | Sprint 4                       |
+| Module                  | Trang thai          | Ghi chu                                              |
+|-------------------------|---------------------|------------------------------------------------------|
+| Media Scanner           | Implemented         | Scan, dedup (MD5), SafetyReview, Worker              |
+| Storage Analyzer        | Implemented         | StatFs + MediaStore + Large File detector            |
+| Battery Monitor         | Implemented (basic) | BroadcastReceiver reactive Flow                      |
+| App Usage               | Implemented         | UsageStatsManager, 7d/30d range, NoPermission state  |
+| Contacts                | Implemented (lite)  | Detect trung + thieu TT, chua co merge UI            |
+| Junk Cleaner            | Implemented (basic) | APP_CACHE guide, TEMP/APK/EMPTY scan & delete        |
+| Permission Onboarding   | Implemented         | HorizontalPager 3 step, DataStore flag               |
+| Settings                | Implemented         | Theme, Dynamic Color, Background scan, DataStore     |
+| APK Analyzer            | Khong lam           | Sprint 5                                             |
 
 ## Cong nghe su dung (Tech Stack)
 - **Kotlin 2.1.10**, **Jetpack Compose**, **Hilt**, **Room 2**, **Coroutines & Flow**
@@ -43,6 +47,9 @@ app/src/main/java/com/coreclean/app/
 - **Sprint 2:** Media Scanner full (SafetyReview Android 11+, content-hash dedup, Worker scan)
 - **Sprint 3:** Storage Analyzer (basic), Battery Monitor (reactive), HomeScreen dashboard,
   SelectedImagesHolder removed (SavedStateHandle + Room pending_review fallback)
+- **Sprint 4:** Permission Onboarding flow, App Usage module, Contacts module (lite),
+  Junk Cleaner (basic), Settings screen, Large File detector, CI workflow GitHub Actions,
+  DataStore Preferences, WorkManager DI, BuildConfig enabled
 
 ---
 *Cap nhat: thang 6/2026*

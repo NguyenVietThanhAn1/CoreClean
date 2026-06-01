@@ -38,3 +38,4 @@ fix/sprint2-permission-denied
 - [ ] New feature has at least one unit test
 - [ ] Docs updated if public API changed
 - [ ] No large files checked in (binary assets, keystore, APK)
+- [ ] CI checks pass on GitHub Actions (android-ci.yml)

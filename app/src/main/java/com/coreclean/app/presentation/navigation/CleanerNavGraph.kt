@@ -5,24 +5,45 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.coreclean.app.presentation.battery.BatteryScreen
+import com.coreclean.app.presentation.contact.ContactScreen
 import com.coreclean.app.presentation.home.HomeScreen
+import com.coreclean.app.presentation.junk.JunkScreen
+import com.coreclean.app.presentation.onboarding.PermissionOnboardingScreen
 import com.coreclean.app.presentation.review.SafetyReviewScreen
+import com.coreclean.app.presentation.settings.SettingsScreen
 import com.coreclean.app.presentation.storage.StorageScreen
+import com.coreclean.app.presentation.usage.AppUsageScreen
 import com.coreclean.app.ui.media.MediaScreen
 import kotlinx.serialization.Serializable
 
 // Type-safe routes
+@Serializable object OnboardingRoute
 @Serializable object HomeRoute
 @Serializable object StorageRoute
 @Serializable object MediaRoute
 @Serializable object ContactRoute
 @Serializable object BatteryRoute
 @Serializable object AppUsageRoute
+@Serializable object JunkRoute
+@Serializable object SettingsRoute
 @Serializable data class ReviewRoute(val moduleId: String, val imageIds: List<Long> = emptyList())
 
 @Composable
-fun CleanerNavGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = HomeRoute) {
+fun CleanerNavGraph(
+    navController: NavHostController,
+    startDestination: Any = HomeRoute
+) {
+    NavHost(navController = navController, startDestination = startDestination) {
+
+        composable<OnboardingRoute> {
+            PermissionOnboardingScreen(
+                onComplete = {
+                    navController.navigate(HomeRoute) {
+                        popUpTo(OnboardingRoute) { inclusive = true }
+                    }
+                }
+            )
+        }
 
         composable<HomeRoute> {
             HomeScreen(navController = navController)
@@ -35,15 +56,31 @@ fun CleanerNavGraph(navController: NavHostController) {
         }
 
         composable<StorageRoute> {
-            StorageScreen(onNavigateBack = { navController.popBackStack() })
+            StorageScreen(
+                onNavigateBack     = { navController.popBackStack() },
+                onNavigateToReview = { route -> navController.navigate(route) }
+            )
         }
 
         composable<BatteryRoute> {
             BatteryScreen(onNavigateBack = { navController.popBackStack() })
         }
 
-        composable<AppUsageRoute> { /* Sprint 4 */ }
-        composable<ContactRoute>  { /* Sprint 4 */ }
+        composable<AppUsageRoute> {
+            AppUsageScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        composable<ContactRoute> {
+            ContactScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        composable<JunkRoute> {
+            JunkScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        composable<SettingsRoute> {
+            SettingsScreen(onNavigateBack = { navController.popBackStack() })
+        }
 
         composable<ReviewRoute> {
             SafetyReviewScreen(

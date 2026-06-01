@@ -1,0 +1,173 @@
+package com.coreclean.app.presentation.contact
+
+import android.content.Intent
+import android.provider.Settings
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonOff
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.coreclean.app.domain.model.Contact
+import com.coreclean.app.domain.model.ContactDuplicateGroup
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ContactScreen(
+    onNavigateBack: () -> Unit = {},
+    viewModel: ContactViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var selectedTab by remember { mutableIntStateOf(0) }
+    val tabs = listOf("Tat ca", "Trung", "Thieu TT")
+
+    Scaffold(
+        contentWindowInsets = WindowInsets.safeDrawing,
+        topBar = {
+            TopAppBar(
+                title = { Text("Danh ba", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lai")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        if (uiState.isLoading) {
+            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
+
+        if (!uiState.hasPermission) {
+            NoContactPermissionContent(Modifier.fillMaxSize().padding(padding))
+            return@Scaffold
+        }
+
+        Column(Modifier.fillMaxSize().padding(padding)) {
+            TabRow(selectedTabIndex = selectedTab) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTab == index,
+                        onClick  = { selectedTab = index },
+                        text     = {
+                            val badge = when (index) {
+                                1    -> uiState.duplicates.size
+                                2    -> uiState.incomplete.size
+                                else -> uiState.allContacts.size
+                            }
+                            Text("$title ($badge)")
+                        }
+                    )
+                }
+            }
+
+            when (selectedTab) {
+                0 -> ContactList(uiState.allContacts)
+                1 -> DuplicateList(uiState.duplicates)
+                2 -> ContactList(uiState.incomplete, showIncompleteNote = true)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ContactList(contacts: List<Contact>, showIncompleteNote: Boolean = false) {
+    if (contacts.isEmpty()) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Khong co danh ba", style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        return
+    }
+    LazyColumn(
+        contentPadding    = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        items(contacts) { contact ->
+            ListItem(
+                headlineContent   = { Text(contact.displayName.ifBlank { "(Khong ten)" }, fontWeight = FontWeight.SemiBold) },
+                supportingContent = {
+                    Column {
+                        if (contact.phones.isNotEmpty()) Text(contact.phones.joinToString(", "))
+                        if (showIncompleteNote && contact.phones.isEmpty())
+                            Text("Thieu so dien thoai", color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.labelSmall)
+                    }
+                },
+                leadingContent = {
+                    Icon(
+                        if (contact.hasPhoto) Icons.Default.Person else Icons.Default.PersonOff,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            )
+            HorizontalDivider()
+        }
+    }
+}
+
+@Composable
+private fun DuplicateList(groups: List<ContactDuplicateGroup>) {
+    if (groups.isEmpty()) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Khong co danh ba trung", style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        return
+    }
+    LazyColumn(
+        contentPadding    = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(groups) { group ->
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("Nhom trung (${group.contacts.size})",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.error)
+                    group.contacts.forEach { c ->
+                        Text("• ${c.displayName.ifBlank { "(Khong ten)" }}" +
+                            if (c.phones.isNotEmpty()) " — ${c.phones.first()}" else "")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NoContactPermissionContent(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    Column(
+        modifier            = modifier.padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            "Can quyen READ_CONTACTS de hien thi danh ba.",
+            style     = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(16.dp))
+        Button(onClick = {
+            context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = android.net.Uri.fromParts("package", context.packageName, null)
+            })
+        }) { Text("Mo Cai dat ung dung") }
+    }
+}

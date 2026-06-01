@@ -6,28 +6,39 @@
 ┌─────────────────────────────────────────────────┐
 │             PRESENTATION LAYER                   │
 │  HomeScreen  MediaScreen  StorageScreen  Battery  │
-│  SafetyReviewScreen  (Compose + ViewModel)        │
+│  AppUsageScreen  ContactScreen  JunkScreen        │
+│  SettingsScreen  OnboardingScreen  SafetyReview   │
+│  (Compose + ViewModel + Navigation type-safe)     │
 └──────────────────┬──────────────────────────────┘
                    │  observes / calls
 ┌──────────────────▼──────────────────────────────┐
 │               DOMAIN LAYER                       │
 │  MediaRepository  StorageRepository              │
-│  BatteryRepository  (interfaces)                 │
+│  BatteryRepository  AppUsageRepository           │
+│  ContactRepository  (interfaces)                 │
 │  GetAllImagesUseCase  FindDuplicateImages         │
-│  GetStorageInfoUseCase                           │
-│  Models: MediaImage, StorageInfo, BatteryInfo     │
+│  GetStorageInfoUseCase  GetAppUsageUseCase        │
+│  FindLargeFilesUseCase  ScanJunkUseCase          │
+│  CleanJunkUseCase                                │
+│  Models: MediaImage, StorageInfo, BatteryInfo,   │
+│          AppUsageInfo, Contact, JunkItem          │
 └──────────────────┬──────────────────────────────┘
                    │  implements
 ┌──────────────────▼──────────────────────────────┐
 │                DATA LAYER                        │
 │  MediaRepositoryImpl  StorageRepositoryImpl      │
-│  BatteryRepositoryImpl                           │
+│  BatteryRepositoryImpl  AppUsageRepositoryImpl   │
+│  ContactRepositoryImpl                           │
 │  MediaDataSource (MediaStore)                    │
 │  StorageDataSource (StatFs + MediaStore)         │
 │  BatteryDataSource (BroadcastReceiver)           │
+│  AppUsageDataSource (UsageStatsManager)          │
+│  ContactDataSource (ContactsContract)            │
+│  JunkScanner (StorageStatsManager + File API)    │
 │  DuplicateDetector (MD5 hash)                    │
 │  MediaScanWorker (WorkManager)                   │
 │  AppDatabase (Room v2): ScanResult, PendingReview│
+│  DataStore Preferences: Settings + Onboarding    │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -68,3 +79,30 @@ onSystemDeleteDone() / Done state
        ▼
 popBackStack → MediaScreen (selection cleared)
 ```
+
+## Permission Onboarding Flow
+
+```
+App launch (MainActivity)
+       │
+       ▼
+CoreCleanApp reads DataStore `onboarding_done`
+       │
+  ┌────┴───────────────────┐
+  │ false / not set         │  true
+  ▼                         ▼
+OnboardingRoute           HomeRoute (normal flow)
+       │
+  HorizontalPager (3 steps):
+  Step 1: Storage/Media → requestPermissions()
+  Step 2: Usage Stats   → startActivity(ACTION_USAGE_ACCESS_SETTINGS)
+  Step 3: Notifications → requestPermission()
+       │
+  User completes or skips
+       ▼
+  DataStore: onboarding_done = true
+       │
+       ▼
+Navigate to HomeRoute (popUpTo Onboarding inclusive)
+```
+

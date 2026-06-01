@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.BatteryFull
+import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Contacts
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Settings
@@ -32,11 +33,12 @@ private data class FeatureItem(
 @Composable
 fun HomeScreen(navController: NavController) {
     val features = listOf(
-        FeatureItem("Media Scanner",    "Quet & don anh trung",  Icons.Default.PhotoLibrary, true,  MediaRoute),
-        FeatureItem("Storage Analyzer", "Phan tich bo nho",      Icons.Default.Storage,      true,  StorageRoute),
-        FeatureItem("Battery Monitor",  "Giam sat pin",          Icons.Default.BatteryFull,  true,  BatteryRoute),
-        FeatureItem("App Usage",        "Thong ke su dung",      Icons.Default.BarChart,     false, AppUsageRoute),
-        FeatureItem("Contacts",         "Quan ly danh ba",       Icons.Default.Contacts,     false, ContactRoute),
+        FeatureItem("Media Scanner",    "Quet & don anh trung",    Icons.Default.PhotoLibrary,      true,  MediaRoute),
+        FeatureItem("Storage Analyzer", "Phan tich bo nho",         Icons.Default.Storage,           true,  StorageRoute),
+        FeatureItem("Battery Monitor",  "Giam sat pin",             Icons.Default.BatteryFull,       true,  BatteryRoute),
+        FeatureItem("App Usage",        "Thong ke su dung",         Icons.Default.BarChart,          true,  AppUsageRoute),
+        FeatureItem("Contacts",         "Quan ly danh ba",          Icons.Default.Contacts,          true,  ContactRoute),
+        FeatureItem("Junk Cleaner",     "Don dep file rac",         Icons.Default.CleaningServices,  true,  JunkRoute),
     )
 
     Scaffold(
@@ -48,7 +50,7 @@ fun HomeScreen(navController: NavController) {
                         style = MaterialTheme.typography.headlineSmall)
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Settings */ }) {
+                    IconButton(onClick = { navController.navigate(SettingsRoute) }) {
                         Icon(Icons.Default.Settings, contentDescription = "Cai dat")
                     }
                 },
