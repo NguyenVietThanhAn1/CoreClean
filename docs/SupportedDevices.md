@@ -55,8 +55,9 @@ Lý do `minSdk=26`: cần `StorageStatsManager` (App size), `Notification Channe
 |---|---|
 | Phone portrait | ✅ Primary target |
 | Phone landscape | ⚠️ Layout không tối ưu (Sprint 6) |
-| Tablet | ⚠️ Single-pane, không tận dụng width (Phase 4) |
-| Foldable (unfolded) | ⚠️ Single-pane (Phase 4 — WindowSizeClass) |
+| Tablet portrait | ✅ NavigationRail + 3-column grid (Sprint 7) |
+| Tablet landscape | ✅ NavigationRail + 3-column grid (Sprint 7) |
+| Foldable (unfolded) | ✅ Expanded width → NavigationRail two-pane (Sprint 7) |
 | ChromeOS | 🔲 Untested |
 | Wear OS | ❌ Out of scope |
 | Android TV | ❌ Out of scope |

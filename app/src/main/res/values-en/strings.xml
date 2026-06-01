@@ -202,6 +202,10 @@
     <string name="onboarding_open_settings">Open Settings</string>
     <string name="onboarding_start">Get started</string>
 
+    <!-- Settings — AI Dedupe -->
+    <string name="settings_section_ai">Smart scan</string>
+    <string name="settings_perceptual_dedupe">Detect similar photos with AI (slower, more accurate)</string>
+
     <!-- Common -->
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>

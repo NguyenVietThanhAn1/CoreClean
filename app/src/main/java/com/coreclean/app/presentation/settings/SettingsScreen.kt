@@ -206,6 +206,14 @@ fun SettingsScreen(
                 onCheckedChange = viewModel::setRecommendationsEnabled
             )
 
+            // ── AI Dedupe ──────────────────────────────────────────────
+            SectionHeader(stringResource(R.string.settings_section_ai))
+            SettingsToggleRow(
+                title           = stringResource(R.string.settings_perceptual_dedupe),
+                checked         = state.perceptualDedupe,
+                onCheckedChange = viewModel::setPerceptualDedupe
+            )
+
             // ── Language ───────────────────────────────────────────────
             SectionHeader(stringResource(R.string.settings_section_language))
             Card(modifier = Modifier.fillMaxWidth()) {

@@ -13,8 +13,10 @@
 
 - **Battery prediction** yêu cầu ≥ 4 điểm sample (15 phút/sample → cần ≥ 1 giờ data); mới cài app sẽ thấy "Đang thu thập dữ liệu..."
 - **AutoClean** chỉ động vào TEMP/EMPTY/APK > 30 ngày — KHÔNG đụng ảnh hoặc app data để giữ trust
+- **AMOLED mode** may cause slight Canvas redraw overhead (<5%) on some devices due to forced black background recalculation
+- **pHash** may produce ~0.5% false positives for screenshots containing dense text/graphs (high-frequency patterns confuse DCT)
 
-## Fixed in Sprint 2/3/4/5/6
+## Fixed in Sprint 2/3/4/5/6/7
 
 - ~~Xoa anh tren Android 11+ chua dung MediaStore.createDeleteRequest~~ - Da fix Sprint 2
 - ~~Duplicate detection chi dua size+ten, chua co content hash~~ - Da fix Sprint 2 (MD5 256KB)
@@ -31,3 +33,4 @@
 - ~~MediaScanWorker chua co instrumentation test~~ - Da them Sprint 5
 - ~~ExampleInstrumentedTest sai package~~ - Da xoa Sprint 6
 - ~~Thieu lint-baseline~~ - Da them Sprint 6
+- ~~Room dung fallbackToDestructiveMigration thay vi proper migrations~~ - Da fix Sprint 7 (addMigrations())

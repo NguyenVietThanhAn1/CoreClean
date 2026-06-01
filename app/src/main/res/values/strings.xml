@@ -210,4 +210,8 @@
     <string name="loading">Dang tai…</string>
     <string name="error_generic">Da xay ra loi. Vui long thu lai.</string>
 
+    <!-- Settings — AI Dedupe -->
+    <string name="settings_section_ai">Quet thong minh</string>
+    <string name="settings_perceptual_dedupe">Phat hien anh tuong tu bang AI (cham hon, chinh xac hon)</string>
+
 </resources>

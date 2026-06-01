@@ -130,7 +130,7 @@ fun PrivacyDashboardScreen(
             // Privacy Policy link
             TextButton(
                 onClick  = {
-                    val url = "https://raw.githubusercontent.com/NguyenVietThanhAn1/CoreClean/master/docs/PrivacyPolicy.md"
+                    val url = "https://annguyn.github.io/CoreClean/PrivacyPolicy"
                     context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                 },
                 modifier = Modifier.fillMaxWidth()

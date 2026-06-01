@@ -26,10 +26,17 @@ class BaselineProfileGenerator {
             packageName = "com.coreclean.app",
             startupMode = StartupMode.COLD,
             profileBlock = {
+                val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+                // Skip onboarding screen for faster cold-start profiling
+                device.executeShellCommand(
+                    "am start -a android.intent.action.MAIN " +
+                    "-n com.coreclean.app.debug/com.coreclean.app.MainActivity " +
+                    "--ez skip_onboarding true"
+                )
+
                 // Cold start: launch app
                 startActivityAndWait()
-
-                val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
                 // Wait for home screen to render (CoreClean title)
                 device.wait(Until.hasObject(By.text("CoreClean")), 5_000)

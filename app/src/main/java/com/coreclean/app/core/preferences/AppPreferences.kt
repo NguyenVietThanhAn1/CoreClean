@@ -22,6 +22,9 @@ object AppPreferenceKeys {
     val RECOMMENDATIONS_ENABLED  = booleanPreferencesKey("recommendations_enabled")
     val NOTIF_LAST_STORAGE_FULL  = stringPreferencesKey("notif_last_storage_full")  // ISO timestamp
     val NOTIF_LAST_DUPLICATE     = stringPreferencesKey("notif_last_duplicate")     // ISO timestamp
+
+    // AI Dedupe — perceptual hash
+    val PERCEPTUAL_DEDUPE        = booleanPreferencesKey("perceptual_dedupe")
 }
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }

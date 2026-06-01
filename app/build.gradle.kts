@@ -59,6 +59,20 @@ android {
         }
     }
 
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("gms") {
+            dimension = "distribution"
+            isDefault = true
+            buildConfigField("Boolean", "SENTRY_ENABLED", "true")
+        }
+        create("foss") {
+            dimension = "distribution"
+            // Sentry is disabled for FOSS flavor
+            buildConfigField("Boolean", "SENTRY_ENABLED", "false")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled    = true
@@ -160,6 +174,11 @@ dependencies {
 
     // ── Window size class (tablet/foldable) ───────────────────────
     implementation("androidx.compose.material3:material3-window-size-class")
+
+    // ── Material3 Adaptive (tablet two-pane) ─────────────────────
+    implementation("androidx.compose.material3.adaptive:adaptive:1.1.0")
+    implementation("androidx.compose.material3.adaptive:adaptive-navigation:1.1.0")
+    implementation("androidx.compose.material3.adaptive:adaptive-layout:1.1.0")
 
     // ── Serialization (type-safe Navigation) ──────────────────────
     implementation(libs.serialization.json)

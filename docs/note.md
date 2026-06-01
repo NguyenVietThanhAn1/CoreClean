@@ -8,7 +8,7 @@ cung cap cac cong cu don dep va quan ly he thong hieu qua, bao mat va hien dai.
 - **Kien truc:** Clean Architecture (Domain, Data, Presentation layers)
 - **UI Framework:** Jetpack Compose (Modern UI)
 
-## Trang thai module (Sprint 5 - thang 6/2026)
+## Trang thai module (Sprint 7 - thang 6/2026)
 
 | Module                  | Trang thai          | Ghi chu                                                  |
 |-------------------------|---------------------|----------------------------------------------------------|
@@ -59,6 +59,21 @@ app/src/main/java/com/coreclean/app/
   (Language/CrashReporting), ProGuard rules updated, CI matrix (Java 17+21), release-check job,
   ContactDataSourceTest, ContactRepositoryImplTest, MergeContactsUseCaseTest,
   MediaScanWorkerInstrumentationTest, updated AppUsageRepositoryImplTest
+- **Sprint 6:** Smart Suggestions, AutoClean, Battery Prediction, A11y, Tablet (WindowSizeClass),
+  Baseline Profile, Dependabot, JaCoCo + Codecov, Privacy Dashboard expanded, RecommendationNotifier
+- **Sprint 7:** AI Dedupe (pHash) ✅, Dark AMOLED ✅, Two-pane Expanded ✅, FOSS flavor ✅,
+  GitHub Pages ✅, Room proper migrations ✅, i18n debt resolved ✅
+
+## Sprint 7 Features
+| Feature | Status |
+|---------|--------|
+| AI Dedupe (pHash) | ✅ |
+| Dark AMOLED mode | ✅ |
+| Two-pane Expanded layout | ✅ |
+| FOSS build flavor | ✅ |
+| GitHub Pages hosting | ✅ |
+| Room proper migrations | ✅ |
+| i18n debt resolved | ✅ |
 
 ---
-*Cap nhat: thang 6/2026*
+*Cap nhat: thang 6/2026 - Sprint 7*

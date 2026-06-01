@@ -16,7 +16,8 @@ import javax.inject.Singleton
 
 @Singleton
 class DuplicateDetector @Inject constructor(
-    private val contentResolver: ContentResolver
+    private val contentResolver: ContentResolver,
+    private val perceptualHasher: PerceptualHasher
 ) {
     /**
      * Detects duplicate images.
@@ -24,8 +25,13 @@ class DuplicateDetector @Inject constructor(
      * @param fast When true, uses only size + normalized name comparison (fast but less accurate).
      *             When false (default), uses MD5 of first 256 KB for confirmation (slower but detects
      *             same-content files with different names).
+     * @param perceptual When true, uses perceptual hashing (DCT-based pHash) to detect visually
+     *                   similar images regardless of file size or name. Slower but more accurate for
+     *                   near-duplicate photos (e.g., burst shots, slight edits).
      */
-    suspend fun detect(images: List<MediaImage>, fast: Boolean = false): List<DuplicateGroup> {
+    suspend fun detect(images: List<MediaImage>, fast: Boolean = false, perceptual: Boolean = false): List<DuplicateGroup> {
+        if (perceptual) return detectByPerceptualHash(images)
+
         val bySize = images
             .filter { it.size > 0 }
             .groupBy { it.size }
@@ -84,6 +90,42 @@ class DuplicateDetector @Inject constructor(
         } catch (_: Exception) {
             ""
         }
+    }
+
+    private suspend fun detectByPerceptualHash(images: List<MediaImage>): List<DuplicateGroup> {
+        // Compute pHash for each image
+        val hashMap = mutableMapOf<Long, Long>() // imageId -> hash
+        for (image in images) {
+            val hash = perceptualHasher.computeHash(image.uri) ?: continue
+            hashMap[image.id] = hash
+        }
+
+        // Union-Find style grouping: group images with hammingDistance <= 8
+        val groups = mutableListOf<DuplicateGroup>()
+        val assigned = mutableSetOf<Long>()
+
+        for (image in images) {
+            val hash = hashMap[image.id] ?: continue
+            if (image.id in assigned) continue
+
+            val group = mutableListOf(image)
+            assigned.add(image.id)
+
+            for (other in images) {
+                if (other.id == image.id || other.id in assigned) continue
+                val otherHash = hashMap[other.id] ?: continue
+                if (perceptualHasher.hammingDistance(hash, otherHash) <= 8) {
+                    group.add(other)
+                    assigned.add(other.id)
+                }
+            }
+
+            if (group.size >= 2) {
+                groups.add(DuplicateGroup(group, group.drop(1).sumOf { it.size }))
+            }
+        }
+
+        return groups.sortedByDescending { it.totalWastedSize }
     }
 
     private fun normalizeName(name: String): String {
