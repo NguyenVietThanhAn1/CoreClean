@@ -26,6 +26,8 @@ CoreClean provides tools to analyze and clean your Android device — without fa
 | Auto-cleaning         | Implemented     |
 | Battery Prediction    | Implemented     |
 | Accessibility (A11y)  | Implemented     |
+| AI Dedupe (pHash)     | Implemented     |
+| Tablet Two-Pane       | Implemented     |
 
 ## Screenshots
 
@@ -46,10 +48,24 @@ Opt-in Sentry integration. Disabled by default. Enable in Settings → Crash rep
 
 Kotlin 2.1.10 · Jetpack Compose · Hilt · Room · WorkManager · Coroutines + Flow · Navigation (type-safe) · Coil 3 · DataStore Preferences · AppCompat · Sentry
 
+## Build variants: gms / foss
+
+CoreClean ships two product flavors:
+
+| Flavor | Description | Sentry crash reporting |
+|--------|-------------|------------------------|
+| `gms` (default) | Standard build for Google Play | Opt-in (disabled by default) |
+| `foss` | FOSS build for F-Droid | Disabled (no proprietary SDK) |
+
+```bash
+./gradlew :app:assembleGmsDebug      # GMS debug build (default)
+./gradlew :app:assembleFossRelease   # FOSS release build (for F-Droid)
+```
+
 ## Build
 
 ```bash
-./gradlew assembleDebug          # build
+./gradlew assembleDebug          # build (gms flavor by default)
 ./gradlew testDebugUnitTest      # unit tests
 ./gradlew lintDebug              # lint
 ```

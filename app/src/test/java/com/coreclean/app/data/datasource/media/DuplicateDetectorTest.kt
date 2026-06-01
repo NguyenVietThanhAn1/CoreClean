@@ -14,12 +14,14 @@ import java.io.ByteArrayInputStream
 class DuplicateDetectorTest {
 
     private lateinit var contentResolver: ContentResolver
+    private lateinit var perceptualHasher: PerceptualHasher
     private lateinit var detector: DuplicateDetector
 
     @Before
     fun setUp() {
         contentResolver = mockk()
-        detector = DuplicateDetector(contentResolver)
+        perceptualHasher = mockk()
+        detector = DuplicateDetector(contentResolver, perceptualHasher)
     }
 
     // (a) Images with different sizes → 0 groups

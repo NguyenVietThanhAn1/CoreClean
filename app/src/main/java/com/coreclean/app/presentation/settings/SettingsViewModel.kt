@@ -39,7 +39,8 @@ data class SettingsState(
     val language: AppLanguage = AppLanguage.SYSTEM,
     val crashReporting: Boolean = false,
     val scheduleConfig: ScheduleConfig = ScheduleConfig(),
-    val recommendationsEnabled: Boolean = true
+    val recommendationsEnabled: Boolean = true,
+    val perceptualDedupe: Boolean = false
 )
 
 @HiltViewModel
@@ -63,7 +64,8 @@ class SettingsViewModel @Inject constructor(
             language                = AppLanguage.valueOf(prefs[AppPreferenceKeys.APP_LANGUAGE] ?: AppLanguage.SYSTEM.name),
             crashReporting          = prefs[AppPreferenceKeys.CRASH_REPORTING] ?: false,
             scheduleConfig          = schedule,
-            recommendationsEnabled  = prefs[AppPreferenceKeys.RECOMMENDATIONS_ENABLED] ?: true
+            recommendationsEnabled  = prefs[AppPreferenceKeys.RECOMMENDATIONS_ENABLED] ?: true,
+            perceptualDedupe        = prefs[AppPreferenceKeys.PERCEPTUAL_DEDUPE] ?: false
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsState())
 
@@ -133,6 +135,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setRecommendationsEnabled(enabled: Boolean) = viewModelScope.launch {
         dataStore.edit { it[AppPreferenceKeys.RECOMMENDATIONS_ENABLED] = enabled }
+    }
+
+    fun setPerceptualDedupe(enabled: Boolean) = viewModelScope.launch {
+        dataStore.edit { it[AppPreferenceKeys.PERCEPTUAL_DEDUPE] = enabled }
     }
 
     private suspend fun saveScheduleConfig(config: ScheduleConfig) {

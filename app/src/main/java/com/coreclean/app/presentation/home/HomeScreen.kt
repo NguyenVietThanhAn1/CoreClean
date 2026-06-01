@@ -23,6 +23,9 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -65,48 +68,116 @@ fun HomeScreen(
         FeatureItem(stringResource(R.string.home_card_apk_title),     stringResource(R.string.home_card_apk_sub),     Icons.Default.Android,          true, AppAnalyzerRoute),
     )
 
+    val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
     val columns = when (windowSizeClass?.widthSizeClass) {
         WindowWidthSizeClass.Medium   -> 3
         WindowWidthSizeClass.Expanded -> 3
         else                          -> 2
     }
 
-    Scaffold(
-        contentWindowInsets = WindowInsets.safeDrawing,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(stringResource(R.string.home_title), fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.headlineSmall)
-                },
-                actions = {
-                    IconButton(onClick = { navController.navigate(SettingsRoute) }) {
-                        Icon(
-                            Icons.Default.Settings,
-                            contentDescription = stringResource(R.string.home_settings_cd)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+    if (isExpanded) {
+        // Tablet two-pane: NavigationRail on left + content grid on right
+        ExpandedHomeLayout(
+            features       = features,
+            suggestions    = suggestions,
+            columns        = columns,
+            navController  = navController
+        )
+    } else {
+        Scaffold(
+            contentWindowInsets = WindowInsets.safeDrawing,
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(stringResource(R.string.home_title), fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.headlineSmall)
+                    },
+                    actions = {
+                        IconButton(onClick = { navController.navigate(SettingsRoute) }) {
+                            Icon(
+                                Icons.Default.Settings,
+                                contentDescription = stringResource(R.string.home_settings_cd)
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
                 )
-            )
+            }
+        ) { paddingValues ->
+            LazyVerticalGrid(
+                columns               = GridCells.Fixed(columns),
+                contentPadding        = PaddingValues(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement   = Arrangement.spacedBy(12.dp),
+                modifier              = Modifier.fillMaxSize().padding(paddingValues)
+            ) {
+                // Suggestions section (full-width span)
+                if (suggestions.isNotEmpty()) {
+                    item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(columns) }) {
+                        SuggestionsSection(suggestions = suggestions)
+                    }
+                }
+
+                items(features) { feature ->
+                    FeatureCard(
+                        title    = feature.title,
+                        subtitle = feature.subtitle,
+                        icon     = feature.icon,
+                        enabled  = feature.enabled,
+                        onClick  = { if (feature.enabled) navController.navigate(feature.route) }
+                    )
+                }
+            }
         }
-    ) { paddingValues ->
+    }
+}
+
+@Composable
+private fun ExpandedHomeLayout(
+    features: List<FeatureItem>,
+    suggestions: List<CleaningSuggestion>,
+    columns: Int,
+    navController: NavController
+) {
+    var selectedIndex by remember { mutableStateOf(0) }
+    val navItems = listOf(
+        Triple(stringResource(R.string.home_card_media_title), Icons.Default.PhotoLibrary, MediaRoute),
+        Triple(stringResource(R.string.home_card_storage_title), Icons.Default.Storage, StorageRoute),
+        Triple(stringResource(R.string.home_card_battery_title), Icons.Default.BatteryFull, BatteryRoute),
+        Triple(stringResource(R.string.home_card_junk_title), Icons.Default.CleaningServices, JunkRoute),
+    )
+
+    Row(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
+        NavigationRail(
+            header = {
+                IconButton(onClick = { navController.navigate(SettingsRoute) }) {
+                    Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.home_settings_cd))
+                }
+            }
+        ) {
+            navItems.forEachIndexed { index, (label, icon, _) ->
+                NavigationRailItem(
+                    selected  = selectedIndex == index,
+                    onClick   = { selectedIndex = index; navController.navigate(navItems[index].third) },
+                    icon      = { Icon(icon, contentDescription = label) },
+                    label     = { Text(label, style = MaterialTheme.typography.labelSmall) }
+                )
+            }
+        }
         LazyVerticalGrid(
             columns               = GridCells.Fixed(columns),
             contentPadding        = PaddingValues(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement   = Arrangement.spacedBy(12.dp),
-            modifier              = Modifier.fillMaxSize().padding(paddingValues)
+            modifier              = Modifier.fillMaxSize()
         ) {
-            // Suggestions section (full-width span)
             if (suggestions.isNotEmpty()) {
                 item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(columns) }) {
                     SuggestionsSection(suggestions = suggestions)
                 }
             }
-
             items(features) { feature ->
                 FeatureCard(
                     title    = feature.title,

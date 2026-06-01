@@ -108,3 +108,9 @@ app/build/reports/jacoco/
 
 # Codecov local config
 codecov.yml.local
+
+# GitHub Pages local preview
+_site/
+.jekyll-cache/
+# F-Droid metadata local
+metadata/*.txt

@@ -1,5 +1,34 @@
 # Changelog
 
+## [Sprint 7] - 2026-06-08
+
+### Added
+- AI-based perceptual duplicate detection (pHash, toggleable via Settings — slower but more accurate)
+- AMOLED black mode in Settings (Dark theme only, reduces power on OLED displays)
+- Tablet two-pane adaptive layout (Expanded width class — NavigationRail + content pane)
+- F-Droid FOSS build flavor (`foss` product flavor — Sentry disabled, all other features intact)
+- GitHub Pages workflow for Privacy Policy hosting (annguyn.github.io/CoreClean)
+- Room database proper migrations (v1→v2→v3 via addMigrations(), no data loss)
+- `PerceptualHasher` class (DCT-based pHash, 32×32 grayscale, 8×8 DCT, 64-bit hash)
+- `PERCEPTUAL_DEDUPE` preference key in AppPreferenceKeys
+- Play Store listing documentation (docs/PlayStoreListing.md)
+- F-Droid metadata documentation (docs/FDroidMetadata.md)
+- Screenshot specifications (docs/images/screenshots/README.md)
+- Sentry source-map upload step in android-ci.yml
+
+### Fixed
+- i18n debt: all hardcoded strings in 7 screens replaced with string resources
+- `ui/media/` moved to `presentation/media/` (architecture cleanup)
+- `@Serializable` annotations added to `Frequency` and `JunkCategory` enums
+- Privacy Policy URL updated to GitHub Pages URL (annguyn.github.io/CoreClean/PrivacyPolicy)
+
+### Changed
+- BaselineProfileGenerator skips onboarding screen for faster cold-start profiling
+- Sentry runtime toggle works via close() call
+- DevelopmentRoadmap.md: Phase 3 complete, Phase 4 complete, Phase 5 (Distribution) added
+
+---
+
 ## [Sprint 6] - 2026-06-01
 
 ### Added
