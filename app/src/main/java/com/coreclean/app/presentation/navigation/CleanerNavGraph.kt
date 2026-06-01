@@ -1,5 +1,6 @@
 package com.coreclean.app.presentation.navigation
 
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -37,7 +38,8 @@ import kotlinx.serialization.Serializable
 @Composable
 fun CleanerNavGraph(
     navController: NavHostController,
-    startDestination: Any = HomeRoute
+    startDestination: Any = HomeRoute,
+    windowSizeClass: WindowSizeClass? = null
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
 
@@ -52,7 +54,7 @@ fun CleanerNavGraph(
         }
 
         composable<HomeRoute> {
-            HomeScreen(navController = navController)
+            HomeScreen(navController = navController, windowSizeClass = windowSizeClass)
         }
 
         composable<MediaRoute> {

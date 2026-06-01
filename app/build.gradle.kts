@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.baselineprofile)
+    jacoco
 }
 
 // Room: nơi xuất schema JSON cho migration
@@ -85,7 +87,12 @@ android {
         unitTests.isIncludeAndroidResources = true
     }
 
+    baselineProfile {
+        mergeIntoMain = true
+    }
+
     lint {
+        baseline = file("lint-baseline.xml")
         // Dependency version bumps are a deliberate release decision, not a code bug
         disable += "GradleDependency"
         // Some deps are inline strings intentionally (BOM + debug-only); TOML migration is tracked
@@ -152,6 +159,12 @@ dependencies {
     // ── Sentry crash reporting ────────────────────────────────────
     implementation(libs.sentry.android)
 
+    // ── Baseline profile installer ────────────────────────────────
+    implementation("androidx.profileinstaller:profileinstaller:1.4.1")
+
+    // ── Window size class (tablet/foldable) ───────────────────────
+    implementation("androidx.compose.material3:material3-window-size-class")
+
     // ── Serialization (type-safe Navigation) ──────────────────────
     implementation(libs.serialization.json)
 
@@ -168,4 +181,33 @@ dependencies {
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/jacocoTestReport/html"))
+    }
+
+    val fileFilter = listOf(
+        "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
+        "**/*Test*.*", "android/**/*.*",
+        "**/*_Factory*.*", "**/*_HiltModules*.*", "**/*_MembersInjector*.*",
+        "**/Hilt_*.*", "**/*Module_*.*"
+    )
+    val debugTree = fileTree("${layout.buildDirectory.get()}/intermediates/javac/debug") {
+        exclude(fileFilter)
+    }
+    val kotlinDebugTree = fileTree("${layout.buildDirectory.get()}/tmp/kotlin-classes/debug") {
+        exclude(fileFilter)
+    }
+
+    classDirectories.setFrom(files(debugTree, kotlinDebugTree))
+    sourceDirectories.setFrom(files("$projectDir/src/main/java", "$projectDir/src/main/kotlin"))
+    executionData.setFrom(fileTree(layout.buildDirectory.get()) {
+        include("jacoco/testDebugUnitTest.exec", "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
+    })
 }
