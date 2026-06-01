@@ -102,3 +102,9 @@ keystore.properties
 
 # Macrobenchmark output
 baselineprofile/build/
+
+# JaCoCo coverage reports (generated, not tracked)
+app/build/reports/jacoco/
+
+# Codecov local config
+codecov.yml.local
