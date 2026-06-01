@@ -17,7 +17,7 @@ import com.coreclean.app.presentation.review.SafetyReviewScreen
 import com.coreclean.app.presentation.settings.SettingsScreen
 import com.coreclean.app.presentation.storage.StorageScreen
 import com.coreclean.app.presentation.usage.AppUsageScreen
-import com.coreclean.app.ui.media.MediaScreen
+import com.coreclean.app.presentation.media.MediaScreen
 import kotlinx.serialization.Serializable
 
 // Type-safe routes

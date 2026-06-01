@@ -74,6 +74,8 @@
     <string name="junk_open_app_manager">Mo App Manager</string>
     <string name="junk_pick_folder">Chon thu muc de quet</string>
     <string name="junk_no_folder">Chua chon thu muc nao. Nhan "Chon thu muc" de bat dau.</string>
+    <string name="junk_open_settings">Mo Settings</string>
+    <string name="junk_folders_section">Thu muc da chon de quet</string>
 
     <!-- Storage -->
     <string name="storage_title">Storage Analyzer</string>
@@ -87,6 +89,14 @@
 
     <!-- Battery -->
     <string name="battery_title">Battery Monitor</string>
+    <string name="battery_charging">Dang sac</string>
+    <string name="battery_not_charging">Khong sac</string>
+    <string name="battery_label_health">Suc khoe</string>
+    <string name="battery_label_temp">Nhiet do</string>
+    <string name="battery_label_voltage">Dien ap</string>
+    <string name="battery_label_tech">Cong nghe</string>
+    <string name="battery_label_charge_plug">Nguon sac</string>
+    <string name="battery_label_remaining">Con lai (uoc)</string>
 
     <!-- App Usage -->
     <string name="usage_title">App Usage</string>
@@ -192,9 +202,38 @@
     <string name="privacy_policy_link">Chinh sach quyen rieng tu</string>
     <string name="privacy_battery_count">%1$d diem du lieu pin</string>
 
+    <!-- Review screen -->
+    <string name="review_title">Xac nhan xoa</string>
+    <string name="review_confirm_delete">Xac nhan xoa %1$d anh</string>
+    <string name="review_no_images">Khong co anh nao duoc chon</string>
+    <string name="review_free_space">Se giai phong %1$s</string>
+
+    <!-- Media screen -->
+    <string name="media_title">Quan ly anh</string>
+    <string name="media_tab_all">Tat ca anh</string>
+    <string name="media_tab_duplicates">Anh trung lap</string>
+    <string name="media_deselect">Bo chon</string>
+    <string name="media_selected_count">Da chon %1$d anh</string>
+    <string name="media_delete">Xoa</string>
+    <string name="media_no_permission">Can quyen truy cap anh de tiep tuc.</string>
+    <string name="media_retry">Thu lai</string>
+    <string name="media_open_settings">Mo Settings</string>
+    <string name="media_requesting_permission">Dang yeu cau quyen truy cap...</string>
+    <string name="media_loading">Dang tai anh...</string>
+    <string name="media_no_images">Khong tim thay anh nao</string>
+    <string name="media_no_duplicates">Khong tim thay anh trung lap</string>
+    <string name="media_duplicate_groups">%1$d nhom anh trung lap</string>
+    <string name="media_can_free">Co the giai phong %1$s</string>
+    <string name="media_group_header">Nhom %1$d · %2$d anh · %3$s moi anh</string>
+    <string name="media_image_count">%1$d anh</string>
+
+    <!-- Settings AMOLED -->
+    <string name="settings_amoled_black">Su dung nen den (AMOLED)</string>
+
     <!-- Content descriptions (A11y) -->
     <string name="cd_settings">Mo cai dat</string>
     <string name="cd_back">Quay lai</string>
+    <string name="cd_image_selected">Da chon</string>
     <string name="cd_battery_circle">Muc pin hien tai: %1$d phan tram</string>
     <string name="cd_battery_prediction">Du bao pin: %1$s</string>
     <string name="cd_storage_donut">Bieu do luu tru: %1$s da dung trong tong so %2$s</string>

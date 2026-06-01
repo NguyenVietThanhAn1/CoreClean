@@ -19,9 +19,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import com.coreclean.app.R
 import com.coreclean.app.domain.model.JunkCategory
 import com.coreclean.app.domain.model.JunkItem
-import com.coreclean.app.ui.media.toReadableSize
+import com.coreclean.app.presentation.media.toReadableSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,10 +54,10 @@ fun JunkScreen(
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
-                title = { Text("Junk Cleaner", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.junk_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lai")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
                     }
                 }
             )
@@ -75,7 +77,7 @@ fun JunkScreen(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         CircularProgressIndicator()
-                        Text("Dang quet...")
+                        Text(stringResource(R.string.junk_scanning))
                     }
                 }
 
@@ -99,7 +101,7 @@ fun JunkScreen(
                                         style = MaterialTheme.typography.bodySmall)
                                     TextButton(onClick = {
                                         context.startActivity(Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS))
-                                    }) { Text("Mo Settings") }
+                                    }) { Text(stringResource(R.string.junk_open_settings)) }
                                 }
                             }
                         }
@@ -135,13 +137,13 @@ fun JunkScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment     = Alignment.CenterVertically
                         ) {
-                            Text("Da chon: ${totalSelected.toReadableSize()}", fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.junk_selected, totalSelected.toReadableSize()), fontWeight = FontWeight.SemiBold)
                             Button(
                                 onClick  = viewModel::clean,
                                 enabled  = !state.cleaning && state.selected.isNotEmpty()
                             ) {
                                 if (state.cleaning) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
-                                else Text("Don dep")
+                                else Text(stringResource(R.string.junk_clean))
                             }
                         }
                     }
@@ -163,10 +165,10 @@ private fun IdleContent(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // SAF folder section
-        Text("Thu muc da chon de quet", style = MaterialTheme.typography.titleSmall,
+        Text(stringResource(R.string.junk_folders_section), style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold)
         if (safFolders.isEmpty()) {
-            Text("Chua chon thu muc nao. Nhan \"Chon thu muc\" de bat dau.",
+            Text(stringResource(R.string.junk_no_folder),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         } else {
@@ -187,7 +189,7 @@ private fun IdleContent(
             }
         }
         OutlinedButton(onClick = onPickFolder, modifier = Modifier.fillMaxWidth()) {
-            Text("Chon thu muc de quet")
+            Text(stringResource(R.string.junk_pick_folder))
         }
 
         HorizontalDivider()
@@ -196,8 +198,8 @@ private fun IdleContent(
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Icon(Icons.Default.CleaningServices, contentDescription = null,
                     modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.primary)
-                Text("Quet de tim file rac", style = MaterialTheme.typography.titleMedium)
-                Button(onClick = onScan) { Text("Bat dau quet") }
+                Text(stringResource(R.string.junk_scan_title), style = MaterialTheme.typography.titleMedium)
+                Button(onClick = onScan) { Text(stringResource(R.string.junk_start_scan)) }
             }
         }
     }
@@ -220,7 +222,12 @@ private fun JunkCategorySection(
                 verticalAlignment     = Alignment.CenterVertically
             ) {
                 Text(
-                    text       = categoryLabel(category),
+                    text       = when (category) {
+                        JunkCategory.APP_CACHE     -> stringResource(R.string.junk_app_cache)
+                        JunkCategory.EMPTY_FOLDERS -> stringResource(R.string.junk_empty_folders)
+                        JunkCategory.TEMP_FILES    -> stringResource(R.string.junk_temp_files)
+                        JunkCategory.RESIDUAL_APK  -> stringResource(R.string.junk_residual_apk)
+                    },
                     fontWeight = FontWeight.SemiBold,
                     style      = MaterialTheme.typography.titleSmall
                 )
@@ -229,11 +236,11 @@ private fun JunkCategorySection(
             }
             if (category == JunkCategory.APP_CACHE) {
                 Text(
-                    "Android 8+ khong cho xoa truc tiep — can mo Settings.",
+                    stringResource(R.string.junk_cache_note),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                TextButton(onClick = onOpenSettings) { Text("Mo App Manager") }
+                TextButton(onClick = onOpenSettings) { Text(stringResource(R.string.junk_open_app_manager)) }
             } else {
                 items.take(5).forEach { item ->
                     Row(
@@ -264,9 +271,3 @@ private fun JunkCategorySection(
     }
 }
 
-private fun categoryLabel(cat: JunkCategory) = when (cat) {
-    JunkCategory.APP_CACHE    -> "App Cache"
-    JunkCategory.EMPTY_FOLDERS -> "Thu muc rong"
-    JunkCategory.TEMP_FILES   -> "File tam"
-    JunkCategory.RESIDUAL_APK -> "APK con lai"
-}

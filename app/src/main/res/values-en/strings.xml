@@ -73,6 +73,8 @@
     <string name="junk_open_app_manager">Open App Manager</string>
     <string name="junk_pick_folder">Pick folder to scan</string>
     <string name="junk_no_folder">No folder selected. Tap "Pick folder" to get started.</string>
+    <string name="junk_open_settings">Open Settings</string>
+    <string name="junk_folders_section">Selected scan folders</string>
 
     <!-- Storage -->
     <string name="storage_title">Storage Analyzer</string>
@@ -86,6 +88,14 @@
 
     <!-- Battery -->
     <string name="battery_title">Battery Monitor</string>
+    <string name="battery_charging">Charging</string>
+    <string name="battery_not_charging">Not charging</string>
+    <string name="battery_label_health">Health</string>
+    <string name="battery_label_temp">Temperature</string>
+    <string name="battery_label_voltage">Voltage</string>
+    <string name="battery_label_tech">Technology</string>
+    <string name="battery_label_charge_plug">Charge plug</string>
+    <string name="battery_label_remaining">Remaining (est.)</string>
 
     <!-- App Usage -->
     <string name="usage_title">App Usage</string>
@@ -168,9 +178,38 @@
     <string name="privacy_policy_link">Privacy Policy</string>
     <string name="privacy_battery_count">%1$d data points</string>
 
+    <!-- Review screen -->
+    <string name="review_title">Confirm delete</string>
+    <string name="review_confirm_delete">Delete %1$d photos</string>
+    <string name="review_no_images">No photos selected</string>
+    <string name="review_free_space">Will free %1$s</string>
+
+    <!-- Media screen -->
+    <string name="media_title">Media Manager</string>
+    <string name="media_tab_all">All photos</string>
+    <string name="media_tab_duplicates">Duplicate photos</string>
+    <string name="media_deselect">Deselect</string>
+    <string name="media_selected_count">%1$d photos selected</string>
+    <string name="media_delete">Delete</string>
+    <string name="media_no_permission">Photo access permission required to continue.</string>
+    <string name="media_retry">Retry</string>
+    <string name="media_open_settings">Open Settings</string>
+    <string name="media_requesting_permission">Requesting access permission…</string>
+    <string name="media_loading">Loading photos…</string>
+    <string name="media_no_images">No photos found</string>
+    <string name="media_no_duplicates">No duplicate photos found</string>
+    <string name="media_duplicate_groups">%1$d duplicate photo groups</string>
+    <string name="media_can_free">Can free %1$s</string>
+    <string name="media_group_header">Group %1$d · %2$d photos · %3$s each</string>
+    <string name="media_image_count">%1$d photos</string>
+
+    <!-- Settings AMOLED -->
+    <string name="settings_amoled_black">Use black background (AMOLED)</string>
+
     <!-- Content descriptions (A11y) -->
     <string name="cd_settings">Open settings</string>
     <string name="cd_back">Go back</string>
+    <string name="cd_image_selected">Selected</string>
     <string name="cd_battery_circle">Current battery level: %1$d percent</string>
     <string name="cd_battery_prediction">Battery forecast: %1$s</string>
     <string name="cd_storage_donut">Storage chart: %1$s used of %2$s total</string>

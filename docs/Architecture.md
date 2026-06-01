@@ -89,7 +89,7 @@ app/src/main/java/com/coreclean/app/
 │   └── usecase/           # one folder per feature
 ├── presentation/
 │   ├── home/              # HomeScreen
-│   ├── media/             # (ở ui/media/ — legacy)
+│   ├── media/             # MediaScreen, MediaViewModel
 │   ├── storage/, battery/, usage/, contact/, junk/, ram/, appanalyzer/
 │   ├── privacy/           # PrivacyDashboardScreen
 │   ├── review/            # SafetyReviewScreen

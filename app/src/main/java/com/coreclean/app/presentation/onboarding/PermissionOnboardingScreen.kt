@@ -18,35 +18,38 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.coreclean.app.R
 import kotlinx.coroutines.launch
 
 private data class OnboardingStep(
     val icon: ImageVector,
-    val title: String,
-    val description: String
+    @StringRes val titleRes: Int,
+    @StringRes val descRes: Int
 )
 
 private val steps = listOf(
     OnboardingStep(
-        icon        = Icons.Default.Storage,
-        title       = "Luu tru & Media",
-        description = "CoreClean can quyen truy cap anh va video de quet, phat hien trung lap va giai phong bo nho."
+        icon      = Icons.Default.Storage,
+        titleRes  = R.string.onboarding_step_storage_title,
+        descRes   = R.string.onboarding_step_storage_desc
     ),
     OnboardingStep(
-        icon        = Icons.Default.ContactPage,
-        title       = "Thong ke su dung",
-        description = "Quyen Usage Stats giup CoreClean hien thi app nao ban su dung nhieu nhat de toi uu bat dau."
+        icon      = Icons.Default.ContactPage,
+        titleRes  = R.string.onboarding_step_usage_title,
+        descRes   = R.string.onboarding_step_usage_desc
     ),
     OnboardingStep(
-        icon        = Icons.Default.Notifications,
-        title       = "Thong bao",
-        description = "Nhan ket qua quet nen va nhac nho don dep dinh ky ma khong can mo app."
+        icon      = Icons.Default.Notifications,
+        titleRes  = R.string.onboarding_step_notif_title,
+        descRes   = R.string.onboarding_step_notif_desc
     )
 )
 
@@ -112,7 +115,7 @@ fun PermissionOnboardingScreen(
                 TextButton(
                     onClick  = { viewModel.completeOnboarding(); onComplete() },
                     modifier = Modifier.weight(1f)
-                ) { Text("Bo qua") }
+                ) { Text(stringResource(R.string.onboarding_skip)) }
 
                 Button(
                     onClick = {
@@ -135,9 +138,9 @@ fun PermissionOnboardingScreen(
                 ) {
                     Text(
                         when (pagerState.currentPage) {
-                            0    -> "Cap quyen luu tru"
-                            1    -> "Mo Cai dat"
-                            else -> "Bat dau"
+                            0    -> stringResource(R.string.onboarding_grant_storage)
+                            1    -> stringResource(R.string.onboarding_open_settings)
+                            else -> stringResource(R.string.onboarding_start)
                         }
                     )
                 }
@@ -161,14 +164,14 @@ private fun OnboardingPage(step: OnboardingStep) {
         )
         Spacer(Modifier.height(32.dp))
         Text(
-            step.title,
+            stringResource(step.titleRes),
             style      = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign  = TextAlign.Center
         )
         Spacer(Modifier.height(16.dp))
         Text(
-            step.description,
+            stringResource(step.descRes),
             style     = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color     = MaterialTheme.colorScheme.onSurfaceVariant

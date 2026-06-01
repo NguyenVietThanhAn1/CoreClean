@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -22,7 +23,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.coreclean.app.ui.media.toReadableSize
+import com.coreclean.app.R
+import com.coreclean.app.presentation.media.toReadableSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,10 +54,10 @@ fun SafetyReviewScreen(
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
-                title = { Text("Xac nhan xoa", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.review_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lai")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
                     }
                 }
             )
@@ -65,7 +67,7 @@ fun SafetyReviewScreen(
                 Column(modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text  = "Se giai phong ${viewModel.totalSize.toReadableSize()}",
+                        text  = stringResource(R.string.review_free_space, viewModel.totalSize.toReadableSize()),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -83,7 +85,7 @@ fun SafetyReviewScreen(
                                 color       = MaterialTheme.colorScheme.onError
                             )
                         } else {
-                            Text("Xac nhan xoa ${selectedImages.size} anh")
+                            Text(stringResource(R.string.review_confirm_delete, selectedImages.size))
                         }
                     }
                 }
@@ -92,7 +94,7 @@ fun SafetyReviewScreen(
     ) { paddingValues ->
         if (selectedImages.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(paddingValues), Alignment.Center) {
-                Text("Khong co anh nao duoc chon",
+                Text(stringResource(R.string.review_no_images),
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             return@Scaffold

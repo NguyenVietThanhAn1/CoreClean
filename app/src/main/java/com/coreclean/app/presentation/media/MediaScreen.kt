@@ -1,4 +1,4 @@
-package com.coreclean.app.ui.media
+package com.coreclean.app.presentation.media
 
 import android.Manifest
 import android.content.Intent
@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.coreclean.app.R
 import com.coreclean.app.domain.model.DuplicateGroup
 import com.coreclean.app.domain.model.MediaImage
 
@@ -74,7 +76,7 @@ fun MediaScreen(
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
-                title = { Text("Quản lý ảnh", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.media_title), fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         },
@@ -94,11 +96,11 @@ fun MediaScreen(
                 .padding(paddingValues)
         ) {
             TabRow(selectedTabIndex = activeTab) {
-                Tab(selected = activeTab == 0, onClick = { activeTab = 0 }, text = { Text("Tất cả ảnh") })
+                Tab(selected = activeTab == 0, onClick = { activeTab = 0 }, text = { Text(stringResource(R.string.media_tab_all)) })
                 Tab(
                     selected = activeTab == 1,
                     onClick  = { activeTab = 1; viewModel.findDuplicates() },
-                    text     = { Text("Ảnh trùng lặp") }
+                    text     = { Text(stringResource(R.string.media_tab_duplicates)) }
                 )
             }
 
@@ -143,7 +145,7 @@ private fun AllImagesGrid(
     selectedImages: Set<Long>,
     onToggleSelect: (Long) -> Unit
 ) {
-    if (images.isEmpty()) { EmptyContent("Không tìm thấy ảnh nào"); return }
+    if (images.isEmpty()) { EmptyContent(stringResource(R.string.media_no_images)); return }
 
     LazyVerticalGrid(
         columns               = GridCells.Adaptive(minSize = 110.dp),
@@ -154,7 +156,7 @@ private fun AllImagesGrid(
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             Text(
-                text     = "${images.size} ảnh",
+                text     = stringResource(R.string.media_image_count, images.size),
                 style    = MaterialTheme.typography.labelMedium,
                 color    = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
@@ -187,7 +189,7 @@ private fun ImageGridItem(image: MediaImage, isSelected: Boolean, onToggle: () -
             Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)))
             Icon(
                 imageVector        = Icons.Filled.CheckCircle,
-                contentDescription = "Đã chọn",
+                contentDescription = stringResource(R.string.cd_image_selected),
                 tint               = Color.White,
                 modifier           = Modifier.align(Alignment.TopEnd).padding(4.dp).size(20.dp)
             )
@@ -204,7 +206,7 @@ private fun ImageGridItem(image: MediaImage, isSelected: Boolean, onToggle: () -
 // ── Duplicates tab ────────────────────────────────────────────────────────────
 @Composable
 private fun DuplicatesContent(groups: List<DuplicateGroup>, selectedImages: Set<Long>, onToggleSelect: (Long) -> Unit) {
-    if (groups.isEmpty()) { EmptyContent("Không tìm thấy ảnh trùng lặp"); return }
+    if (groups.isEmpty()) { EmptyContent(stringResource(R.string.media_no_duplicates)); return }
     val totalWasted = groups.sumOf { it.totalWastedSize }
     LazyVerticalGrid(
         columns               = GridCells.Adaptive(minSize = 110.dp),
@@ -219,15 +221,15 @@ private fun DuplicatesContent(groups: List<DuplicateGroup>, selectedImages: Set<
                 colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Text("${groups.size} nhóm ảnh trùng lặp", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onErrorContainer)
-                    Text("Có thể giải phóng ${totalWasted.toReadableSize()}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
+                    Text(stringResource(R.string.media_duplicate_groups, groups.size), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onErrorContainer)
+                    Text(stringResource(R.string.media_can_free, totalWasted.toReadableSize()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
                 }
             }
         }
         groups.forEachIndexed { groupIdx, group ->
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Text(
-                    text     = "Nhóm ${groupIdx + 1} · ${group.images.size} ảnh · ${group.images.first().size.toReadableSize()} mỗi ảnh",
+                    text     = stringResource(R.string.media_group_header, groupIdx + 1, group.images.size, group.images.first().size.toReadableSize()),
                     style    = MaterialTheme.typography.labelMedium,
                     color    = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
@@ -240,7 +242,7 @@ private fun DuplicatesContent(groups: List<DuplicateGroup>, selectedImages: Set<
     }
 }
 
-// ── Bottom bar khi chọn ảnh ───────────────────────────────────────────────────
+// ── Bottom bar khi chon anh ───────────────────────────────────────────────────
 @Composable
 private fun SelectionBottomBar(count: Int, onCancel: () -> Unit, onDelete: () -> Unit) {
     Surface(tonalElevation = 8.dp, modifier = Modifier.fillMaxWidth()) {
@@ -249,10 +251,10 @@ private fun SelectionBottomBar(count: Int, onCancel: () -> Unit, onDelete: () ->
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment     = Alignment.CenterVertically
         ) {
-            TextButton(onClick = onCancel) { Text("Bỏ chọn") }
-            Text("Đã chọn $count ảnh", fontWeight = FontWeight.Medium)
+            TextButton(onClick = onCancel) { Text(stringResource(R.string.media_deselect)) }
+            Text(stringResource(R.string.media_selected_count, count), fontWeight = FontWeight.Medium)
             Button(onClick = onDelete, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) {
-                Text("Xóa")
+                Text(stringResource(R.string.media_delete))
             }
         }
     }
@@ -268,21 +270,21 @@ private fun PermissionDeniedContent(onRetry: () -> Unit, onOpenSettings: () -> U
             modifier            = Modifier.padding(32.dp)
         ) {
             Text(
-                text      = "Cần quyền truy cập ảnh để tiếp tục.",
+                text      = stringResource(R.string.media_no_permission),
                 textAlign = TextAlign.Center,
                 style     = MaterialTheme.typography.bodyMedium,
                 color     = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Button(onClick = onRetry) { Text("Thử lại") }
-            OutlinedButton(onClick = onOpenSettings) { Text("Mở Settings") }
+            Button(onClick = onRetry) { Text(stringResource(R.string.media_retry)) }
+            OutlinedButton(onClick = onOpenSettings) { Text(stringResource(R.string.media_open_settings)) }
         }
     }
 }
 
-// ── Trạng thái phụ ────────────────────────────────────────────────────────────
+// ── Trang thai phu ────────────────────────────────────────────────────────────
 @Composable private fun IdleContent() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Đang yêu cầu quyền truy cập...", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(stringResource(R.string.media_requesting_permission), color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -290,7 +292,7 @@ private fun PermissionDeniedContent(onRetry: () -> Unit, onOpenSettings: () -> U
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             CircularProgressIndicator()
-            Text("Đang tải ảnh...", style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.media_loading), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

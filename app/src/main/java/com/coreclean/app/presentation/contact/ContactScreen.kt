@@ -15,11 +15,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.coreclean.app.R
 import com.coreclean.app.domain.model.Contact
 import com.coreclean.app.domain.model.ContactDuplicateGroup
 
@@ -31,16 +33,20 @@ fun ContactScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Tat ca", "Trung", "Thieu TT")
+    val tabLabels = listOf(
+        stringResource(R.string.contact_tab_all),
+        stringResource(R.string.contact_tab_duplicate),
+        stringResource(R.string.contact_tab_incomplete)
+    )
 
     Scaffold(
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
-                title = { Text("Danh ba", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.contact_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lai")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
                     }
                 }
             )
@@ -60,7 +66,7 @@ fun ContactScreen(
 
         Column(Modifier.fillMaxSize().padding(padding)) {
             TabRow(selectedTabIndex = selectedTab) {
-                tabs.forEachIndexed { index, title ->
+                tabLabels.forEachIndexed { index, title ->
                     Tab(
                         selected = selectedTab == index,
                         onClick  = { selectedTab = index },
@@ -107,7 +113,7 @@ fun ContactScreen(
 private fun ContactList(contacts: List<Contact>, showIncompleteNote: Boolean = false) {
     if (contacts.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Khong co danh ba", style = MaterialTheme.typography.bodyLarge,
+            Text(stringResource(R.string.contact_no_items), style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         return
@@ -118,12 +124,12 @@ private fun ContactList(contacts: List<Contact>, showIncompleteNote: Boolean = f
     ) {
         items(contacts) { contact ->
             ListItem(
-                headlineContent   = { Text(contact.displayName.ifBlank { "(Khong ten)" }, fontWeight = FontWeight.SemiBold) },
+                headlineContent   = { Text(contact.displayName.ifBlank { stringResource(R.string.contact_no_name) }, fontWeight = FontWeight.SemiBold) },
                 supportingContent = {
                     Column {
                         if (contact.phones.isNotEmpty()) Text(contact.phones.joinToString(", "))
                         if (showIncompleteNote && contact.phones.isEmpty())
-                            Text("Thieu so dien thoai", color = MaterialTheme.colorScheme.error,
+                            Text(stringResource(R.string.contact_missing_phone), color = MaterialTheme.colorScheme.error,
                                 style = MaterialTheme.typography.labelSmall)
                     }
                 },
@@ -147,7 +153,7 @@ private fun DuplicateList(
 ) {
     if (groups.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Khong co danh ba trung", style = MaterialTheme.typography.bodyLarge,
+            Text(stringResource(R.string.contact_no_duplicate), style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         return
@@ -164,15 +170,16 @@ private fun DuplicateList(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment     = Alignment.CenterVertically
                     ) {
-                        Text("Nhom trung (${group.contacts.size})",
+                        Text(stringResource(R.string.contact_duplicate_group, group.contacts.size),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.error)
                         TextButton(onClick = { onMerge(index) }) {
-                            Text("Gop")
+                            Text(stringResource(R.string.contact_merge_confirm))
                         }
                     }
                     group.contacts.forEach { c ->
-                        Text("• ${c.displayName.ifBlank { "(Khong ten)" }}" +
+                        val noName = stringResource(R.string.contact_no_name)
+                        Text("• ${c.displayName.ifBlank { noName }}" +
                             if (c.phones.isNotEmpty()) " — ${c.phones.first()}" else "")
                     }
                 }
@@ -190,7 +197,7 @@ private fun NoContactPermissionContent(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            "Can quyen READ_CONTACTS de hien thi danh ba.",
+            stringResource(R.string.contact_no_permission),
             style     = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
@@ -199,6 +206,6 @@ private fun NoContactPermissionContent(modifier: Modifier = Modifier) {
             context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                 data = android.net.Uri.fromParts("package", context.packageName, null)
             })
-        }) { Text("Mo Cai dat ung dung") }
+        }) { Text(stringResource(R.string.contact_open_settings)) }
     }
 }

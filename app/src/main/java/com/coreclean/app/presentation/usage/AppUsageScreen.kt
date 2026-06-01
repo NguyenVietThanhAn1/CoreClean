@@ -14,10 +14,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.coreclean.app.R
 import com.coreclean.app.domain.model.AppUsageInfo
 import com.coreclean.app.domain.model.UsageRange
 import java.util.concurrent.TimeUnit
@@ -36,10 +38,10 @@ fun AppUsageScreen(
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
-                title = { Text("App Usage", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.usage_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lai")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
                     }
                 },
                 actions = {
@@ -50,11 +52,11 @@ fun AppUsageScreen(
                         }
                         DropdownMenu(expanded = dropdownExpanded, onDismissRequest = { dropdownExpanded = false }) {
                             DropdownMenuItem(
-                                text    = { Text("7 ngay") },
+                                text    = { Text(stringResource(R.string.usage_days_7)) },
                                 onClick = { viewModel.load(UsageRange.LAST_7); dropdownExpanded = false }
                             )
                             DropdownMenuItem(
-                                text    = { Text("30 ngay") },
+                                text    = { Text(stringResource(R.string.usage_days_30)) },
                                 onClick = { viewModel.load(UsageRange.LAST_30); dropdownExpanded = false }
                             )
                         }
@@ -118,13 +120,13 @@ private fun NoPermissionContent(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            "Can quyen Usage Stats de xem thong ke su dung app.",
+            stringResource(R.string.usage_no_permission),
             style     = MaterialTheme.typography.bodyLarge,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
         Spacer(Modifier.height(16.dp))
         Button(onClick = { context.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)) }) {
-            Text("Mo Cai dat")
+            Text(stringResource(R.string.usage_open_settings))
         }
     }
 }
