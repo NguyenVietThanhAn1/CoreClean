@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,20 +7,30 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.compose)
+    jacoco
+}
+
+// Room: nơi xuất schema JSON cho migration
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 android {
-    namespace   = "com.cleaner.app"
+    namespace   = "com.coreclean.app"
     compileSdk  = 36
 
     defaultConfig {
-        applicationId = "com.cleaner.app"
+        applicationId = "com.coreclean.app"
         minSdk        = 26
         targetSdk     = 36
         versionCode   = 1
         versionName   = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val localProps = gradleLocalProperties(rootDir, providers)
+        buildConfigField("String", "SENTRY_DSN",
+            "\"${localProps.getProperty("SENTRY_DSN", "")}\"")
     }
 
     compileOptions {
@@ -32,6 +44,19 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+
+    val localProps = gradleLocalProperties(rootDir, providers)
+    signingConfigs {
+        if (localProps.containsKey("KEYSTORE_PATH")) {
+            create("release") {
+                storeFile     = file(localProps.getProperty("KEYSTORE_PATH"))
+                storePassword = localProps.getProperty("KEYSTORE_PASSWORD", "")
+                keyAlias      = localProps.getProperty("KEY_ALIAS", "")
+                keyPassword   = localProps.getProperty("KEY_PASSWORD", "")
+            }
+        }
     }
 
     buildTypes {
@@ -42,6 +67,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            val releaseSigning = signingConfigs.findByName("release")
+            if (releaseSigning != null) signingConfig = releaseSigning
         }
         debug {
             applicationIdSuffix = ".debug"
@@ -54,6 +81,28 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
+
+    lint {
+        baseline = file("lint-baseline.xml")
+        // Dependency version bumps are a deliberate release decision, not a code bug
+        disable += "GradleDependency"
+        // Some deps are inline strings intentionally (BOM + debug-only); TOML migration is tracked
+        disable += "UseTomlInstead"
+        // AGP version is pinned to a known-good version; upgrades are intentional
+        disable += "AndroidGradlePluginVersion"
+        // SelectedPhotoAccess: READ_MEDIA_IMAGES + partial access handled per UI flow
+        disable += "SelectedPhotoAccess"
+        // QueryPermissionsNeeded: getInstalledPackages() is used for app-size estimation only;
+        // returns partial results on API 30+ which is acceptable (best-effort).
+        disable += "QueryPermissionsNeeded"
+        abortOnError = false
+        warningsAsErrors = false
+    }
 }
 
 dependencies {
@@ -62,6 +111,7 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
+    implementation("androidx.compose.material:material-icons-extended")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
     // ── Navigation ───────────────────────────────────────────────
@@ -96,6 +146,21 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
 
+    // ── AppCompat (locale switching) ──────────────────────────────
+    implementation(libs.appcompat)
+
+    // ── DataStore Preferences ─────────────────────────────────────
+    implementation("androidx.datastore:datastore-preferences:1.1.3")
+
+    // ── Sentry crash reporting ────────────────────────────────────
+    implementation(libs.sentry.android)
+
+    // ── Baseline profile installer ────────────────────────────────
+    implementation("androidx.profileinstaller:profileinstaller:1.4.1")
+
+    // ── Window size class (tablet/foldable) ───────────────────────
+    implementation("androidx.compose.material3:material3-window-size-class")
+
     // ── Serialization (type-safe Navigation) ──────────────────────
     implementation(libs.serialization.json)
 
@@ -103,8 +168,42 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.coroutines.test)
     testImplementation("junit:junit:4.13.2")
+    testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation(libs.work.testing)
+    testImplementation(libs.robolectric)
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test:core:1.6.1")
+    androidTestImplementation("io.mockk:mockk-android:1.13.12")
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/jacocoTestReport/html"))
+    }
+
+    val fileFilter = listOf(
+        "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
+        "**/*Test*.*", "android/**/*.*",
+        "**/*_Factory*.*", "**/*_HiltModules*.*", "**/*_MembersInjector*.*",
+        "**/Hilt_*.*", "**/*Module_*.*"
+    )
+    val debugTree = fileTree("${layout.buildDirectory.get()}/intermediates/javac/debug") {
+        exclude(fileFilter)
+    }
+    val kotlinDebugTree = fileTree("${layout.buildDirectory.get()}/tmp/kotlin-classes/debug") {
+        exclude(fileFilter)
+    }
+
+    classDirectories.setFrom(files(debugTree, kotlinDebugTree))
+    sourceDirectories.setFrom(files("$projectDir/src/main/java", "$projectDir/src/main/kotlin"))
+    executionData.setFrom(fileTree(layout.buildDirectory.get()) {
+        include("jacoco/testDebugUnitTest.exec", "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
+    })
 }

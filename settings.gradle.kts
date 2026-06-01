@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "CoreClean"
 include(":app")
+include(":baselineprofile")
