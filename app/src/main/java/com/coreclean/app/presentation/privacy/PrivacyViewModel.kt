@@ -6,9 +6,9 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.coreclean.app.data.local.dao.BatteryHistoryDao
 import com.coreclean.app.data.local.dao.PendingReviewDao
 import com.coreclean.app.data.local.dao.ScanResultDao
-import com.coreclean.app.domain.model.AppUsageInfo
 import com.coreclean.app.domain.model.UsageRange
 import com.coreclean.app.domain.repository.AppUsageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,6 +29,7 @@ data class PrivacyUiState(
     val scanResultCount: Int = 0,
     val pendingReviewCount: Int = 0,
     val dataStoreKeyCount: Int = 0,
+    val batteryHistoryCount: Int = 0,
     val message: String? = null
 )
 
@@ -38,6 +39,7 @@ class PrivacyViewModel @Inject constructor(
     private val dataStore: DataStore<Preferences>,
     private val scanResultDao: ScanResultDao,
     private val pendingReviewDao: PendingReviewDao,
+    private val batteryHistoryDao: BatteryHistoryDao,
     private val appUsageRepository: AppUsageRepository
 ) : ViewModel() {
 
@@ -70,9 +72,10 @@ class PrivacyViewModel @Inject constructor(
             }
         }
 
-        val scanCount    = scanResultDao.count()
-        val pendingCount = pendingReviewDao.count()
-        val dsKeys       = dataStore.data.map { it.asMap().size }.first()
+        val scanCount        = scanResultDao.count()
+        val pendingCount     = pendingReviewDao.count()
+        val dsKeys           = dataStore.data.map { it.asMap().size }.first()
+        val batteryCount     = batteryHistoryDao.count()
 
         _state.value = PrivacyUiState(
             isLoading            = false,
@@ -81,15 +84,24 @@ class PrivacyViewModel @Inject constructor(
             foregroundOpenCount  = openCount,
             scanResultCount      = scanCount,
             pendingReviewCount   = pendingCount,
-            dataStoreKeyCount    = dsKeys
+            dataStoreKeyCount    = dsKeys,
+            batteryHistoryCount  = batteryCount
         )
     }
 
     fun clearHistory() = viewModelScope.launch {
         scanResultDao.clearAll()
         pendingReviewDao.clearAll()
-        _state.value = _state.value.copy(scanResultCount = 0, pendingReviewCount = 0,
-            message = "Da xoa lich su quet")
+        _state.value = _state.value.copy(
+            scanResultCount    = 0,
+            pendingReviewCount = 0,
+            message            = "Da xoa lich su quet"
+        )
+    }
+
+    fun clearBatteryHistory() = viewModelScope.launch {
+        batteryHistoryDao.clearAll()
+        _state.value = _state.value.copy(batteryHistoryCount = 0, message = "Da xoa lich su pin")
     }
 
     fun dismissMessage() { _state.value = _state.value.copy(message = null) }
