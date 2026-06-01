@@ -189,10 +189,6 @@
     <string name="privacy_actions">Actions</string>
     <string name="privacy_clear_history">Clear all scan history</string>
     <string name="privacy_open_app_settings">Open app settings</string>
-    <string name="privacy_battery_history">Battery history</string>
-    <string name="privacy_clear_battery_history">Clear battery history</string>
-    <string name="privacy_policy_link">Privacy Policy</string>
-    <string name="privacy_battery_count">%1$d data points</string>
 
     <!-- Onboarding -->
     <string name="onboarding_step_storage_title">Storage &amp; Media</string>

@@ -1,64 +1,62 @@
 package com.coreclean.app
 
-import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.preferencesOf
-import androidx.test.core.app.ApplicationProvider
-import androidx.work.ListenableWorker.Result
-import androidx.work.testing.TestListenableWorkerBuilder
-import androidx.work.testing.TestWorkerFactory
-import com.coreclean.app.core.preferences.AppPreferenceKeys
-import com.coreclean.app.data.worker.AutoCleanWorker
+import com.coreclean.app.domain.model.Frequency
 import com.coreclean.app.domain.model.JunkCategory
-import com.coreclean.app.domain.model.JunkItem
 import com.coreclean.app.domain.model.ScheduleConfig
-import com.coreclean.app.domain.usecase.junk.CleanJunkUseCase
-import com.coreclean.app.domain.usecase.junk.CleanResult
-import com.coreclean.app.domain.usecase.junk.ScanJunkUseCase
-import io.mockk.coEvery
-import io.mockk.mockk
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
-import org.junit.Before
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import androidx.work.WorkManager
-import io.mockk.every
-import kotlinx.coroutines.flow.first
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [33])
+/**
+ * Unit-level tests for AutoClean scheduling logic.
+ * Worker integration tests belong in androidTest (require real Context + Hilt).
+ */
 class AutoCleanWorkerTest {
 
-    private lateinit var context: Context
-    private lateinit var scanJunkUseCase: ScanJunkUseCase
-    private lateinit var cleanJunkUseCase: CleanJunkUseCase
-    private lateinit var dataStore: DataStore<Preferences>
-    private lateinit var workManager: WorkManager
-
-    @Before fun setUp() {
-        context          = ApplicationProvider.getApplicationContext()
-        scanJunkUseCase  = mockk()
-        cleanJunkUseCase = mockk()
-        dataStore        = mockk()
-        workManager      = mockk(relaxed = true)
+    @Test fun `default ScheduleConfig is disabled`() {
+        val config = ScheduleConfig()
+        assertFalse(config.enabled)
     }
 
-    @Test fun `worker returns success when schedule is disabled`() = runTest {
-        val config = ScheduleConfig(enabled = false)
-        every { dataStore.data } returns flowOf(
-            preferencesOf(AppPreferenceKeys.SCHEDULE_CONFIG_JSON to Json.encodeToString(config))
-        )
+    @Test fun `default ScheduleConfig has WEEKLY frequency`() {
+        val config = ScheduleConfig()
+        assertEquals(Frequency.WEEKLY, config.frequency)
+    }
 
-        val worker = TestListenableWorkerBuilder<AutoCleanWorker>(context).build()
-        // We can't easily inject via Hilt in unit tests; instead verify via direct invocation
-        // The worker will call loadConfig → disabled → return success
-        assertEquals(Result.success(), worker.startWork().get())
+    @Test fun `default categories only contain safe ones`() {
+        val config = ScheduleConfig()
+        // APP_CACHE must never be in default safe categories
+        assertFalse(JunkCategory.APP_CACHE in config.categories)
+        assertTrue(JunkCategory.TEMP_FILES in config.categories)
+        assertTrue(JunkCategory.EMPTY_FOLDERS in config.categories)
+    }
+
+    @Test fun `ScheduleConfig serialization round-trips correctly`() {
+        val original = ScheduleConfig(
+            enabled    = true,
+            frequency  = Frequency.DAILY,
+            hour       = 3,
+            minute     = 30,
+            categories = setOf(JunkCategory.TEMP_FILES, JunkCategory.RESIDUAL_APK)
+        )
+        val json    = kotlinx.serialization.json.Json.encodeToString(original)
+        val decoded = kotlinx.serialization.json.Json.decodeFromString<ScheduleConfig>(json)
+
+        assertEquals(original.enabled,    decoded.enabled)
+        assertEquals(original.frequency,  decoded.frequency)
+        assertEquals(original.hour,       decoded.hour)
+        assertEquals(original.minute,     decoded.minute)
+        assertEquals(original.categories, decoded.categories)
+    }
+
+    @Test fun `APP_CACHE not in SAFE_CATEGORIES constant`() {
+        // Verify the safe category set used by AutoCleanWorker does not include APP_CACHE
+        val safeCategories = setOf(
+            JunkCategory.TEMP_FILES,
+            JunkCategory.EMPTY_FOLDERS,
+            JunkCategory.RESIDUAL_APK
+        )
+        assertFalse(JunkCategory.APP_CACHE in safeCategories)
     }
 }

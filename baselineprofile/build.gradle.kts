@@ -1,7 +1,7 @@
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     id("com.android.test")
     id("org.jetbrains.kotlin.android")
-    id("androidx.baselineprofile")
 }
 
 android {
@@ -9,7 +9,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        minSdk = 28 // Baseline profiles require API 28+
+        minSdk = 28
         targetSdk = 36
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -22,10 +22,11 @@ android {
     kotlin { jvmToolchain(17) }
 
     targetProjectPath = ":app"
+    experimentalProperties["android.experimental.self-instrumenting"] = true
 }
 
-baselineProfile {
-    enableEmulatorDisplay = false
+androidComponents {
+    beforeVariants(selector().all()) { it.enable = it.buildType == "benchmark" }
 }
 
 dependencies {

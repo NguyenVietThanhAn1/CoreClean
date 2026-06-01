@@ -7,7 +7,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.coreclean.app.data.datasource.BatteryDataSource
+import com.coreclean.app.data.datasource.battery.BatteryDataSource
 import com.coreclean.app.data.local.dao.BatteryHistoryDao
 import com.coreclean.app.data.local.entity.BatteryHistoryEntity
 import dagger.assisted.Assisted

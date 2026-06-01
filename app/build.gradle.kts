@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.baselineprofile)
     jacoco
 }
 
@@ -87,9 +86,6 @@ android {
         unitTests.isIncludeAndroidResources = true
     }
 
-    baselineProfile {
-        mergeIntoMain = true
-    }
 
     lint {
         baseline = file("lint-baseline.xml")
