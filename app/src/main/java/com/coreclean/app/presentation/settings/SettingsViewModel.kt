@@ -14,12 +14,19 @@ import androidx.work.WorkManager
 import com.coreclean.app.core.preferences.AppLanguage
 import com.coreclean.app.core.preferences.AppPreferenceKeys
 import com.coreclean.app.core.preferences.ThemeMode
+import com.coreclean.app.data.worker.AutoCleanWorker
 import com.coreclean.app.data.worker.MediaScanWorker
+import com.coreclean.app.domain.model.Frequency
+import com.coreclean.app.domain.model.JunkCategory
+import com.coreclean.app.domain.model.ScheduleConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -29,7 +36,9 @@ data class SettingsState(
     val backgroundScan: Boolean = true,
     val scanIntervalHours: Int = 12,
     val language: AppLanguage = AppLanguage.SYSTEM,
-    val crashReporting: Boolean = false
+    val crashReporting: Boolean = false,
+    val scheduleConfig: ScheduleConfig = ScheduleConfig(),
+    val recommendationsEnabled: Boolean = true
 )
 
 @HiltViewModel
@@ -39,13 +48,20 @@ class SettingsViewModel @Inject constructor(
 ) : ViewModel() {
 
     val state = dataStore.data.map { prefs ->
+        val schedJson = prefs[AppPreferenceKeys.SCHEDULE_CONFIG_JSON]
+        val schedule  = schedJson?.let {
+            runCatching { Json.decodeFromString<ScheduleConfig>(it) }.getOrNull()
+        } ?: ScheduleConfig()
+
         SettingsState(
-            themeMode         = ThemeMode.valueOf(prefs[AppPreferenceKeys.THEME_MODE] ?: ThemeMode.SYSTEM.name),
-            dynamicColor      = prefs[AppPreferenceKeys.DYNAMIC_COLOR] ?: true,
-            backgroundScan    = prefs[AppPreferenceKeys.BACKGROUND_SCAN] ?: true,
-            scanIntervalHours = prefs[AppPreferenceKeys.SCAN_INTERVAL_HOURS] ?: 12,
-            language          = AppLanguage.valueOf(prefs[AppPreferenceKeys.APP_LANGUAGE] ?: AppLanguage.SYSTEM.name),
-            crashReporting    = prefs[AppPreferenceKeys.CRASH_REPORTING] ?: false
+            themeMode               = ThemeMode.valueOf(prefs[AppPreferenceKeys.THEME_MODE] ?: ThemeMode.SYSTEM.name),
+            dynamicColor            = prefs[AppPreferenceKeys.DYNAMIC_COLOR] ?: true,
+            backgroundScan          = prefs[AppPreferenceKeys.BACKGROUND_SCAN] ?: true,
+            scanIntervalHours       = prefs[AppPreferenceKeys.SCAN_INTERVAL_HOURS] ?: 12,
+            language                = AppLanguage.valueOf(prefs[AppPreferenceKeys.APP_LANGUAGE] ?: AppLanguage.SYSTEM.name),
+            crashReporting          = prefs[AppPreferenceKeys.CRASH_REPORTING] ?: false,
+            scheduleConfig          = schedule,
+            recommendationsEnabled  = prefs[AppPreferenceKeys.RECOMMENDATIONS_ENABLED] ?: true
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsState())
 
@@ -89,6 +105,53 @@ class SettingsViewModel @Inject constructor(
 
     fun resetOnboarding() = viewModelScope.launch {
         dataStore.edit { it[AppPreferenceKeys.ONBOARDING_DONE] = false }
+    }
+
+    fun setAutoCleanEnabled(enabled: Boolean) = viewModelScope.launch {
+        val updated = state.value.scheduleConfig.copy(enabled = enabled)
+        saveScheduleConfig(updated)
+        if (enabled) scheduleAutoClean(updated)
+        else workManager.cancelAllWorkByTag("auto_clean")
+    }
+
+    fun setAutoCleanFrequency(freq: Frequency) = viewModelScope.launch {
+        val updated = state.value.scheduleConfig.copy(frequency = freq)
+        saveScheduleConfig(updated)
+    }
+
+    fun toggleAutoCleanCategory(category: JunkCategory) = viewModelScope.launch {
+        val current = state.value.scheduleConfig.categories.toMutableSet()
+        if (!current.remove(category)) current.add(category)
+        saveScheduleConfig(state.value.scheduleConfig.copy(categories = current))
+    }
+
+    fun setRecommendationsEnabled(enabled: Boolean) = viewModelScope.launch {
+        dataStore.edit { it[AppPreferenceKeys.RECOMMENDATIONS_ENABLED] = enabled }
+    }
+
+    private suspend fun saveScheduleConfig(config: ScheduleConfig) {
+        dataStore.edit { it[AppPreferenceKeys.SCHEDULE_CONFIG_JSON] = Json.encodeToString(config) }
+    }
+
+    private fun scheduleAutoClean(config: ScheduleConfig) {
+        val nowMs   = System.currentTimeMillis()
+        val target  = nextRunTimeMs(config)
+        val delayMs = (target - nowMs).coerceAtLeast(0L)
+        val request = OneTimeWorkRequestBuilder<AutoCleanWorker>()
+            .setInitialDelay(delayMs, TimeUnit.MILLISECONDS)
+            .addTag("auto_clean")
+            .build()
+        workManager.enqueue(request)
+    }
+
+    private fun nextRunTimeMs(config: ScheduleConfig): Long {
+        val now  = java.time.LocalDateTime.now()
+        val next = when (config.frequency) {
+            Frequency.DAILY   -> now.plusDays(1).with(java.time.LocalTime.of(config.hour, config.minute))
+            Frequency.WEEKLY  -> now.plusWeeks(1).with(java.time.LocalTime.of(config.hour, config.minute))
+            Frequency.MONTHLY -> now.plusMonths(1).with(java.time.LocalTime.of(config.hour, config.minute))
+        }
+        return next.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
     }
 
     private fun rescheduleWorker(hours: Int) {

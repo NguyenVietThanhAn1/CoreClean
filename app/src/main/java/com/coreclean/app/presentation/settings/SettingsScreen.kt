@@ -13,14 +13,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.coreclean.app.BuildConfig
+import com.coreclean.app.R
 import com.coreclean.app.core.preferences.AppLanguage
 import com.coreclean.app.core.preferences.ThemeMode
+import com.coreclean.app.domain.model.Frequency
+import com.coreclean.app.domain.model.JunkCategory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,10 +39,11 @@ fun SettingsScreen(
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
-                title = { Text("Cai dat", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.settings_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lai")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_back))
                     }
                 }
             )
@@ -55,7 +60,7 @@ fun SettingsScreen(
             Spacer(Modifier.height(8.dp))
 
             // ── Theme ──────────────────────────────────────────────────
-            SectionHeader("Giao dien")
+            SectionHeader(stringResource(R.string.settings_section_theme))
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.selectableGroup()) {
                     ThemeMode.entries.forEach { mode ->
@@ -73,9 +78,9 @@ fun SettingsScreen(
                             RadioButton(selected = state.themeMode == mode, onClick = null)
                             Spacer(Modifier.width(12.dp))
                             Text(when (mode) {
-                                ThemeMode.SYSTEM -> "Theo he thong"
-                                ThemeMode.LIGHT  -> "Sang"
-                                ThemeMode.DARK   -> "Toi"
+                                ThemeMode.SYSTEM -> stringResource(R.string.settings_theme_system)
+                                ThemeMode.LIGHT  -> stringResource(R.string.settings_theme_light)
+                                ThemeMode.DARK   -> stringResource(R.string.settings_theme_dark)
                             })
                         }
                     }
@@ -84,17 +89,17 @@ fun SettingsScreen(
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 SettingsToggleRow(
-                    title   = "Mau dong (Material You)",
-                    checked = state.dynamicColor,
+                    title           = stringResource(R.string.settings_dynamic_color),
+                    checked         = state.dynamicColor,
                     onCheckedChange = viewModel::setDynamicColor
                 )
             }
 
             // ── Background scan ────────────────────────────────────────
-            SectionHeader("Quet nen")
+            SectionHeader(stringResource(R.string.settings_section_scan))
             SettingsToggleRow(
-                title   = "Bat quet nen",
-                checked = state.backgroundScan,
+                title           = stringResource(R.string.settings_bg_scan),
+                checked         = state.backgroundScan,
                 onCheckedChange = viewModel::setBackgroundScan
             )
 
@@ -115,7 +120,7 @@ fun SettingsScreen(
                             ) {
                                 RadioButton(selected = state.scanIntervalHours == h, onClick = null)
                                 Spacer(Modifier.width(12.dp))
-                                Text("$h gio")
+                                Text(stringResource(R.string.settings_interval_hours, h))
                             }
                         }
                     }
@@ -125,10 +130,84 @@ fun SettingsScreen(
             Button(
                 onClick  = viewModel::runScanNow,
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("Quet ngay bay gio") }
+            ) { Text(stringResource(R.string.settings_scan_now)) }
+
+            // ── Auto-cleaning ──────────────────────────────────────────
+            SectionHeader(stringResource(R.string.settings_section_auto_clean))
+            SettingsToggleRow(
+                title           = stringResource(R.string.settings_auto_clean_enable),
+                checked         = state.scheduleConfig.enabled,
+                onCheckedChange = { viewModel.setAutoCleanEnabled(it) }
+            )
+
+            if (state.scheduleConfig.enabled) {
+                // Frequency picker
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.selectableGroup()) {
+                        Frequency.entries.forEach { freq ->
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .selectable(
+                                        selected = state.scheduleConfig.frequency == freq,
+                                        onClick  = { viewModel.setAutoCleanFrequency(freq) },
+                                        role     = Role.RadioButton
+                                    )
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(selected = state.scheduleConfig.frequency == freq, onClick = null)
+                                Spacer(Modifier.width(12.dp))
+                                Text(when (freq) {
+                                    Frequency.DAILY   -> stringResource(R.string.settings_auto_clean_daily)
+                                    Frequency.WEEKLY  -> stringResource(R.string.settings_auto_clean_weekly)
+                                    Frequency.MONTHLY -> stringResource(R.string.settings_auto_clean_monthly)
+                                })
+                            }
+                        }
+                    }
+                }
+
+                // Category multi-select
+                SectionHeader(stringResource(R.string.settings_auto_clean_categories))
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                        val safeCategories = listOf(JunkCategory.TEMP_FILES, JunkCategory.EMPTY_FOLDERS, JunkCategory.RESIDUAL_APK)
+                        safeCategories.forEach { cat ->
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clickable { viewModel.toggleAutoCleanCategory(cat) }
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked         = cat in state.scheduleConfig.categories,
+                                    onCheckedChange = { viewModel.toggleAutoCleanCategory(cat) }
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(when (cat) {
+                                    JunkCategory.TEMP_FILES    -> stringResource(R.string.junk_temp_files)
+                                    JunkCategory.EMPTY_FOLDERS -> stringResource(R.string.junk_empty_folders)
+                                    JunkCategory.RESIDUAL_APK  -> stringResource(R.string.junk_residual_apk)
+                                    JunkCategory.APP_CACHE     -> stringResource(R.string.junk_app_cache)
+                                })
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ── Notifications ──────────────────────────────────────────
+            SectionHeader(stringResource(R.string.settings_section_notifications))
+            SettingsToggleRow(
+                title           = stringResource(R.string.settings_recommendations_notif),
+                checked         = state.recommendationsEnabled,
+                onCheckedChange = viewModel::setRecommendationsEnabled
+            )
 
             // ── Language ───────────────────────────────────────────────
-            SectionHeader("Ngon ngu")
+            SectionHeader(stringResource(R.string.settings_section_language))
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.selectableGroup()) {
                     AppLanguage.entries.forEach { lang ->
@@ -146,9 +225,9 @@ fun SettingsScreen(
                             RadioButton(selected = state.language == lang, onClick = null)
                             Spacer(Modifier.width(12.dp))
                             Text(when (lang) {
-                                AppLanguage.SYSTEM     -> "Theo he thong"
-                                AppLanguage.VIETNAMESE -> "Tieng Viet"
-                                AppLanguage.ENGLISH    -> "English"
+                                AppLanguage.SYSTEM     -> stringResource(R.string.settings_lang_system)
+                                AppLanguage.VIETNAMESE -> stringResource(R.string.settings_lang_vi)
+                                AppLanguage.ENGLISH    -> stringResource(R.string.settings_lang_en)
                             })
                         }
                     }
@@ -156,33 +235,33 @@ fun SettingsScreen(
             }
 
             // ── Crash Reporting ────────────────────────────────────────
-            SectionHeader("Bao cao loi")
+            SectionHeader(stringResource(R.string.settings_section_crash))
             SettingsToggleRow(
-                title   = "Gui bao cao loi (opt-in)",
-                checked = state.crashReporting,
+                title           = stringResource(R.string.settings_crash_toggle),
+                checked         = state.crashReporting,
                 onCheckedChange = viewModel::setCrashReporting
             )
 
             // ── Privacy ────────────────────────────────────────────────
-            SectionHeader("Quyen rieng tu")
+            SectionHeader(stringResource(R.string.settings_section_privacy))
             Card(modifier = Modifier.fillMaxWidth()) {
                 ListItem(
-                    headlineContent = { Text("Privacy Dashboard") },
+                    headlineContent = { Text(stringResource(R.string.settings_privacy_dashboard)) },
                     modifier        = Modifier.clickable(onClick = onNavigateToPrivacy)
                 )
             }
 
             // ── Debug ──────────────────────────────────────────────────
-            SectionHeader("Debug")
+            SectionHeader(stringResource(R.string.settings_section_debug))
             OutlinedButton(
                 onClick  = viewModel::resetOnboarding,
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("Reset onboarding") }
+            ) { Text(stringResource(R.string.settings_reset_onboarding)) }
 
             // ── App info ───────────────────────────────────────────────
-            SectionHeader("Thong tin ung dung")
+            SectionHeader(stringResource(R.string.settings_section_about))
             ListItem(
-                headlineContent = { Text("Phien ban") },
+                headlineContent = { Text(stringResource(R.string.settings_version)) },
                 trailingContent = { Text(BuildConfig.VERSION_NAME) }
             )
 
