@@ -1,0 +1,12 @@
+HSPLcom/coreclean/app/MainActivity;-><init>()V
+HSPLcom/coreclean/app/MainActivity;->onCreate(Landroid/os/Bundle;)V
+HSPLcom/coreclean/app/CleanerApp;-><init>()V
+HSPLcom/coreclean/app/CleanerApp;->onCreate()V
+HSPLcom/coreclean/app/presentation/CoreCleanAppKt;->CoreCleanApp(Landroidx/datastore/core/DataStore;Landroidx/compose/runtime/Composer;I)V
+HSPLcom/coreclean/app/presentation/home/HomeScreenKt;->HomeScreen(Landroidx/navigation/NavController;Landroidx/compose/runtime/Composer;I)V
+HSPLcom/coreclean/app/presentation/theme/ThemeKt;->CoreCleanTheme(ZZLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+HSPLcom/coreclean/app/presentation/navigation/CleanerNavGraphKt;->CleanerNavGraph(Landroidx/navigation/NavHostController;Ljava/lang/Object;Landroidx/compose/runtime/Composer;II)V
+HSPLcom/coreclean/app/presentation/settings/SettingsViewModel;-><init>(Landroidx/datastore/core/DataStore;Landroidx/work/WorkManager;)V
+HSPLcom/coreclean/app/data/local/AppDatabase_Impl;-><init>()V
+HSPLcom/coreclean/app/core/di/DatabaseModule;->provideDatabase(Landroid/content/Context;)Lcom/coreclean/app/data/local/AppDatabase;
+HSPLcom/coreclean/app/data/worker/MediaScanWorker;->doWork()Ljava/lang/Object;
