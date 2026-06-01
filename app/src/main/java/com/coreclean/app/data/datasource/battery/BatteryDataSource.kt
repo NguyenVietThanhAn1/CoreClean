@@ -18,6 +18,13 @@ import kotlin.math.roundToInt
 class BatteryDataSource @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+    /** Returns a one-shot snapshot of current battery state via sticky broadcast. */
+    fun getBatteryInfo(): BatteryInfo {
+        val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            ?: return BatteryInfo(0, 0, "Khong xac dinh", 0f, 0, "Unknown", 0, false, "Khong sac")
+        return intent.toBatteryInfo(context)
+    }
+
     /**
      * Returns a cold Flow that emits [BatteryInfo] on each battery change.
      * ACTION_BATTERY_CHANGED is a sticky broadcast, so the first emission

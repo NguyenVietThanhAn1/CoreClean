@@ -10,6 +10,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import com.coreclean.app.R
+import com.coreclean.app.domain.usecase.battery.BatteryPrediction
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -28,7 +33,8 @@ fun BatteryScreen(
     onNavigateBack: () -> Unit = {},
     viewModel: BatteryViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState    by viewModel.uiState.collectAsStateWithLifecycle()
+    val prediction by viewModel.prediction.collectAsStateWithLifecycle()
 
     Scaffold(
         contentWindowInsets = WindowInsets.safeDrawing,
@@ -57,6 +63,7 @@ fun BatteryScreen(
 
             is BatteryUiState.Success -> BatteryContent(
                 info          = state.info,
+                prediction    = prediction,
                 paddingValues = paddingValues
             )
         }
@@ -64,7 +71,11 @@ fun BatteryScreen(
 }
 
 @Composable
-private fun BatteryContent(info: BatteryInfo, paddingValues: PaddingValues) {
+private fun BatteryContent(
+    info: BatteryInfo,
+    prediction: BatteryPrediction?,
+    paddingValues: PaddingValues
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -75,6 +86,9 @@ private fun BatteryContent(info: BatteryInfo, paddingValues: PaddingValues) {
         horizontalAlignment   = Alignment.CenterHorizontally
     ) {
         Spacer(Modifier.height(8.dp))
+
+        // Battery prediction card
+        BatteryPredictionCard(prediction = prediction)
 
         // Circular battery level indicator
         Box(Modifier.size(180.dp), contentAlignment = Alignment.Center) {
@@ -118,6 +132,43 @@ private fun BatteryContent(info: BatteryInfo, paddingValues: PaddingValues) {
 }
 
 @Composable
+private fun BatteryPredictionCard(prediction: BatteryPrediction?) {
+    val text = when {
+        prediction == null          -> null
+        prediction.isCharging       -> null
+        prediction.estimated == null ->
+            stringResource(R.string.battery_prediction_collecting)
+        else -> {
+            val hours   = prediction.estimated.toHours()
+            val minutes = (prediction.estimated.toMinutes() % 60)
+            stringResource(R.string.battery_prediction_estimate, hours, minutes)
+        }
+    } ?: return
+
+    val cardCd = stringResource(R.string.cd_battery_prediction, text)
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = cardCd }
+    ) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(
+                text  = text,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium
+            )
+            if (prediction?.estimated != null) {
+                Text(
+                    text  = stringResource(R.string.battery_prediction_disclaimer),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun BatteryInfoCard(label: String, value: String, modifier: Modifier = Modifier) {
     Card(modifier = modifier) {
         Column(
@@ -135,7 +186,8 @@ private fun BatteryInfoCard(label: String, value: String, modifier: Modifier = M
 private fun BatteryCircle(levelPercent: Int, modifier: Modifier = Modifier) {
     val color = batteryColor(levelPercent)
     val track = MaterialTheme.colorScheme.surfaceVariant
-    Canvas(modifier = modifier) {
+    val cd    = stringResource(R.string.cd_battery_circle, levelPercent)
+    Canvas(modifier = modifier.semantics { contentDescription = cd }) {
         val strokeWidth = size.minDimension * 0.12f
         val radius  = (size.minDimension / 2f) - strokeWidth
         val topLeft = Offset((size.width / 2f) - radius, (size.height / 2f) - radius)

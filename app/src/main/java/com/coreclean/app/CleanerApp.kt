@@ -7,6 +7,7 @@ import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.coreclean.app.data.datasource.battery.BatteryHistoryRecorder
 import com.coreclean.app.data.worker.MediaScanWorker
 import dagger.hilt.android.HiltAndroidApp
 import io.sentry.android.core.SentryAndroid
@@ -38,6 +39,7 @@ class CleanerApp : Application() {
                 .build()
         )
         schedulePeriodicMediaScan()
+        BatteryHistoryRecorder.schedule(WorkManager.getInstance(this))
     }
 
     private fun schedulePeriodicMediaScan() {

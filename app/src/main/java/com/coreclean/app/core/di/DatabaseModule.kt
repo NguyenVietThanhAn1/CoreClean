@@ -3,6 +3,7 @@ package com.coreclean.app.core.di
 import android.content.Context
 import androidx.room.Room
 import com.coreclean.app.data.local.AppDatabase
+import com.coreclean.app.data.local.dao.BatteryHistoryDao
 import com.coreclean.app.data.local.dao.PendingReviewDao
 import com.coreclean.app.data.local.dao.ScanResultDao
 import dagger.Module
@@ -27,4 +28,7 @@ object DatabaseModule {
 
     @Provides @Singleton
     fun providePendingReviewDao(db: AppDatabase): PendingReviewDao = db.pendingReviewDao()
+
+    @Provides @Singleton
+    fun provideBatteryHistoryDao(db: AppDatabase): BatteryHistoryDao = db.batteryHistoryDao()
 }
