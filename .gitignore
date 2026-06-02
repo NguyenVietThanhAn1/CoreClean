@@ -114,3 +114,6 @@ _site/
 .jekyll-cache/
 # F-Droid metadata local
 metadata/*.txt
+
+# Claude Code session data
+.claude/
