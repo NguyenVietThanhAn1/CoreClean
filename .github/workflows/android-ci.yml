@@ -26,14 +26,20 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Build debug APK
-        run: ./gradlew :app:assembleDebug
+      - name: Build FOSS debug APK (catch compile errors early)
+        run: ./gradlew :app:assembleFossDebug
 
-      - name: Run unit tests
-        run: ./gradlew :app:testDebugUnitTest
+      - name: Build GMS debug APK
+        run: ./gradlew :app:assembleGmsDebug
 
-      - name: Run lint
-        run: ./gradlew :app:lintDebug
+      - name: Run unit tests (GMS)
+        run: ./gradlew :app:testGmsDebugUnitTest
+
+      - name: Run unit tests (FOSS)
+        run: ./gradlew :app:testFossDebugUnitTest
+
+      - name: Run lint (GMS)
+        run: ./gradlew :app:lintGmsDebug
 
       - name: Generate JaCoCo coverage report
         run: ./gradlew :app:jacocoTestReport
@@ -68,20 +74,24 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Assemble release (unsigned, no keystore required in CI)
-        run: ./gradlew :app:assembleRelease
+      - name: Assemble GMS release (unsigned)
+        run: ./gradlew :app:assembleGmsRelease
         env:
-          # Accept missing keystore; signing will be skipped
           KEYSTORE_PATH: ""
 
-      - name: Upload Sentry source maps
+      - name: Assemble FOSS release (unsigned)
+        run: ./gradlew :app:assembleFossRelease
+        env:
+          KEYSTORE_PATH: ""
+
+      - name: Upload Sentry source maps (GMS only)
         if: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
-        run: ./gradlew :app:sentryUploadProguardMappingsRelease
+        run: ./gradlew :app:sentryUploadProguardMappingsGmsRelease
         continue-on-error: true
 
-      - name: Upload release APK
+      - name: Upload release APKs
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: release-apk
-          path: app/build/outputs/apk/release/
+          name: release-apks
+          path: app/build/outputs/apk/

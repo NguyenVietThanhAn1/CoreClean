@@ -10,9 +10,9 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-    <!-- Cần justify với Google Play nếu dùng -->
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
+    <!-- ── Package visibility (APK Analyzer — list all installed apps) ── -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
 
     <!-- ── Usage Stats (phải grant thủ công trong Settings) ── -->
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"

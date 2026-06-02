@@ -64,16 +64,28 @@ app/src/main/java/com/coreclean/app/
 - **Sprint 7:** AI Dedupe (pHash) ✅, Dark AMOLED ✅, Two-pane Expanded ✅, FOSS flavor ✅,
   GitHub Pages ✅, Room proper migrations ✅, i18n debt resolved ✅
 
+## Sprint 8 — Distribution blockers (2026-06-02)
+| Task | Status | Ghi chu |
+|------|--------|---------|
+| FOSS Sentry-free (gmsImplementation, NoOpCrashReporter) | Done | foss APK: zero io.sentry bytes |
+| MANAGE_EXTERNAL_STORAGE removed | Done | scanEmptyFolders -> SAF DocumentFile |
+| HomeViewModel passes all 6 params to GenerateSuggestionsUseCase | Done | + 6h cache via DataStore |
+| QUERY_ALL_PACKAGES added to manifest | Done | Justified in Permissions.md |
+| baseline-prof.txt committed | Done | app/src/main/generated/baselineProfiles/ |
+| CI builds both flavors | Done | assembleFossDebug + assembleGmsDebug |
+| 3 unused Material3 Adaptive deps removed | Done | adaptive, adaptive-navigation, adaptive-layout |
+| Rule 3 bug fixed (DOWNLOAD filter -> RESIDUAL_APK) | Done | GenerateSuggestionsUseCase |
+
 ## Sprint 7 Features
 | Feature | Status |
 |---------|--------|
-| AI Dedupe (pHash) | ✅ |
-| Dark AMOLED mode | ✅ |
-| Two-pane Expanded layout | ✅ |
-| FOSS build flavor | ✅ |
-| GitHub Pages hosting | ✅ |
-| Room proper migrations | ✅ |
-| i18n debt resolved | ✅ |
+| AI Dedupe (pHash) | Done |
+| Dark AMOLED mode | Done |
+| Two-pane Expanded layout | Done |
+| FOSS build flavor | Done |
+| GitHub Pages hosting | Done |
+| Room proper migrations | Done |
+| i18n debt resolved | Done |
 
 ---
-*Cap nhat: thang 6/2026 - Sprint 7*
+*Cap nhat: thang 6/2026 - Sprint 8*

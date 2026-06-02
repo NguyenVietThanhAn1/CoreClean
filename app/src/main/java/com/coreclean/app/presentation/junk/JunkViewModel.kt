@@ -50,7 +50,7 @@ class JunkViewModel @Inject constructor(
     fun scan() = viewModelScope.launch {
         _uiState.value = JunkUiState.Scanning
         try {
-            val items = scanJunk()
+            val items = scanJunk(safFolderUris.value)
             _uiState.value = JunkUiState.Ready(items, items.map { it.path }.toSet())
         } catch (e: Exception) {
             _uiState.value = JunkUiState.Error(e.message ?: "Scan failed")

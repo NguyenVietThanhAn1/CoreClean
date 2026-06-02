@@ -3,6 +3,7 @@ package com.coreclean.app.domain.usecase.suggest
 import com.coreclean.app.domain.model.CleaningSuggestion
 import com.coreclean.app.domain.model.DuplicateGroup
 import com.coreclean.app.domain.model.InstalledApp
+import com.coreclean.app.domain.model.JunkCategory
 import com.coreclean.app.domain.model.JunkItem
 import com.coreclean.app.domain.model.MediaImage
 import com.coreclean.app.domain.model.StorageInfo
@@ -61,9 +62,9 @@ class GenerateSuggestionsUseCase @Inject constructor() {
                 }
             }
 
-        // Rule 3: download-category junk item > 200 MB AND file older > 30 days
+        // Rule 3: residual APK or temp junk item > 200 MB → suggest clean up
         val oldDownloads = junkItems.filter { item ->
-            item.category.name.contains("DOWNLOAD", ignoreCase = true) &&
+            item.category == JunkCategory.RESIDUAL_APK &&
                 item.sizeBytes >= DOWNLOAD_SIZE_THRESHOLD_BYTES
         }
         if (oldDownloads.isNotEmpty()) {

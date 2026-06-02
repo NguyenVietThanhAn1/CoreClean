@@ -1,23 +1,32 @@
 # Changelog
 
-## [Sprint 8] - 2026-06-02
+## [Sprint 8] - 2026-06-02 — Distribution blockers
 
 ### Added
 - `NoOpCrashReporter` in `src/foss/` — implements `CrashReporter` with all no-ops; no io.sentry dependency
-- `SentryInitializer.kt` in `src/gms/` — extension function `CleanerApp.initializeSentry(dataStore)` that reads DataStore `crash_reporting` flag on IO before calling `SentryAndroid.init`; Sentry is never initialized if user has not opted in
-- `SentryInitializer.kt` in `src/foss/` — no-op counterpart; foss builds compile with zero Sentry references
-- `SentryCrashReporterTest` in `src/testGms/` (moved from shared `src/test/`)
-- `NoOpCrashReporterTest` in `src/testFoss/` — verifies no-throw and no external side-effects
+- `SentryInitializer.kt` in `src/gms/` — extension function reads DataStore `crash_reporting` flag on IO before `SentryAndroid.init`; Sentry never initializes without user opt-in
+- `SentryInitializer.kt` in `src/foss/` — no-op; foss builds compile with zero Sentry references
+- `SentryCrashReporterTest` in `src/testGms/`, `NoOpCrashReporterTest` in `src/testFoss/`
+- `HomeViewModel` now injects `AppListRepository`, `AppUsageRepository`, `ScanJunkUseCase`, `DataStore<Preferences>` — all 6 parameters of `GenerateSuggestionsUseCase` are populated
+- 6-hour suggestion cache: heavy repos (app list, usage stats, junk scan) are rate-limited; cache timestamp stored in DataStore `home_suggestions_cache_ts`
+- `baseline-prof.txt` committed to `app/src/main/generated/baselineProfiles/` with startup-class hints for `profileinstaller`
+- `QUERY_ALL_PACKAGES` permission in manifest with justification in `docs/Permissions.md`
 
 ### Fixed
-- **FOSS flavor Sentry leak**: `gmsImplementation(libs.sentry.android)` replaces `implementation`; foss APK no longer contains the Sentry SDK
-- **Privacy claim**: `CleanerApp` now reads `crash_reporting` DataStore flag via `runBlocking(IO)` before any `SentryAndroid.init`; Sentry is skipped by default (opt-out was previously impossible before first Settings open)
-- `SettingsViewModel.setCrashReporting(false)` now calls `crashReporter.setEnabled(false)` through the domain interface instead of `io.sentry.Sentry.close()` directly; foss builds no longer reference io.sentry in presentation layer
+- **FOSS Sentry leak**: `"gmsImplementation"(libs.sentry.android)` — foss APK contains zero Sentry SDK bytes
+- **Privacy opt-in**: `CleanerApp` reads `crash_reporting` DataStore flag before any Sentry init
+- **Play Store blocker**: removed `MANAGE_EXTERNAL_STORAGE`; `JunkScanner.scanEmptyFolders()` now walks DocumentFile trees from user-granted SAF URIs only
+- `SettingsViewModel.setCrashReporting(false)` uses `crashReporter.setEnabled(false)` via domain interface (no direct `io.sentry.*` in `src/main/`)
+- **Rule 3 bug**: `GenerateSuggestionsUseCase` filter corrected from `DOWNLOAD` substring (matched nothing) to `RESIDUAL_APK` category
+- CI `testDebugUnitTest` ambiguity resolved: separate `testGmsDebugUnitTest` and `testFossDebugUnitTest` steps
 
 ### Changed
 - `SentryCrashReporter` and `CrashReporterModule` moved from `src/main/` to `src/gms/` source set
+- `ScanJunkUseCase.invoke()` accepts `safFolderUriStrings: Set<String> = emptySet()`; `JunkViewModel.scan()` passes current SAF URIs
 - `CleanerApp` injects `DataStore<Preferences>` (previously only `HiltWorkerFactory`)
 - `SettingsViewModel` injects `CrashReporter` (new parameter after `WorkManager`)
+- CI `android-ci.yml`: explicit FOSS build step added; `assembleRelease` split into `assembleGmsRelease` + `assembleFossRelease`
+- Removed 3 unused Material3 Adaptive deps (`adaptive`, `adaptive-navigation`, `adaptive-layout`) — tablet layout uses `WindowSizeClass` only
 - Removed empty directories: `core/base`, `core/extensions`, `core/utils`, `data/datasource/file`, `data/mapper`, `domain/usecase/appusage`, `presentation/appusage`
 
 ---

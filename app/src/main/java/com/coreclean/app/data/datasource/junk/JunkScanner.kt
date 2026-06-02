@@ -3,10 +3,10 @@ package com.coreclean.app.data.datasource.junk
 import android.app.usage.StorageStatsManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.os.storage.StorageManager
-import android.provider.MediaStore
+import androidx.documentfile.provider.DocumentFile
 import com.coreclean.app.domain.model.JunkCategory
 import com.coreclean.app.domain.model.JunkItem
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -18,14 +18,19 @@ import javax.inject.Inject
 class JunkScanner @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    suspend fun scan(): List<JunkItem> = withContext(Dispatchers.IO) {
-        buildList {
-            addAll(scanAppCache())
-            addAll(scanTempFiles())
-            addAll(scanResidualApks())
-            addAll(scanEmptyFolders())
+    /**
+     * @param safFolderUriStrings SAF tree URIs granted by the user via OpenDocumentTree.
+     *   Used exclusively for EMPTY_FOLDERS scanning. Pass an empty set to skip that category.
+     */
+    suspend fun scan(safFolderUriStrings: Set<String> = emptySet()): List<JunkItem> =
+        withContext(Dispatchers.IO) {
+            buildList {
+                addAll(scanAppCache())
+                addAll(scanTempFiles())
+                addAll(scanResidualApks())
+                addAll(scanEmptyFolders(safFolderUriStrings))
+            }
         }
-    }
 
     private fun scanAppCache(): List<JunkItem> {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return emptyList()
@@ -58,8 +63,7 @@ class JunkScanner @Inject constructor(
     private fun scanTempFiles(): List<JunkItem> {
         val dirs = listOf(
             context.cacheDir,
-            context.externalCacheDir,
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            context.externalCacheDir
         ).filterNotNull()
 
         val patterns = listOf(".tmp", ".log", ".thumbdata")
@@ -71,25 +75,36 @@ class JunkScanner @Inject constructor(
     }
 
     private fun scanResidualApks(): List<JunkItem> {
-        val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        if (!downloads.exists()) return emptyList()
-        return downloads.walkTopDown()
-            .filter { it.isFile && it.name.endsWith(".apk", ignoreCase = true) }
-            .map { JunkItem(it.absolutePath, it.length(), JunkCategory.RESIDUAL_APK) }
-            .toList()
+        // Scan app's own external cache for leftover APKs — no broad storage permission needed.
+        val dirs = listOf(context.externalCacheDir).filterNotNull().filter { it.exists() }
+        return dirs.flatMap { dir ->
+            dir.walkTopDown()
+                .filter { it.isFile && it.name.endsWith(".apk", ignoreCase = true) }
+                .map { JunkItem(it.absolutePath, it.length(), JunkCategory.RESIDUAL_APK) }
+                .toList()
+        }
     }
 
-    private fun scanEmptyFolders(): List<JunkItem> {
-        val roots = listOf(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        ).filterNotNull().filter { it.exists() }
-
-        return roots.flatMap { root ->
-            root.walkBottomUp()
-                .filter { it.isDirectory && it != root && (it.listFiles()?.isEmpty() == true) }
-                .map { JunkItem(it.absolutePath, 0L, JunkCategory.EMPTY_FOLDERS) }
+    /**
+     * Scan SAF tree URIs for empty directories.
+     * Returns an empty list when no SAF folders have been granted.
+     */
+    private fun scanEmptyFolders(safUriStrings: Set<String>): List<JunkItem> {
+        return safUriStrings.flatMap { uriString ->
+            runCatching {
+                val uri  = Uri.parse(uriString)
+                val root = DocumentFile.fromTreeUri(context, uri) ?: return@flatMap emptyList<JunkItem>()
+                collectEmptyDirs(root)
+            }.getOrElse { emptyList() }
         }
+    }
+
+    private fun collectEmptyDirs(dir: DocumentFile): List<JunkItem> {
+        val children = dir.listFiles()
+        if (children.isEmpty()) {
+            return listOf(JunkItem(dir.uri.toString(), 0L, JunkCategory.EMPTY_FOLDERS))
+        }
+        return children.filter { it.isDirectory }.flatMap { collectEmptyDirs(it) }
     }
 
     suspend fun clean(items: List<JunkItem>): Int = withContext(Dispatchers.IO) {

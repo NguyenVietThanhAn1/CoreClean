@@ -33,6 +33,10 @@
 ### Phase 5 - Distribution
 - [x] FOSS build flavor (Sprint 7 — foss/gms product flavors, Sentry disabled in FOSS)
 - [x] GitHub Pages (Sprint 7 — Privacy Policy hosted at annguyn.github.io/CoreClean)
-- [ ] Play Store launch (content rating, data safety form ready — see PlayStoreListing.md)
-- [ ] F-Droid submission (Sprint 8: foss APK is now Sentry-free, metadata ready — see FDroidMetadata.md)
+- [x] FOSS APK truly Sentry-free (Sprint 8 — gmsImplementation, NoOpCrashReporter, zero io.sentry in foss)
+- [x] MANAGE_EXTERNAL_STORAGE removed (Sprint 8 — Play Store blocker resolved; SAF-only empty-folder scan)
+- [x] Baseline profile committed (Sprint 8 — startup hints for profileinstaller)
+- [x] CI builds both flavors (Sprint 8 — explicit FOSS + GMS steps, flavor-specific test tasks)
+- [ ] Play Store launch (content rating, data safety form ready — see PlayStoreListing.md; unblocked by Sprint 8)
+- [ ] F-Droid submission (Sprint 8: all blockers resolved — foss APK Sentry-free, no restricted permissions)
 - [ ] Crowdin i18n (additional languages beyond vi/en)

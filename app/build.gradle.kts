@@ -175,11 +175,6 @@ dependencies {
     // ── Window size class (tablet/foldable) ───────────────────────
     implementation("androidx.compose.material3:material3-window-size-class")
 
-    // ── Material3 Adaptive (tablet two-pane) ─────────────────────
-    implementation("androidx.compose.material3.adaptive:adaptive:1.1.0")
-    implementation("androidx.compose.material3.adaptive:adaptive-navigation:1.1.0")
-    implementation("androidx.compose.material3.adaptive:adaptive-layout:1.1.0")
-
     // ── Serialization (type-safe Navigation) ──────────────────────
     implementation(libs.serialization.json)
 

@@ -36,3 +36,6 @@
 - ~~Room dung fallbackToDestructiveMigration() (mat data khi update)~~ - Da fix Sprint 7: proper migrations MIGRATION_1_2 + MIGRATION_2_3 (addMigrations())
 - ~~Sentry SDK duoc pull vao ca foss flavor~~ - Da fix Sprint 8: gmsImplementation, foss dung NoOpCrashReporter
 - ~~Sentry init truoc khi doc DataStore crash_reporting flag~~ - Da fix Sprint 8: runBlocking(IO) read truoc SentryAndroid.init
+- ~~MANAGE_EXTERNAL_STORAGE trong manifest vi pham chinh sach Play Store~~ - Da xoa Sprint 8: scanEmptyFolders dung SAF DocumentFile
+- ~~HomeViewModel chi truyen 3/6 param cho GenerateSuggestionsUseCase~~ - Da fix Sprint 8: inject du 3 repo con lai + 6h cache
+- ~~Rule 3 filter "DOWNLOAD" khong match JunkCategory nao~~ - Da fix Sprint 8: dung RESIDUAL_APK

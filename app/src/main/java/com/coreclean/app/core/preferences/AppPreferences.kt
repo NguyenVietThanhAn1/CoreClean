@@ -2,6 +2,7 @@ package com.coreclean.app.core.preferences
 
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 
@@ -26,6 +27,9 @@ object AppPreferenceKeys {
 
     // AI Dedupe — perceptual hash
     val PERCEPTUAL_DEDUPE        = booleanPreferencesKey("perceptual_dedupe")
+
+    // HomeViewModel suggestion cache — epoch-ms of last full (heavy) scan
+    val HOME_SUGGESTIONS_CACHE_TS = longPreferencesKey("home_suggestions_cache_ts")
 }
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
