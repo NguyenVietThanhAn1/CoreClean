@@ -103,6 +103,16 @@ class GenerateSuggestionsUseCaseTest {
         assertTrue(result.none { it is CleaningSuggestion.StorageFull })
     }
 
+    @Test fun `usageStatsAvailable false suppresses UnusedApp even for large long-installed apps`() {
+        val app = makeApp(apkSizeBytes = 200 * 1024 * 1024L)
+        val result = useCase.invoke(
+            installedApps       = listOf(app),
+            appLastUsedDays     = mapOf(app.packageName to 90),
+            usageStatsAvailable = false
+        )
+        assertTrue(result.none { it is CleaningSuggestion.UnusedApp })
+    }
+
     @Test fun `results sorted by estimatedWastedBytes descending`() {
         val groups  = listOf(DuplicateGroup(emptyList(), 150 * 1024 * 1024L))
         val app     = makeApp(apkSizeBytes = 200 * 1024 * 1024L)

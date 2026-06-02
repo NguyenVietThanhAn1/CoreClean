@@ -16,6 +16,16 @@
 - **AMOLED mode** may cause slight Canvas redraw overhead (<5%) on some devices due to forced black background recalculation
 - **pHash** may produce ~0.5% false positives for screenshots containing dense text/graphs (high-frequency patterns confuse DCT)
 
+## Fixed in Sprint 8.2
+
+- ~~`SentryInitializer` blocks main thread with `runBlocking(Dispatchers.IO)`~~ — Da fix Sprint 8.2: async `MainScope().launch(IO)`
+- ~~`SentryCrashReporter.setEnabled(true)` no-op — crash reporting requires app restart to activate~~ — Da fix Sprint 8.2: `SentryAndroid.init` called at runtime
+- ~~`AutoCleanWorker` / `SettingsViewModel` dùng `workManager.enqueue()` có thể tạo nhiều work item trùng~~ — Da fix Sprint 8.2: `enqueueUniqueWork(REPLACE)` + battery/idle constraints
+- ~~`JunkScanner.scanResidualApks` bỏ sót APK trong SAF tree~~ — Da fix Sprint 8.2: walk SAF trees cho `.apk`
+- ~~Rule 2 `GenerateSuggestionsUseCase` dùng `installTime` fallback khi không có usage stats → false positive~~ — Da fix Sprint 8.2: skip rule khi `usageStatsAvailable = false`
+- ~~`SettingsViewModel` crash khi DataStore chứa giá trị `APP_LANGUAGE` không hợp lệ~~ — Da fix Sprint 8.2: `runCatching { AppLanguage.valueOf(...) }.getOrDefault(SYSTEM)`
+- ~~`RecommendationNotifier` / `AutoCleanWorker` gọi `notify()` mà không check quyền POST_NOTIFICATIONS (API 33+)~~ — Da fix Sprint 8.2: permission guard + `NOTIF_PERMISSION_NEEDED` pref
+
 ## Fixed in Sprint 2/3/4/5/6/7/8
 
 - ~~Xoa anh tren Android 11+ chua dung MediaStore.createDeleteRequest~~ - Da fix Sprint 2

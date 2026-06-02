@@ -7,7 +7,9 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -63,7 +65,7 @@ class SettingsViewModel @Inject constructor(
             amoledEnabled           = prefs[AppPreferenceKeys.AMOLED_ENABLED] ?: false,
             backgroundScan          = prefs[AppPreferenceKeys.BACKGROUND_SCAN] ?: true,
             scanIntervalHours       = prefs[AppPreferenceKeys.SCAN_INTERVAL_HOURS] ?: 12,
-            language                = AppLanguage.valueOf(prefs[AppPreferenceKeys.APP_LANGUAGE] ?: AppLanguage.SYSTEM.name),
+            language                = runCatching { AppLanguage.valueOf(prefs[AppPreferenceKeys.APP_LANGUAGE] ?: AppLanguage.SYSTEM.name) }.getOrDefault(AppLanguage.SYSTEM),
             crashReporting          = prefs[AppPreferenceKeys.CRASH_REPORTING] ?: false,
             scheduleConfig          = schedule,
             recommendationsEnabled  = prefs[AppPreferenceKeys.RECOMMENDATIONS_ENABLED] ?: true,
@@ -151,11 +153,16 @@ class SettingsViewModel @Inject constructor(
         val nowMs   = System.currentTimeMillis()
         val target  = nextRunTimeMs(config)
         val delayMs = (target - nowMs).coerceAtLeast(0L)
+        val constraints = Constraints.Builder()
+            .setRequiresBatteryNotLow(true)
+            .setRequiresDeviceIdle(true)
+            .build()
         val request = OneTimeWorkRequestBuilder<AutoCleanWorker>()
             .setInitialDelay(delayMs, TimeUnit.MILLISECONDS)
+            .setConstraints(constraints)
             .addTag("auto_clean")
             .build()
-        workManager.enqueue(request)
+        workManager.enqueueUniqueWork("auto_clean", ExistingWorkPolicy.REPLACE, request)
     }
 
     private fun nextRunTimeMs(config: ScheduleConfig): Long {

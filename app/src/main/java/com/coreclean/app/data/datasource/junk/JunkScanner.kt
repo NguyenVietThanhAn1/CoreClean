@@ -20,14 +20,14 @@ class JunkScanner @Inject constructor(
 ) {
     /**
      * @param safFolderUriStrings SAF tree URIs granted by the user via OpenDocumentTree.
-     *   Used exclusively for EMPTY_FOLDERS scanning. Pass an empty set to skip that category.
+     *   Used for EMPTY_FOLDERS and RESIDUAL_APK scanning. Pass an empty set to skip those.
      */
     suspend fun scan(safFolderUriStrings: Set<String> = emptySet()): List<JunkItem> =
         withContext(Dispatchers.IO) {
             buildList {
                 addAll(scanAppCache())
                 addAll(scanTempFiles())
-                addAll(scanResidualApks())
+                addAll(scanResidualApks(safFolderUriStrings))
                 addAll(scanEmptyFolders(safFolderUriStrings))
             }
         }
@@ -74,14 +74,34 @@ class JunkScanner @Inject constructor(
         }
     }
 
-    private fun scanResidualApks(): List<JunkItem> {
-        // Scan app's own external cache for leftover APKs — no broad storage permission needed.
-        val dirs = listOf(context.externalCacheDir).filterNotNull().filter { it.exists() }
-        return dirs.flatMap { dir ->
+    private fun scanResidualApks(safFolderUriStrings: Set<String>): List<JunkItem> {
+        val result = mutableListOf<JunkItem>()
+
+        // Scan app's own external cache — no broad storage permission needed.
+        listOf(context.externalCacheDir).filterNotNull().filter { it.exists() }.forEach { dir ->
             dir.walkTopDown()
                 .filter { it.isFile && it.name.endsWith(".apk", ignoreCase = true) }
-                .map { JunkItem(it.absolutePath, it.length(), JunkCategory.RESIDUAL_APK) }
-                .toList()
+                .mapTo(result) { JunkItem(it.absolutePath, it.length(), JunkCategory.RESIDUAL_APK) }
+        }
+
+        // Also walk user-granted SAF trees for leftover APKs.
+        safFolderUriStrings.forEach { uriString ->
+            runCatching {
+                val root = DocumentFile.fromTreeUri(context, Uri.parse(uriString)) ?: return@runCatching
+                collectApkFiles(root, result)
+            }
+        }
+
+        return result
+    }
+
+    private fun collectApkFiles(dir: DocumentFile, result: MutableList<JunkItem>) {
+        for (child in dir.listFiles()) {
+            when {
+                child.isFile && child.name?.endsWith(".apk", ignoreCase = true) == true ->
+                    result += JunkItem(child.uri.toString(), child.length(), JunkCategory.RESIDUAL_APK)
+                child.isDirectory -> collectApkFiles(child, result)
+            }
         }
     }
 
@@ -110,8 +130,12 @@ class JunkScanner @Inject constructor(
     suspend fun clean(items: List<JunkItem>): Int = withContext(Dispatchers.IO) {
         items.count { item ->
             try {
-                val file = File(item.path)
-                if (file.exists()) file.delete() else false
+                if (item.category == JunkCategory.EMPTY_FOLDERS) {
+                    DocumentFile.fromSingleUri(context, Uri.parse(item.path))?.delete() ?: false
+                } else {
+                    val file = File(item.path)
+                    if (file.exists()) file.delete() else false
+                }
             } catch (_: Exception) { false }
         }
     }

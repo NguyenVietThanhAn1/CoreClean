@@ -21,6 +21,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 private const val CACHE_TTL_MS = 6 * 60 * 60 * 1000L // 6 hours
@@ -43,11 +46,17 @@ class HomeViewModel @Inject constructor(
 
     fun loadSuggestions() = viewModelScope.launch {
         runCatching {
+            val prefs   = dataStore.data.first()
             val nowMs   = System.currentTimeMillis()
-            val cacheTs = dataStore.data
-                .map { it[AppPreferenceKeys.HOME_SUGGESTIONS_CACHE_TS] ?: 0L }
-                .first()
+            val cacheTs = prefs[AppPreferenceKeys.HOME_SUGGESTIONS_CACHE_TS] ?: 0L
             val cacheStale = (nowMs - cacheTs) > CACHE_TTL_MS
+
+            // Emit cached suggestions immediately so UI is responsive while heavy IO runs.
+            prefs[AppPreferenceKeys.HOME_SUGGESTIONS_CACHE_JSON]
+                ?.let { runCatching { Json.decodeFromString<List<CleaningSuggestion>>(it) }.getOrNull() }
+                ?.let { _suggestions.value = it }
+
+            if (!cacheStale) return@runCatching
 
             // Fast data — always fresh.
             val images  = mediaRepository.getAllImages().first()
@@ -55,9 +64,9 @@ class HomeViewModel @Inject constructor(
             val dupes   = mediaRepository.findDuplicates(images)
 
             // Heavy data — rate-limited to once per 6 h.
-            val installedApps = if (cacheStale) appListRepository.getInstalledApps()
-                                else emptyList()
-            val lastUsedDays = if (cacheStale && appUsageRepository.hasUsageAccessPermission()) {
+            val usageStatsAvailable = appUsageRepository.hasUsageAccessPermission()
+            val installedApps = appListRepository.getInstalledApps()
+            val lastUsedDays = if (usageStatsAvailable) {
                 val nowMs2 = System.currentTimeMillis()
                 appUsageRepository.getUsageStats(UsageRange.LAST_30)
                     .associate { info ->
@@ -65,20 +74,22 @@ class HomeViewModel @Inject constructor(
                             ((nowMs2 - info.lastTimeUsed) / (1_000L * 60 * 60 * 24)).toInt()
                     }
             } else emptyMap()
-            // SAF folders not relevant for suggestion-level junk scan.
-            val junkItems = if (cacheStale) scanJunkUseCase() else emptyList()
+            val junkItems = scanJunkUseCase()
 
-            _suggestions.value = generateSuggestions.invoke(
-                duplicateGroups = dupes,
-                installedApps   = installedApps,
-                appLastUsedDays = lastUsedDays,
-                junkItems       = junkItems,
-                allImages       = images,
-                storageInfo     = storage
+            val fresh = generateSuggestions.invoke(
+                duplicateGroups     = dupes,
+                installedApps       = installedApps,
+                appLastUsedDays     = lastUsedDays,
+                junkItems           = junkItems,
+                allImages           = images,
+                storageInfo         = storage,
+                usageStatsAvailable = usageStatsAvailable
             )
+            _suggestions.value = fresh
 
-            if (cacheStale) {
-                dataStore.edit { it[AppPreferenceKeys.HOME_SUGGESTIONS_CACHE_TS] = nowMs }
+            dataStore.edit {
+                it[AppPreferenceKeys.HOME_SUGGESTIONS_CACHE_TS]   = nowMs
+                it[AppPreferenceKeys.HOME_SUGGESTIONS_CACHE_JSON] = Json.encodeToString(fresh)
             }
         }
     }

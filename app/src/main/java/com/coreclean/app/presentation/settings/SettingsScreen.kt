@@ -11,7 +11,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -252,13 +253,15 @@ fun SettingsScreen(
                 }
             }
 
-            // ── Crash Reporting ────────────────────────────────────────
-            SectionHeader(stringResource(R.string.settings_section_crash))
-            SettingsToggleRow(
-                title           = stringResource(R.string.settings_crash_toggle),
-                checked         = state.crashReporting,
-                onCheckedChange = viewModel::setCrashReporting
-            )
+            // ── Crash Reporting (gms only) ────────────────────────────
+            if (BuildConfig.FLAVOR == "gms") {
+                SectionHeader(stringResource(R.string.settings_section_crash))
+                SettingsToggleRow(
+                    title           = stringResource(R.string.settings_crash_toggle),
+                    checked         = state.crashReporting,
+                    onCheckedChange = viewModel::setCrashReporting
+                )
+            }
 
             // ── Privacy ────────────────────────────────────────────────
             SectionHeader(stringResource(R.string.settings_section_privacy))

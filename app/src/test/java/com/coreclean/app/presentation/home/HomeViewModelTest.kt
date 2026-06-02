@@ -4,7 +4,9 @@ import android.net.Uri
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
 import com.coreclean.app.MainDispatcherRule
+import com.coreclean.app.core.preferences.AppPreferenceKeys
 import com.coreclean.app.domain.model.AppUsageInfo
 import com.coreclean.app.domain.model.CleaningSuggestion
 import com.coreclean.app.domain.model.DuplicateGroup
@@ -37,6 +39,8 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -221,6 +225,33 @@ class HomeViewModelTest {
             assertEquals(
                 "appListRepository should not be called when cache is fresh",
                 0, appListCallCount
+            )
+        }
+
+    // ── Cache JSON: cold load emits cached suggestions before IO ─────────
+
+    @Test
+    fun `cold load emits cached suggestions from DataStore before heavy IO runs`() =
+        runTest(mainDispatcherRule.testScheduler) {
+            // Pre-populate DataStore with a fresh timestamp + serialized suggestion.
+            val cachedSuggestion = CleaningSuggestion.StorageFull(freePercent = 0.04f)
+            val cachedJson = Json.encodeToString<List<CleaningSuggestion>>(listOf(cachedSuggestion))
+            val freshTs = System.currentTimeMillis()   // not stale
+
+            dataStore.edit { prefs ->
+                prefs[AppPreferenceKeys.HOME_SUGGESTIONS_CACHE_TS]   = freshTs
+                prefs[AppPreferenceKeys.HOME_SUGGESTIONS_CACHE_JSON] = cachedJson
+            }
+
+            // Heavy IO stubs return empty — if they run, suggestions would be cleared.
+            coEvery { storageRepository.getStorageInfo() } returns emptyStorage()
+
+            val vm = createViewModel()
+            advanceUntilIdle()
+
+            assertTrue(
+                "Expected cached StorageFull suggestion after cold load",
+                vm.suggestions.value.any { it is CleaningSuggestion.StorageFull }
             )
         }
 

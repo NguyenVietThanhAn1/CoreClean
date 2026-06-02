@@ -1,5 +1,50 @@
 # Changelog
 
+## [Sprint 8.2] - 2026-06-02 — Post-review hot-fixes round 2
+
+### Fixed
+- `SentryInitializer` (gms): replaced `runBlocking(Dispatchers.IO)` with `MainScope().launch(Dispatchers.IO)` — Sentry init no longer blocks the main thread at startup
+- `SentryCrashReporter`: inject `@ApplicationContext`; `setEnabled(true)` now calls `SentryAndroid.init` at runtime so toggling crash reporting on works without a restart
+- `SettingsScreen`: removed restart hint for crash-reporting off→on toggle (runtime re-init makes it unnecessary)
+- `AutoCleanWorker` + `SettingsViewModel`: both scheduling paths now call `enqueueUniqueWork("auto_clean", REPLACE, ...)` with `setRequiresBatteryNotLow + setRequiresDeviceIdle` constraints; `scheduleNext` is also called in the `getOrElse` branch so the chain never breaks on a failed run
+- `JunkScanner.scanResidualApks`: now also walks user-granted SAF trees for `.apk` files in addition to the app's own external cache directory
+- `GenerateSuggestionsUseCase` Rule 2: added `usageStatsAvailable: Boolean` param — when `false` the rule is skipped entirely to avoid false positives from `installTime` fallback
+- `HomeViewModel`: passes `usageStatsAvailable = appUsageRepository.hasUsageAccessPermission()` to suggestions use case
+- `HomeViewModel`: caches `List<CleaningSuggestion>` as JSON in DataStore (`HOME_SUGGESTIONS_CACHE_JSON`); on init the cached suggestions are emitted immediately before heavy IO runs
+- `SettingsViewModel`: `AppLanguage.valueOf(...)` wrapped in `runCatching { }.getOrDefault(SYSTEM)` to prevent crash on unknown stored value
+- `AppPreferences`: `APP_LANGUAGE` comment corrected to `// SYSTEM | VIETNAMESE | ENGLISH`
+- `RecommendationNotifier` + `AutoCleanWorker.showResultNotification`: POST_NOTIFICATIONS permission check on API 33+ before `notify()`; sets `NOTIF_PERMISSION_NEEDED = true` pref for Home banner when missing
+- `AutoCleanWorker.doWork()`: reads `RECOMMENDATIONS_ENABLED` pref; skips `showResultNotification` when false (cleaning and rescheduling still run)
+
+### Added
+- `CleaningSuggestion` sealed class: all subclasses annotated `@Serializable` with `@SerialName` discriminators
+- `JunkItem`: annotated `@Serializable`
+- `AppPreferenceKeys`: `HOME_SUGGESTIONS_CACHE_JSON`, `NOTIF_PERMISSION_NEEDED` keys
+- `SentryCrashReporterTest`: `setEnabled(true)` after `setEnabled(false)` re-init test
+- `AutoCleanWorkerTest` (Robolectric): verifies `enqueueUniqueWork` with REPLACE is called for each `setAutoCleanEnabled(true)` invocation
+- `JunkScannerTest`: SAF tree containing `.apk` files is picked up under RESIDUAL_APK
+- `GenerateSuggestionsUseCaseTest`: `usageStatsAvailable=false` → no `UnusedApp` suggestions
+- `HomeViewModelTest`: cold load reads cached JSON and emits suggestions before heavy IO completes
+
+---
+
+## [Sprint 8.1] - 2026-06-02 — Post-review hot-fixes
+
+### Fixed
+- `JunkScanner.clean()`: EMPTY_FOLDERS items (content URIs) now deleted via `DocumentFile.fromSingleUri().delete()` instead of `File(path).delete()` which always returned false for SAF paths
+- `AutoCleanWorker.doWork()`: reads `SAF_FOLDER_URIS` from DataStore and passes them to `ScanJunkUseCase` so empty-folder scanning works in background jobs
+
+### Changed
+- `baseline-prof.txt` removed — hand-crafted signatures did not match Kotlin bytecode; baseline profile pending hardware run (see docs/Performance.md)
+- Removed `buildConfigField SENTRY_ENABLED` from both product flavors (dead code — never read at runtime)
+- Sentry source-map upload step removed from CI (`sentryUploadProguardMappingsGmsRelease` task does not exist without the Sentry Gradle plugin)
+- `SettingsScreen`: crash-reporting section hidden in FOSS flavor; restart hint shown in GMS flavor when toggle transitions from disabled to enabled
+
+### Added
+- `JunkScannerTest`: two new tests covering EMPTY_FOLDERS SAF deletion path (mock `DocumentFile`) and non-existent SAF document
+
+---
+
 ## [Sprint 8] - 2026-06-02 — Distribution blockers
 
 ### Added

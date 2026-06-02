@@ -14,7 +14,7 @@ object AppPreferenceKeys {
     val BACKGROUND_SCAN          = booleanPreferencesKey("background_scan")
     val SCAN_INTERVAL_HOURS      = intPreferencesKey("scan_interval_hours")
     val SAF_FOLDER_URIS          = stringSetPreferencesKey("saf_folder_uris")
-    val APP_LANGUAGE             = stringPreferencesKey("app_language")  // system | vi | en
+    val APP_LANGUAGE             = stringPreferencesKey("app_language")  // SYSTEM | VIETNAMESE | ENGLISH
     val CRASH_REPORTING          = booleanPreferencesKey("crash_reporting")
 
     // Auto-cleaning schedule
@@ -28,8 +28,12 @@ object AppPreferenceKeys {
     // AI Dedupe — perceptual hash
     val PERCEPTUAL_DEDUPE        = booleanPreferencesKey("perceptual_dedupe")
 
-    // HomeViewModel suggestion cache — epoch-ms of last full (heavy) scan
-    val HOME_SUGGESTIONS_CACHE_TS = longPreferencesKey("home_suggestions_cache_ts")
+    // HomeViewModel suggestion cache — epoch-ms of last full (heavy) scan + serialized result
+    val HOME_SUGGESTIONS_CACHE_TS   = longPreferencesKey("home_suggestions_cache_ts")
+    val HOME_SUGGESTIONS_CACHE_JSON = stringPreferencesKey("home_suggestions_cache_json")
+
+    // Notification permission — set true when POST_NOTIFICATIONS is missing; cleared after user grants
+    val NOTIF_PERMISSION_NEEDED = booleanPreferencesKey("notif_permission_needed")
 }
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }

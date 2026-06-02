@@ -31,7 +31,8 @@ class GenerateSuggestionsUseCase @Inject constructor() {
         appLastUsedDays: Map<String, Int> = emptyMap(),
         junkItems: List<JunkItem> = emptyList(),
         allImages: List<MediaImage> = emptyList(),
-        storageInfo: StorageInfo? = null
+        storageInfo: StorageInfo? = null,
+        usageStatsAvailable: Boolean = true
     ): List<CleaningSuggestion> {
         val suggestions = mutableListOf<CleaningSuggestion>()
 
@@ -45,8 +46,9 @@ class GenerateSuggestionsUseCase @Inject constructor() {
         }
 
         // Rule 2: app not opened > 60 days AND size > 50 MB → suggest uninstall
+        // Skip entirely when usage stats are unavailable to avoid false positives from installTime fallback.
         val nowMs = System.currentTimeMillis()
-        installedApps
+        if (usageStatsAvailable) installedApps
             .filter { app -> !app.isSystem }
             .forEach { app ->
                 val daysUnused = appLastUsedDays[app.packageName]

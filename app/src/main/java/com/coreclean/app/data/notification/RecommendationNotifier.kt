@@ -3,9 +3,11 @@ package com.coreclean.app.data.notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -50,6 +52,13 @@ class RecommendationNotifier @Inject constructor(
         val lastTs = prefs[AppPreferenceKeys.NOTIF_LAST_STORAGE_FULL]
         if (lastTs != null && !isOlderThanRateLimit(lastTs)) return
 
+        if (Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(context, "android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED
+        ) {
+            dataStore.edit { it[AppPreferenceKeys.NOTIF_PERMISSION_NEEDED] = true }
+            return
+        }
+
         ensureChannel()
         val notification = NotificationCompat.Builder(context, CHANNEL_RECOMMENDATIONS)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
@@ -71,6 +80,13 @@ class RecommendationNotifier @Inject constructor(
         if (!prefs[AppPreferenceKeys.RECOMMENDATIONS_ENABLED].let { it ?: true }) return
         val lastTs = prefs[AppPreferenceKeys.NOTIF_LAST_DUPLICATE]
         if (lastTs != null && !isOlderThanRateLimit(lastTs)) return
+
+        if (Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(context, "android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED
+        ) {
+            dataStore.edit { it[AppPreferenceKeys.NOTIF_PERMISSION_NEEDED] = true }
+            return
+        }
 
         ensureChannel()
         val wasteMb = duplicateWasteBytes / (1024 * 1024)
