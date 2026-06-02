@@ -7,7 +7,7 @@
 - **APP_CACHE** khong xoa duoc tren Android 8+ — chi guide user mo App Manager trong Settings
 - **RAM runningAppProcesses** chi tra ve process cua chinh app tren Android 5+ (platform limit)
 - **APK Analyzer uninstall multi-select**: moi app phai confirm rieng (Android system limit)
-- **Sentry** tat mac dinh, user phai opt-in trong Settings
+- **Sentry** (gms flavor only) tat mac dinh, user phai opt-in trong Settings; foss flavor dung NoOpCrashReporter, khong co Sentry SDK
 - **AppUsage** tren Android 14+ co the bi throttle neu app o background lau
 - Storage breakdown chua cover Documents/WhatsApp day du
 
@@ -16,7 +16,7 @@
 - **AMOLED mode** may cause slight Canvas redraw overhead (<5%) on some devices due to forced black background recalculation
 - **pHash** may produce ~0.5% false positives for screenshots containing dense text/graphs (high-frequency patterns confuse DCT)
 
-## Fixed in Sprint 2/3/4/5/6/7
+## Fixed in Sprint 2/3/4/5/6/7/8
 
 - ~~Xoa anh tren Android 11+ chua dung MediaStore.createDeleteRequest~~ - Da fix Sprint 2
 - ~~Duplicate detection chi dua size+ten, chua co content hash~~ - Da fix Sprint 2 (MD5 256KB)
@@ -34,3 +34,5 @@
 - ~~ExampleInstrumentedTest sai package~~ - Da xoa Sprint 6
 - ~~Thieu lint-baseline~~ - Da them Sprint 6
 - ~~Room dung fallbackToDestructiveMigration() (mat data khi update)~~ - Da fix Sprint 7: proper migrations MIGRATION_1_2 + MIGRATION_2_3 (addMigrations())
+- ~~Sentry SDK duoc pull vao ca foss flavor~~ - Da fix Sprint 8: gmsImplementation, foss dung NoOpCrashReporter
+- ~~Sentry init truoc khi doc DataStore crash_reporting flag~~ - Da fix Sprint 8: runBlocking(IO) read truoc SentryAndroid.init

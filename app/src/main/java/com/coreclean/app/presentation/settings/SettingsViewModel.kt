@@ -16,6 +16,7 @@ import com.coreclean.app.core.preferences.AppPreferenceKeys
 import com.coreclean.app.core.preferences.ThemeMode
 import com.coreclean.app.data.worker.AutoCleanWorker
 import com.coreclean.app.data.worker.MediaScanWorker
+import com.coreclean.app.domain.CrashReporter
 import com.coreclean.app.domain.model.Frequency
 import com.coreclean.app.domain.model.JunkCategory
 import com.coreclean.app.domain.model.ScheduleConfig
@@ -46,7 +47,8 @@ data class SettingsState(
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val dataStore: DataStore<Preferences>,
-    private val workManager: WorkManager
+    private val workManager: WorkManager,
+    private val crashReporter: CrashReporter
 ) : ViewModel() {
 
     val state = dataStore.data.map { prefs ->
@@ -102,7 +104,7 @@ class SettingsViewModel @Inject constructor(
     fun setCrashReporting(enabled: Boolean) = viewModelScope.launch {
         dataStore.edit { it[AppPreferenceKeys.CRASH_REPORTING] = enabled }
         if (!enabled) {
-            runCatching { io.sentry.Sentry.close() }
+            crashReporter.setEnabled(false)
         }
     }
 

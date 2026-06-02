@@ -1,5 +1,27 @@
 # Changelog
 
+## [Sprint 8] - 2026-06-02
+
+### Added
+- `NoOpCrashReporter` in `src/foss/` — implements `CrashReporter` with all no-ops; no io.sentry dependency
+- `SentryInitializer.kt` in `src/gms/` — extension function `CleanerApp.initializeSentry(dataStore)` that reads DataStore `crash_reporting` flag on IO before calling `SentryAndroid.init`; Sentry is never initialized if user has not opted in
+- `SentryInitializer.kt` in `src/foss/` — no-op counterpart; foss builds compile with zero Sentry references
+- `SentryCrashReporterTest` in `src/testGms/` (moved from shared `src/test/`)
+- `NoOpCrashReporterTest` in `src/testFoss/` — verifies no-throw and no external side-effects
+
+### Fixed
+- **FOSS flavor Sentry leak**: `gmsImplementation(libs.sentry.android)` replaces `implementation`; foss APK no longer contains the Sentry SDK
+- **Privacy claim**: `CleanerApp` now reads `crash_reporting` DataStore flag via `runBlocking(IO)` before any `SentryAndroid.init`; Sentry is skipped by default (opt-out was previously impossible before first Settings open)
+- `SettingsViewModel.setCrashReporting(false)` now calls `crashReporter.setEnabled(false)` through the domain interface instead of `io.sentry.Sentry.close()` directly; foss builds no longer reference io.sentry in presentation layer
+
+### Changed
+- `SentryCrashReporter` and `CrashReporterModule` moved from `src/main/` to `src/gms/` source set
+- `CleanerApp` injects `DataStore<Preferences>` (previously only `HiltWorkerFactory`)
+- `SettingsViewModel` injects `CrashReporter` (new parameter after `WorkManager`)
+- Removed empty directories: `core/base`, `core/extensions`, `core/utils`, `data/datasource/file`, `data/mapper`, `domain/usecase/appusage`, `presentation/appusage`
+
+---
+
 ## [Sprint 7] - 2026-06-08
 
 ### Added

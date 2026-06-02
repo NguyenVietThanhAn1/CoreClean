@@ -49,7 +49,8 @@ CoreClean dùng **Clean Architecture 3 tầng** (Domain / Data / Presentation) +
 │                                                                   │
 │ Helpers:                                                          │
 │   DuplicateDetector     MD5 256KB partial hash, parallel semaphore│
-│   SentryCrashReporter   Adapter for io.sentry SDK                 │
+│   SentryCrashReporter   Adapter for io.sentry SDK (gms only)      │
+│   NoOpCrashReporter     No-op adapter (foss only)                 │
 │   MediaScanWorker       CoroutineWorker (Hilt) — 12h periodic     │
 │                                                                   │
 │ Local persistence:                                                │
@@ -61,12 +62,16 @@ CoreClean dùng **Clean Architecture 3 tầng** (Domain / Data / Presentation) +
 ## Module Folders
 
 ```
-app/src/main/java/com/coreclean/app/
+app/src/main/java/com/coreclean/app/      (shared)
+app/src/gms/java/com/coreclean/app/       (Play Store / GMS flavor)
+app/src/foss/java/com/coreclean/app/      (F-Droid / FOSS flavor)
+
+Shared (src/main):
 ├── core/
-│   ├── di/                # Hilt modules per feature
+│   ├── di/                # Hilt modules per feature (crash DI is flavor-specific)
 │   └── preferences/       # AppPreferences, ThemeMode, AppLanguage
 ├── data/
-│   ├── crash/             # SentryCrashReporter
+│   ├── (crash/ moved to per-flavor source sets)
 │   ├── datasource/
 │   │   ├── media/         # MediaDataSource, DuplicateDetector
 │   │   ├── storage/       # StorageDataSource
@@ -203,19 +208,25 @@ Result.success()
 
 ## Crash Reporting Flow (opt-in)
 
+GMS flavor only — foss flavor wires NoOpCrashReporter and skips all Sentry calls.
+
 ```
-CleanerApp.onCreate()
+CleanerApp.onCreate()  [gms flavor]
        │
        ▼
-Read DataStore `crash_reporting_enabled`
+initializeSentry(dataStore)           ← defined in src/gms/SentryInitializer.kt
+       │
+       ▼
+runBlocking(IO) { dataStore.data.first() }
+Read DataStore `crash_reporting`
        │
   ┌────┴───────────────────────┐
   false (default)            true
   │                           │
-  Skip Sentry init            SentryAndroid.init(this) {
+  return (no Sentry init)     SentryAndroid.init(this) {
                                 dsn = BuildConfig.SENTRY_DSN
                                 tracesSampleRate = 0.1
-                                beforeSend = scrubFilePaths/Phones/Emails
+                                isEnableUserInteractionTracing = false
                               }
                               │
                               ▼
@@ -225,6 +236,20 @@ Read DataStore `crash_reporting_enabled`
                           Sentry server (EU region)
 ```
 
+FOSS flavor:
+```
+CleanerApp.onCreate()  [foss flavor]
+       │
+       ▼
+initializeSentry(dataStore)           ← defined in src/foss/SentryInitializer.kt
+       │
+       ▼
+  (no-op, returns immediately)
+       │
+       ▼
+CrashReporter (interface) → NoOpCrashReporter (impl)
+```
+
 ## DI Graph (Hilt SingletonComponent)
 
 - `AppModule` — Dispatchers (Io/Default/Main), WorkManager
@@ -232,7 +257,7 @@ Read DataStore `crash_reporting_enabled`
 - `DataStoreModule` — DataStore<Preferences>
 - `MediaModule` — bind MediaRepository, provide ContentResolver
 - `StorageModule`, `BatteryModule`, `AppUsageModule`, `ContactModule`, `RamModule`, `AppListModule`
-- `CrashReporterModule` — bind SentryCrashReporter
+- `CrashReporterModule` — bind SentryCrashReporter (gms) or NoOpCrashReporter (foss)
 
 ViewModel scope: HiltViewModel — auto-bind tại `@Composable` qua `hiltViewModel()`.
 

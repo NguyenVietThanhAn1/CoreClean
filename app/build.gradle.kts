@@ -166,8 +166,8 @@ dependencies {
     // ── DataStore Preferences ─────────────────────────────────────
     implementation("androidx.datastore:datastore-preferences:1.1.3")
 
-    // ── Sentry crash reporting ────────────────────────────────────
-    implementation(libs.sentry.android)
+    // ── Sentry crash reporting (gms flavor only) ─────────────────
+    "gmsImplementation"(libs.sentry.android)
 
     // ── Baseline profile installer ────────────────────────────────
     implementation("androidx.profileinstaller:profileinstaller:1.4.1")

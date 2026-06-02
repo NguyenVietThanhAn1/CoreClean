@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.work.WorkManager
 import com.coreclean.app.MainDispatcherRule
 import com.coreclean.app.core.preferences.ThemeMode
+import com.coreclean.app.domain.CrashReporter
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -35,6 +36,7 @@ class SettingsViewModelTest {
     private lateinit var dataStore: DataStore<Preferences>
     private lateinit var viewModel: SettingsViewModel
     private val workManager: WorkManager = mockk(relaxed = true)
+    private val crashReporter: CrashReporter = mockk(relaxed = true)
 
     @Before
     fun setUp() {
@@ -42,7 +44,7 @@ class SettingsViewModelTest {
             scope       = kotlinx.coroutines.CoroutineScope(mainDispatcherRule.dispatcher),
             produceFile = { tmpFolder.newFile("test_prefs.preferences_pb") }
         )
-        viewModel = SettingsViewModel(dataStore, workManager)
+        viewModel = SettingsViewModel(dataStore, workManager, crashReporter)
     }
 
     @Test

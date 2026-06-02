@@ -34,5 +34,5 @@
 - [x] FOSS build flavor (Sprint 7 — foss/gms product flavors, Sentry disabled in FOSS)
 - [x] GitHub Pages (Sprint 7 — Privacy Policy hosted at annguyn.github.io/CoreClean)
 - [ ] Play Store launch (content rating, data safety form ready — see PlayStoreListing.md)
-- [ ] F-Droid submission (metadata ready — see FDroidMetadata.md)
+- [ ] F-Droid submission (Sprint 8: foss APK is now Sentry-free, metadata ready — see FDroidMetadata.md)
 - [ ] Crowdin i18n (additional languages beyond vi/en)
