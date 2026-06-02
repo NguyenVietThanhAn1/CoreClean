@@ -125,6 +125,7 @@
     <string name="settings_lang_en">English</string>
     <string name="settings_section_crash">Crash reporting</string>
     <string name="settings_crash_toggle">Send crash reports (opt-in)</string>
+    <string name="settings_crash_restart_hint">Restart the app to enable crash reporting</string>
     <string name="settings_section_privacy">Privacy</string>
     <string name="settings_privacy_dashboard">Privacy Dashboard</string>
     <string name="settings_section_debug">Debug</string>
@@ -242,6 +243,11 @@
     <!-- Settings — AI Dedupe -->
     <string name="settings_section_ai">Smart scan</string>
     <string name="settings_perceptual_dedupe">Detect similar photos with AI (slower, more accurate)</string>
+
+    <!-- Notification permission banner (Home) -->
+    <string name="notif_permission_banner_title">Enable notifications to receive cleaning tips</string>
+    <string name="notif_permission_banner_action">Enable</string>
+    <string name="notif_permission_banner_dismiss">Dismiss</string>
 
     <!-- Common -->
     <string name="cancel">Cancel</string>

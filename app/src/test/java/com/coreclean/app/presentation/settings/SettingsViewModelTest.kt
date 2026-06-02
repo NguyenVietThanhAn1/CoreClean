@@ -8,6 +8,7 @@ import com.coreclean.app.MainDispatcherRule
 import com.coreclean.app.core.preferences.ThemeMode
 import com.coreclean.app.domain.CrashReporter
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -99,4 +100,26 @@ class SettingsViewModelTest {
         assertFalse(viewModel.state.value.backgroundScan)
         sub.cancel()
     }
+
+    @Test
+    fun `setCrashReporting true calls crashReporter setEnabled true`() =
+        runTest(mainDispatcherRule.testScheduler) {
+            viewModel.setCrashReporting(true)
+            advanceUntilIdle()
+            kotlinx.coroutines.delay(100)
+            advanceUntilIdle()
+
+            verify { crashReporter.setEnabled(true) }
+        }
+
+    @Test
+    fun `setCrashReporting false calls crashReporter setEnabled false`() =
+        runTest(mainDispatcherRule.testScheduler) {
+            viewModel.setCrashReporting(false)
+            advanceUntilIdle()
+            kotlinx.coroutines.delay(100)
+            advanceUntilIdle()
+
+            verify { crashReporter.setEnabled(false) }
+        }
 }

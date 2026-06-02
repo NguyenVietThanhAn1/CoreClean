@@ -126,6 +126,7 @@
     <string name="settings_lang_en">English</string>
     <string name="settings_section_crash">Bao cao loi</string>
     <string name="settings_crash_toggle">Gui bao cao loi (opt-in)</string>
+    <string name="settings_crash_restart_hint">Can khoi dong lai ung dung de bat bao cao</string>
     <string name="settings_section_privacy">Quyen rieng tu</string>
     <string name="settings_privacy_dashboard">Privacy Dashboard</string>
     <string name="settings_section_debug">Debug</string>
@@ -250,5 +251,10 @@
     <!-- Settings — AI Dedupe -->
     <string name="settings_section_ai">Quet thong minh</string>
     <string name="settings_perceptual_dedupe">Phat hien anh tuong tu bang AI (cham hon, chinh xac hon)</string>
+
+    <!-- Notification permission banner (Home) -->
+    <string name="notif_permission_banner_title">Bat quyen thong bao de nhan goi y don dep</string>
+    <string name="notif_permission_banner_action">Bat</string>
+    <string name="notif_permission_banner_dismiss">Dong</string>
 
 </resources>

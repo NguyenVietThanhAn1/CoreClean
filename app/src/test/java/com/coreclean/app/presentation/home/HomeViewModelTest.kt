@@ -28,9 +28,11 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -266,6 +268,61 @@ class HomeViewModelTest {
             advanceUntilIdle()
 
             assertEquals(emptyList<CleaningSuggestion>(), vm.suggestions.value)
+        }
+
+    // ── notifPermissionNeeded + clearNotifPermissionFlag ─────────────────
+
+    @Test
+    fun `notifPermissionNeeded is true when flag is set in DataStore`() =
+        runTest(mainDispatcherRule.testScheduler) {
+            dataStore.edit { it[AppPreferenceKeys.NOTIF_PERMISSION_NEEDED] = true }
+            advanceUntilIdle()
+
+            val vm = createViewModel()
+            val sub = launch { vm.notifPermissionNeeded.collect {} }
+            delay(100)
+            advanceUntilIdle()
+
+            assertTrue(vm.notifPermissionNeeded.value)
+            sub.cancel()
+        }
+
+    @Test
+    fun `clearNotifPermissionFlag sets flag to false`() =
+        runTest(mainDispatcherRule.testScheduler) {
+            dataStore.edit { it[AppPreferenceKeys.NOTIF_PERMISSION_NEEDED] = true }
+            advanceUntilIdle()
+
+            val vm = createViewModel()
+            val sub = launch { vm.notifPermissionNeeded.collect {} }
+            delay(100)
+            advanceUntilIdle()
+
+            vm.clearNotifPermissionFlag()
+            delay(100)
+            advanceUntilIdle()
+
+            assertFalse(vm.notifPermissionNeeded.value)
+            sub.cancel()
+        }
+
+    // ── loadSuggestions Mutex ─────────────────────────────────────────────
+
+    @Test
+    fun `concurrent loadSuggestions calls only invoke appListRepository once`() =
+        runTest(mainDispatcherRule.testScheduler) {
+            var callCount = 0
+            coEvery { appListRepository.getInstalledApps() } answers { callCount++; emptyList() }
+
+            // createViewModel() init fires call #1; queue calls #2 and #3 before advanceUntilIdle
+            val vm = createViewModel()
+            vm.loadSuggestions()
+            vm.loadSuggestions()
+
+            delay(200)
+            advanceUntilIdle()
+
+            assertEquals("Mutex must block calls 2 and 3 from reaching IO", 1, callCount)
         }
 
     // ── Helpers ──────────────────────────────────────────────────────────

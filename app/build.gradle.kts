@@ -64,12 +64,9 @@ android {
         create("gms") {
             dimension = "distribution"
             isDefault = true
-            buildConfigField("Boolean", "SENTRY_ENABLED", "true")
         }
         create("foss") {
             dimension = "distribution"
-            // Sentry is disabled for FOSS flavor
-            buildConfigField("Boolean", "SENTRY_ENABLED", "false")
         }
     }
 

@@ -5,25 +5,29 @@
 - **Goal:** < 800 ms on mid-tier device (Snapdragon 665, 4 GB RAM)
 - **Measured via:** Logcat `ActivityManager: Displayed` or Android Vitals
 
-## Baseline Profile (implemented Sprint 6)
+## Baseline Profile (pending hardware run)
 
 `:baselineprofile` module added with `BaselineProfileGenerator` using UiAutomator.
 
+The hand-crafted `baseline-prof.txt` was removed in Sprint 8.1 because the signatures did not match compiled Kotlin bytecode (wrong arg types for `CleanerNavGraph`, wrong parameter order for `HomeScreen`). A real profile must be generated on a physical device or managed emulator (API 33+):
+
 ```bash
-./gradlew :baselineprofile:generateBaselineProfile
+./gradlew :baselineprofile:connectedGmsReleaseAndroidTest
+# Copy output from:
+# baselineprofile/build/outputs/managed_device_android_test_additional_output/
+# into app/src/main/generated/baselineProfiles/baseline-prof.txt
 ```
 
-The generated `app/src/main/baseline-prof.txt` is committed and picked up by R8 at release build time. `androidx.profileinstaller` is included to install the profile on API 28+ devices.
+`androidx.profileinstaller` is included so the profile is installed on API 28+ devices once the file is committed.
 
 ### Macrobenchmark flow for baseline generation:
 1. Cold launch (StartupMode.COLD) → `HomeScreen` renders
 2. Tap "Media Scanner" → `MediaScreen` loads
 3. Scroll one page in media grid
+4. Trigger duplicate scan
 
-### Macrobenchmark numbers (Pixel 6, API 34 emulator):
-- Cold start to first frame: ~420 ms (baseline profile installed)
+### Last measured numbers (Pixel 6, API 34 emulator — no valid profile):
 - Cold start without profile: ~680 ms
-3. Trigger duplicate scan
 
 ## R8 Release Config
 

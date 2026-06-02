@@ -1,5 +1,20 @@
 # Changelog
 
+## [Sprint 8.3] - 2026-06-02 — Sprint 8.2 follow-up: 3 fix sót
+
+### Fixed
+- `SettingsViewModel.setCrashReporting`: completes fix from Sprint 8.2 — B2: previously only called `crashReporter.setEnabled(false)`; now applies both directions at runtime via `withContext(Dispatchers.IO)` so enabling crash reporting no longer requires a restart
+- `HomeViewModel`: completes fix from Sprint 8.2 — B8: `NOTIF_PERMISSION_NEEDED` flag was written but never read; now exposed as `notifPermissionNeeded: StateFlow<Boolean>` with `clearNotifPermissionFlag()` to clear it
+- `HomeViewModel.loadSuggestions`: new race condition fix: concurrent calls now guarded by `Mutex.tryLock()` — second and third concurrent invocations return immediately instead of overwriting a fresh result with stale cache or wasting heavy IO
+
+### Added
+- `HomeScreen`: notification permission banner displayed when `notifPermissionNeeded == true`; "Enable" launches `POST_NOTIFICATIONS` system dialog (API 33+), "Dismiss" clears the flag without requesting
+- String resources `notif_permission_banner_title / _action / _dismiss` (vi + en)
+- `SettingsViewModelTest`: `setCrashReporting(true/false)` → `verify { crashReporter.setEnabled(true/false) }`
+- `HomeViewModelTest`: `notifPermissionNeeded` reflects DataStore flag; `clearNotifPermissionFlag()` resets it; concurrent `loadSuggestions()` calls invoke `appListRepository` exactly once
+
+---
+
 ## [Sprint 8.2] - 2026-06-02 — Post-review hot-fixes round 2
 
 ### Fixed

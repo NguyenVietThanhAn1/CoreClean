@@ -23,10 +23,12 @@ import com.coreclean.app.domain.model.Frequency
 import com.coreclean.app.domain.model.JunkCategory
 import com.coreclean.app.domain.model.ScheduleConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -105,9 +107,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setCrashReporting(enabled: Boolean) = viewModelScope.launch {
         dataStore.edit { it[AppPreferenceKeys.CRASH_REPORTING] = enabled }
-        if (!enabled) {
-            crashReporter.setEnabled(false)
-        }
+        // Apply both directions at runtime: setEnabled(true) re-inits Sentry,
+        // setEnabled(false) calls Sentry.close(). SentryAndroid.init touches I/O,
+        // so dispatch on IO.
+        withContext(Dispatchers.IO) { crashReporter.setEnabled(enabled) }
     }
 
     fun runScanNow() {

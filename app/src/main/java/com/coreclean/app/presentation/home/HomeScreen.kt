@@ -1,5 +1,9 @@
 package com.coreclean.app.presentation.home
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -12,8 +16,10 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.BatteryFull
 import androidx.compose.material.icons.filled.CleaningServices
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Contacts
 import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Storage
@@ -26,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -56,6 +63,11 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
+    val notifPermissionNeeded by viewModel.notifPermissionNeeded.collectAsStateWithLifecycle()
+
+    val notifPermLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted -> if (granted) viewModel.clearNotifPermissionFlag() }
 
     val features = listOf(
         FeatureItem(stringResource(R.string.home_card_media_title),   stringResource(R.string.home_card_media_sub),   Icons.Default.PhotoLibrary,     true, MediaRoute),
@@ -78,10 +90,19 @@ fun HomeScreen(
     if (isExpanded) {
         // Tablet two-pane: NavigationRail on left + content grid on right
         ExpandedHomeLayout(
-            features       = features,
-            suggestions    = suggestions,
-            columns        = columns,
-            navController  = navController
+            features              = features,
+            suggestions           = suggestions,
+            columns               = columns,
+            navController         = navController,
+            showNotifBanner       = notifPermissionNeeded,
+            onNotifEnable         = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notifPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    viewModel.clearNotifPermissionFlag()
+                }
+            },
+            onNotifDismiss        = viewModel::clearNotifPermissionFlag
         )
     } else {
         Scaffold(
@@ -113,6 +134,22 @@ fun HomeScreen(
                 verticalArrangement   = Arrangement.spacedBy(12.dp),
                 modifier              = Modifier.fillMaxSize().padding(paddingValues)
             ) {
+                // Notification permission banner (full-width span)
+                if (notifPermissionNeeded) {
+                    item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(columns) }) {
+                        NotifPermissionBanner(
+                            onEnable = {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                    notifPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                } else {
+                                    viewModel.clearNotifPermissionFlag()
+                                }
+                            },
+                            onDismiss = viewModel::clearNotifPermissionFlag
+                        )
+                    }
+                }
+
                 // Suggestions section (full-width span)
                 if (suggestions.isNotEmpty()) {
                     item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(columns) }) {
@@ -139,7 +176,10 @@ private fun ExpandedHomeLayout(
     features: List<FeatureItem>,
     suggestions: List<CleaningSuggestion>,
     columns: Int,
-    navController: NavController
+    navController: NavController,
+    showNotifBanner: Boolean,
+    onNotifEnable: () -> Unit,
+    onNotifDismiss: () -> Unit
 ) {
     var selectedIndex by remember { mutableStateOf(0) }
     val navItems = listOf(
@@ -173,6 +213,11 @@ private fun ExpandedHomeLayout(
             verticalArrangement   = Arrangement.spacedBy(12.dp),
             modifier              = Modifier.fillMaxSize()
         ) {
+            if (showNotifBanner) {
+                item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(columns) }) {
+                    NotifPermissionBanner(onEnable = onNotifEnable, onDismiss = onNotifDismiss)
+                }
+            }
             if (suggestions.isNotEmpty()) {
                 item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(columns) }) {
                     SuggestionsSection(suggestions = suggestions)
@@ -186,6 +231,48 @@ private fun ExpandedHomeLayout(
                     enabled  = feature.enabled,
                     onClick  = { if (feature.enabled) navController.navigate(feature.route) }
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun NotifPermissionBanner(onEnable: () -> Unit, onDismiss: () -> Unit) {
+    Card(
+        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier              = Modifier.padding(12.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment     = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier              = Modifier.weight(1f),
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector        = Icons.Default.Notifications,
+                    contentDescription = null,
+                    tint               = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                Text(
+                    text  = stringResource(R.string.notif_permission_banner_title),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                TextButton(onClick = onEnable) {
+                    Text(stringResource(R.string.notif_permission_banner_action))
+                }
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector        = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.notif_permission_banner_dismiss)
+                    )
+                }
             }
         }
     }

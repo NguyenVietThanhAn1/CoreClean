@@ -84,11 +84,6 @@ jobs:
         env:
           KEYSTORE_PATH: ""
 
-      - name: Upload Sentry source maps (GMS only)
-        if: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
-        run: ./gradlew :app:sentryUploadProguardMappingsGmsRelease
-        continue-on-error: true
-
       - name: Upload release APKs
         uses: actions/upload-artifact@v4
         if: success()
