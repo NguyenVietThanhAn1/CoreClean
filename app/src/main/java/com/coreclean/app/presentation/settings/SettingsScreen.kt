@@ -247,6 +247,7 @@ fun SettingsScreen(
                                 AppLanguage.SYSTEM     -> stringResource(R.string.settings_lang_system)
                                 AppLanguage.VIETNAMESE -> stringResource(R.string.settings_lang_vi)
                                 AppLanguage.ENGLISH    -> stringResource(R.string.settings_lang_en)
+                                AppLanguage.FRENCH     -> stringResource(R.string.settings_lang_fr)
                             })
                         }
                     }

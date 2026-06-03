@@ -64,6 +64,18 @@ app/src/main/java/com/coreclean/app/
 - **Sprint 7:** AI Dedupe (pHash) ✅, Dark AMOLED ✅, Two-pane Expanded ✅, FOSS flavor ✅,
   GitHub Pages ✅, Room proper migrations ✅, i18n debt resolved ✅
 
+## Sprint 9.1 — Post-review follow-up (2026-06-03)
+
+| Task | Status | Ghi chu |
+|------|--------|---------|
+| AppLanguage.FRENCH("fr") added to enum | Done | AppPreferences.kt |
+| settings_lang_fr string in values/ values-en/ values-fr/ | Done | |
+| SettingsScreen when(lang) covers FRENCH | Done | compile-time exhaustive check |
+| locales_config.xml (vi, en, fr) | Done | res/xml/ |
+| android:localeConfig in manifest | Done | per-app language Android 13+ |
+| androidResources localeFilters in build.gradle.kts | Done | pins locales, reduces APK size |
+| metadata/vi-VN/short_description.txt ≤ 80 chars | Done | 83→80, "bộ nhớ"→"RAM" |
+
 ## Sprint 9 — Launch (2026-06-03)
 
 | Task | Status | Ghi chu |

@@ -124,6 +124,7 @@
     <string name="settings_lang_system">Theo he thong</string>
     <string name="settings_lang_vi">Tieng Viet</string>
     <string name="settings_lang_en">English</string>
+    <string name="settings_lang_fr">Tieng Phap</string>
     <string name="settings_section_crash">Bao cao loi</string>
     <string name="settings_crash_toggle">Gui bao cao loi (opt-in)</string>
     <string name="settings_crash_restart_hint">Can khoi dong lai ung dung de bat bao cao</string>

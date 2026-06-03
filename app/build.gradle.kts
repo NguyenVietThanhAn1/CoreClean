@@ -99,6 +99,10 @@ android {
         }
     }
 
+    androidResources {
+        localeFilters += listOf("vi", "en", "fr")
+    }
+
     testOptions {
         unitTests.isIncludeAndroidResources = true
     }

@@ -37,4 +37,4 @@ object AppPreferenceKeys {
 }
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
-enum class AppLanguage(val tag: String) { SYSTEM(""), VIETNAMESE("vi"), ENGLISH("en") }
+enum class AppLanguage(val tag: String) { SYSTEM(""), VIETNAMESE("vi"), ENGLISH("en"), FRENCH("fr") }

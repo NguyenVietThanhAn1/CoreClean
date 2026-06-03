@@ -1,5 +1,20 @@
 # Changelog
 
+## [Sprint 9.1] - 2026-06-03 — Post-review: French locale reachable + metadata fix
+
+### Added
+- `AppLanguage.FRENCH("fr")` enum value — French is now selectable in the in-app language switcher
+- `settings_lang_fr` string in all three locales (`values/`, `values-en/`, `values-fr/`)
+- `app/src/main/res/xml/locales_config.xml` — per-app language support (Android 13+, lists vi/en/fr)
+- `android:localeConfig="@xml/locales_config"` attribute on `<application>` in `AndroidManifest.xml`
+- `androidResources { localeFilters += listOf("vi","en","fr") }` in `build.gradle.kts` — pins supported locales and reduces APK size
+
+### Fixed
+- `SettingsScreen.kt`: exhaustive `when (lang)` now covers `AppLanguage.FRENCH`; compile-time guard if a future locale is added without a label
+- `metadata/vi-VN/short_description.txt`: trimmed from 83 → 80 characters ("bộ nhớ" → "RAM"); Play Store / F-Droid limit is 80 chars
+
+---
+
 ## [Sprint 8.3] - 2026-06-02 — Sprint 8.2 follow-up: 3 fix sót
 
 ### Fixed

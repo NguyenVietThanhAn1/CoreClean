@@ -123,6 +123,7 @@
     <string name="settings_lang_system">Follow system</string>
     <string name="settings_lang_vi">Vietnamese</string>
     <string name="settings_lang_en">English</string>
+    <string name="settings_lang_fr">French</string>
     <string name="settings_section_crash">Crash reporting</string>
     <string name="settings_crash_toggle">Send crash reports (opt-in)</string>
     <string name="settings_crash_restart_hint">Restart the app to enable crash reporting</string>

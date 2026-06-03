@@ -129,6 +129,7 @@
     <string name="settings_lang_system">Système</string>
     <string name="settings_lang_vi">Vietnamien</string>
     <string name="settings_lang_en">Anglais</string>
+    <string name="settings_lang_fr">Français</string>
     <string name="settings_section_crash">Rapports d\'erreurs</string>
     <string name="settings_crash_toggle">Envoyer des rapports d\'erreurs (opt-in)</string>
     <string name="settings_crash_restart_hint">Redémarrez l\'app pour activer les rapports</string>
