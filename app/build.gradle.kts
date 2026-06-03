@@ -48,13 +48,19 @@ android {
     }
 
     val localProps = gradleLocalProperties(rootDir, providers)
+    // Resolve a signing property: local.properties first, then environment variable.
+    // CI passes these via GitHub Secrets; local dev uses keystore.properties or local.properties.
+    fun signingProp(key: String): String? =
+        localProps.getProperty(key)?.takeIf { it.isNotBlank() }
+            ?: System.getenv(key)?.takeIf { it.isNotBlank() }
+
     signingConfigs {
-        if (localProps.containsKey("KEYSTORE_PATH")) {
+        if (signingProp("KEYSTORE_PATH") != null) {
             create("release") {
-                storeFile     = file(localProps.getProperty("KEYSTORE_PATH"))
-                storePassword = localProps.getProperty("KEYSTORE_PASSWORD", "")
-                keyAlias      = localProps.getProperty("KEY_ALIAS", "")
-                keyPassword   = localProps.getProperty("KEY_PASSWORD", "")
+                storeFile     = file(signingProp("KEYSTORE_PATH")!!)
+                storePassword = signingProp("KEYSTORE_PASSWORD") ?: ""
+                keyAlias      = signingProp("KEY_ALIAS") ?: ""
+                keyPassword   = signingProp("KEY_PASSWORD") ?: ""
             }
         }
     }

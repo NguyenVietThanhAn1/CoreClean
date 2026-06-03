@@ -64,6 +64,34 @@ app/src/main/java/com/coreclean/app/
 - **Sprint 7:** AI Dedupe (pHash) ✅, Dark AMOLED ✅, Two-pane Expanded ✅, FOSS flavor ✅,
   GitHub Pages ✅, Room proper migrations ✅, i18n debt resolved ✅
 
+## Sprint 9 — Launch (2026-06-03)
+
+| Task | Status | Ghi chu |
+|------|--------|---------|
+| F-Droid fastlane metadata (en-US + vi-VN) | Done | metadata/en-US + vi-VN, changelogs/1.txt |
+| FOSS APK Sentry-free verification | Done | CI step: unzip grep io/sentry → empty |
+| docs/FDroidMetadata.md → real submit checklist | Done | fdroiddata MR template included |
+| Play Store Data Safety form mapping | Done | PlayStoreListing.md — Sentry opt-in only, EU DSN |
+| Content rating questionnaire answers | Done | Everyone / 3+, no sensitive content |
+| bundleGmsRelease (AAB) build verified | Done | CI release-check job |
+| Signing config reads from env vars | Done | signingProp() tries local.properties then System.getenv() |
+| crowdin.yml — Crowdin project config | Done | source: values-en/strings.xml → values-%android_code%/ |
+| values-fr/strings.xml — French sample locale | Done | Full translation, proves locale-switcher pipeline |
+| DevelopmentRoadmap.md — Phase 5 ticked | Done | All 3 distribution tasks marked complete |
+
+## Sprint 8.3 — Notif banner + crash toggle + race guard (2026-06-03)
+
+| Task | Status | Ghi chu |
+|------|--------|---------|
+| notifPermissionNeeded StateFlow + clearNotifPermissionFlag | Done | HomeViewModel |
+| HomeScreen notif permission banner | Done | POST_NOTIFICATIONS dialog (API 33+) |
+| setCrashReporting both directions at runtime | Done | SettingsViewModel |
+| loadSuggestions Mutex race guard | Done | HomeViewModel |
+| String resources notif_permission_banner_* | Done | vi + en |
+| HomeViewModelTest + SettingsViewModelTest | Done | missing import kotlinx.coroutines.launch fixed |
+| .gitattributes line-ending rules | Done | *.bat CRLF, *.kt LF, etc. |
+| .claude/ added to .gitignore | Done | |
+
 ## Sprint 8 — Distribution blockers (2026-06-02)
 | Task | Status | Ghi chu |
 |------|--------|---------|

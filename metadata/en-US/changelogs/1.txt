@@ -1,0 +1,14 @@
+Initial release — CoreClean 1.0.0
+
+• Duplicate image detection (MD5 + AI perceptual hash)
+• Junk file scanner (temp, residual APKs, empty folders via SAF)
+• Storage analyzer with doughnut chart breakdown
+• Battery monitor with 24h history and life prediction
+• App usage statistics (7-day / 30-day)
+• RAM monitor and APK analyzer
+• Contacts deduplication and merge
+• Scheduled auto-cleaning (safe categories only)
+• Smart cleaning suggestions
+• Privacy dashboard with full data-clear option
+• FOSS build: no proprietary SDKs, crash reporting fully disabled
+• No ads, no scareware, no fake metrics

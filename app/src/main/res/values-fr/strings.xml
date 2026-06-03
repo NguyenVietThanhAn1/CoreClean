@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  French (fr) — contributed via Crowdin community translation.
+  Source of truth: values-en/strings.xml
+  To contribute: https://crowdin.com/project/coreclean
+-->
+<resources>
+
+    <string name="app_name">CoreClean</string>
+
+    <!-- Navigation -->
+    <string name="nav_back">Retour</string>
+
+    <!-- Home -->
+    <string name="home_title">CoreClean</string>
+    <string name="home_settings_cd">Paramètres</string>
+    <string name="home_card_media_title">Scanner multimédia</string>
+    <string name="home_card_media_sub">Scanner et supprimer les doublons</string>
+    <string name="home_card_storage_title">Analyseur de stockage</string>
+    <string name="home_card_storage_sub">Analyser l\'utilisation du stockage</string>
+    <string name="home_card_battery_title">Moniteur batterie</string>
+    <string name="home_card_battery_sub">Surveiller la batterie</string>
+    <string name="home_card_usage_title">Utilisation des apps</string>
+    <string name="home_card_usage_sub">Statistiques d\'utilisation</string>
+    <string name="home_card_contacts_title">Contacts</string>
+    <string name="home_card_contacts_sub">Gérer les contacts</string>
+    <string name="home_card_junk_title">Nettoyeur de fichiers</string>
+    <string name="home_card_junk_sub">Nettoyer les fichiers indésirables</string>
+    <string name="home_card_ram_title">Moniteur RAM</string>
+    <string name="home_card_ram_sub">Surveiller l\'utilisation RAM</string>
+    <string name="home_card_apk_title">Analyseur d\'apps</string>
+    <string name="home_card_apk_sub">Analyser les apps installées</string>
+    <string name="home_card_coming_soon">Bientôt disponible</string>
+
+    <!-- RAM -->
+    <string name="ram_title">Moniteur RAM</string>
+    <string name="ram_used">Utilisé : %1$d Mo</string>
+    <string name="ram_total">Total : %1$d Mo</string>
+    <string name="ram_available">Disponible : %1$d Mo</string>
+    <string name="ram_low_memory">⚠ Mémoire faible</string>
+    <string name="ram_top_processes">Processus les plus gourmands</string>
+    <string name="ram_process_note">* Android 5+ n\'affiche que les processus de cette app</string>
+    <string name="ram_mb">%1$d Mo</string>
+
+    <!-- App Analyzer -->
+    <string name="app_analyzer_title">Analyseur d\'apps</string>
+    <string name="app_analyzer_selected">Sélectionné : %1$d app(s)</string>
+    <string name="app_analyzer_uninstall">Désinstaller</string>
+
+    <!-- Contact -->
+    <string name="contact_title">Contacts</string>
+    <string name="contact_tab_all">Tous</string>
+    <string name="contact_tab_duplicate">Doublons</string>
+    <string name="contact_tab_incomplete">Incomplets</string>
+    <string name="contact_no_items">Aucun contact</string>
+    <string name="contact_no_duplicate">Aucun contact en double</string>
+    <string name="contact_missing_phone">Numéro manquant</string>
+    <string name="contact_no_name">(Sans nom)</string>
+    <string name="contact_no_permission">L\'autorisation READ_CONTACTS est requise pour afficher les contacts.</string>
+    <string name="contact_open_settings">Ouvrir les paramètres</string>
+    <string name="contact_duplicate_group">Groupe en double (%1$d)</string>
+    <string name="contact_merge_title">Fusionner le contact</string>
+    <string name="contact_merge_subtitle">Fusionner %1$d contacts en un seul ?</string>
+    <string name="contact_merge_note">Android combinera ces contacts ensemble.</string>
+    <string name="contact_merge_confirm">Fusionner</string>
+
+    <!-- Junk -->
+    <string name="junk_title">Nettoyeur de fichiers</string>
+    <string name="junk_scan_title">Scanner les fichiers indésirables</string>
+    <string name="junk_start_scan">Lancer le scan</string>
+    <string name="junk_scanning">Scan en cours…</string>
+    <string name="junk_clean">Nettoyer</string>
+    <string name="junk_selected">Sélectionné : %1$s</string>
+    <string name="junk_app_cache">Cache d\'application</string>
+    <string name="junk_empty_folders">Dossiers vides</string>
+    <string name="junk_temp_files">Fichiers temporaires</string>
+    <string name="junk_residual_apk">APK résiduels</string>
+    <string name="junk_cache_note">Android 8+ ne permet pas la suppression directe — ouvrez les Paramètres.</string>
+    <string name="junk_open_app_manager">Ouvrir le gestionnaire d\'apps</string>
+    <string name="junk_pick_folder">Choisir un dossier à scanner</string>
+    <string name="junk_no_folder">Aucun dossier sélectionné. Appuyez sur « Choisir un dossier » pour commencer.</string>
+    <string name="junk_open_settings">Ouvrir les paramètres</string>
+    <string name="junk_folders_section">Dossiers sélectionnés pour le scan</string>
+
+    <!-- Storage -->
+    <string name="storage_title">Analyseur de stockage</string>
+    <string name="storage_used">Utilisé</string>
+    <string name="storage_free">Libre</string>
+    <string name="storage_total">Total</string>
+    <string name="storage_breakdown">Répartition par catégorie</string>
+    <string name="storage_large_files">Grands fichiers (&gt; 50 Mo)</string>
+    <string name="storage_delete_selected">Supprimer %1$d fichier(s)</string>
+    <string name="storage_refresh">Actualiser</string>
+
+    <!-- Battery -->
+    <string name="battery_title">Moniteur batterie</string>
+    <string name="battery_charging">En charge</string>
+    <string name="battery_not_charging">Non en charge</string>
+    <string name="battery_label_health">Santé</string>
+    <string name="battery_label_temp">Température</string>
+    <string name="battery_label_voltage">Tension</string>
+    <string name="battery_label_tech">Technologie</string>
+    <string name="battery_label_charge_plug">Source de charge</string>
+    <string name="battery_label_remaining">Restant (est.)</string>
+
+    <!-- App Usage -->
+    <string name="usage_title">Utilisation des apps</string>
+    <string name="usage_no_permission">L\'autorisation Statistiques d\'utilisation est requise.</string>
+    <string name="usage_open_settings">Ouvrir les paramètres</string>
+    <string name="usage_days_7">7 jours</string>
+    <string name="usage_days_30">30 jours</string>
+    <string name="usage_just_now">À l\'instant</string>
+    <string name="usage_hours_ago">Il y a %1$d h</string>
+    <string name="usage_days_ago">Il y a %1$d j</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_section_theme">Apparence</string>
+    <string name="settings_theme_system">Système</string>
+    <string name="settings_theme_light">Clair</string>
+    <string name="settings_theme_dark">Sombre</string>
+    <string name="settings_dynamic_color">Couleur dynamique (Material You)</string>
+    <string name="settings_amoled_black">Fond noir absolu (AMOLED)</string>
+    <string name="settings_section_scan">Scan en arrière-plan</string>
+    <string name="settings_bg_scan">Activer le scan en arrière-plan</string>
+    <string name="settings_scan_now">Scanner maintenant</string>
+    <string name="settings_interval_hours">%1$d h</string>
+    <string name="settings_section_language">Langue</string>
+    <string name="settings_lang_system">Système</string>
+    <string name="settings_lang_vi">Vietnamien</string>
+    <string name="settings_lang_en">Anglais</string>
+    <string name="settings_section_crash">Rapports d\'erreurs</string>
+    <string name="settings_crash_toggle">Envoyer des rapports d\'erreurs (opt-in)</string>
+    <string name="settings_crash_restart_hint">Redémarrez l\'app pour activer les rapports</string>
+    <string name="settings_section_privacy">Confidentialité</string>
+    <string name="settings_privacy_dashboard">Tableau de bord confidentialité</string>
+    <string name="settings_section_debug">Débogage</string>
+    <string name="settings_reset_onboarding">Réinitialiser l\'introduction</string>
+    <string name="settings_section_about">À propos</string>
+    <string name="settings_version">Version</string>
+
+    <!-- Privacy -->
+    <string name="privacy_title">Tableau de bord confidentialité</string>
+    <string name="privacy_permissions">Autorisations</string>
+    <string name="privacy_stored_data">Données stockées</string>
+    <string name="privacy_scan_results">Résultats du scan</string>
+    <string name="privacy_pending_review">En attente de révision</string>
+    <string name="privacy_datastore_keys">Clés DataStore</string>
+    <string name="privacy_actions">Actions</string>
+    <string name="privacy_clear_history">Effacer tout l\'historique</string>
+    <string name="privacy_open_app_settings">Ouvrir les paramètres de l\'app</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_step_storage_title">Stockage &amp; Médias</string>
+    <string name="onboarding_step_storage_desc">CoreClean a besoin d\'accéder à vos photos et vidéos pour scanner, détecter les doublons et libérer de l\'espace.</string>
+    <string name="onboarding_step_usage_title">Statistiques d\'utilisation</string>
+    <string name="onboarding_step_usage_desc">L\'autorisation Statistiques d\'utilisation permet à CoreClean d\'afficher quelles apps vous utilisez le plus.</string>
+    <string name="onboarding_step_notif_title">Notifications</string>
+    <string name="onboarding_step_notif_desc">Recevez les résultats des scans en arrière-plan et des rappels de nettoyage périodiques.</string>
+    <string name="onboarding_skip">Ignorer</string>
+    <string name="onboarding_grant_storage">Autoriser le stockage</string>
+    <string name="onboarding_open_settings">Ouvrir les paramètres</string>
+    <string name="onboarding_start">Commencer</string>
+
+    <!-- Suggestions (Home) -->
+    <string name="home_suggestions_title">Suggestions de nettoyage</string>
+    <string name="suggestion_duplicate_title">Photos en double</string>
+    <string name="suggestion_unused_app_title">Désinstaller %1$s</string>
+    <string name="suggestion_download_title">Grands fichiers téléchargés</string>
+    <string name="suggestion_screenshot_title">%1$d captures d\'écran anciennes</string>
+    <string name="suggestion_storage_full_title">Stockage presque plein</string>
+    <string name="suggestion_save_mb">Économiser ~%1$d Mo</string>
+    <string name="suggestion_storage_free_pct">%1$d%% de stockage restant</string>
+
+    <!-- Battery prediction -->
+    <string name="battery_prediction_estimate">Environ %1$d h %2$d min restantes</string>
+    <string name="battery_prediction_collecting">Collecte de données en cours…</string>
+    <string name="battery_prediction_disclaimer">(Estimation basée sur les habitudes des dernières 24 h)</string>
+
+    <!-- Auto-clean settings -->
+    <string name="settings_section_auto_clean">Nettoyage automatique</string>
+    <string name="settings_auto_clean_enable">Activer le nettoyage automatique</string>
+    <string name="settings_auto_clean_freq">Fréquence</string>
+    <string name="settings_auto_clean_daily">Quotidien</string>
+    <string name="settings_auto_clean_weekly">Hebdomadaire</string>
+    <string name="settings_auto_clean_monthly">Mensuel</string>
+    <string name="settings_auto_clean_time">Heure d\'exécution</string>
+    <string name="settings_auto_clean_categories">Catégories à nettoyer</string>
+
+    <!-- Notification channels -->
+    <string name="notif_channel_auto_clean">Résultats du nettoyage automatique</string>
+    <string name="notif_channel_recommendations">Suggestions d\'optimisation</string>
+    <string name="notif_channel_recommendations_desc">Notifications périodiques de suggestions de nettoyage</string>
+    <string name="notif_auto_clean_title">Nettoyage automatique terminé</string>
+    <string name="notif_auto_clean_body">%1$d Mo libérés</string>
+    <string name="notif_storage_full_title">Stockage presque plein</string>
+    <string name="notif_storage_full_body">Seulement %1$d%% restant — voir les suggestions</string>
+    <string name="notif_duplicate_title">Photos en double détectées</string>
+    <string name="notif_duplicate_body">Environ %1$d Mo peuvent être libérés</string>
+
+    <!-- Settings — Recommendations notifications -->
+    <string name="settings_section_notifications">Notifications</string>
+    <string name="settings_recommendations_notif">Notifications de suggestions</string>
+
+    <!-- Privacy additions -->
+    <string name="privacy_last_access">Dernier accès</string>
+    <string name="privacy_battery_history">Historique batterie</string>
+    <string name="privacy_clear_battery_history">Effacer l\'historique batterie</string>
+    <string name="privacy_policy_link">Politique de confidentialité</string>
+    <string name="privacy_battery_count">%1$d point(s) de données batterie</string>
+
+    <!-- Review screen -->
+    <string name="review_title">Confirmer la suppression</string>
+    <string name="review_confirm_delete">Confirmer la suppression de %1$d photo(s)</string>
+    <string name="review_no_images">Aucune image sélectionnée</string>
+    <string name="review_free_space">Libérera %1$s</string>
+
+    <!-- Media screen -->
+    <string name="media_title">Gestion des photos</string>
+    <string name="media_tab_all">Toutes les photos</string>
+    <string name="media_tab_duplicates">Photos en double</string>
+    <string name="media_deselect">Désélectionner</string>
+    <string name="media_selected_count">%1$d photo(s) sélectionnée(s)</string>
+    <string name="media_delete">Supprimer</string>
+    <string name="media_no_permission">L\'autorisation d\'accès aux photos est requise.</string>
+    <string name="media_retry">Réessayer</string>
+    <string name="media_open_settings">Ouvrir les paramètres</string>
+    <string name="media_requesting_permission">Demande d\'autorisation en cours…</string>
+    <string name="media_loading">Chargement des photos…</string>
+    <string name="media_no_images">Aucune image trouvée</string>
+    <string name="media_no_duplicates">Aucun doublon trouvé</string>
+    <string name="media_duplicate_groups">%1$d groupe(s) de doublons</string>
+    <string name="media_can_free">Peut libérer %1$s</string>
+    <string name="media_group_header">Groupe %1$d · %2$d photos · %3$s chacune</string>
+    <string name="media_image_count">%1$d photo(s)</string>
+
+    <!-- Content descriptions (A11y) -->
+    <string name="cd_settings">Ouvrir les paramètres</string>
+    <string name="cd_back">Retour</string>
+    <string name="cd_image_selected">Sélectionné</string>
+    <string name="cd_battery_circle">Niveau de batterie actuel : %1$d pourcent</string>
+    <string name="cd_battery_prediction">Prévision batterie : %1$s</string>
+    <string name="cd_storage_donut">Graphique stockage : %1$s utilisé sur %2$s au total</string>
+    <string name="cd_permission_granted">Autorisation %1$s accordée</string>
+    <string name="cd_permission_denied">Autorisation %1$s refusée</string>
+    <string name="cd_check">Autorisation accordée</string>
+    <string name="cd_close">Refusé</string>
+
+    <!-- Common -->
+    <string name="cancel">Annuler</string>
+    <string name="confirm">Confirmer</string>
+    <string name="ok">OK</string>
+    <string name="loading">Chargement…</string>
+    <string name="error_generic">Une erreur s\'est produite. Veuillez réessayer.</string>
+
+    <!-- Settings — AI Dedupe -->
+    <string name="settings_section_ai">Scan intelligent</string>
+    <string name="settings_perceptual_dedupe">Détecter les photos similaires par IA (plus lent, plus précis)</string>
+
+    <!-- Notification permission banner (Home) -->
+    <string name="notif_permission_banner_title">Activez les notifications pour recevoir des suggestions de nettoyage</string>
+    <string name="notif_permission_banner_action">Activer</string>
+    <string name="notif_permission_banner_dismiss">Fermer</string>
+
+</resources>

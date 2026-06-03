@@ -74,19 +74,45 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Assemble GMS release (unsigned)
-        run: ./gradlew :app:assembleGmsRelease
+      # Signed builds require these GitHub repository secrets:
+      #   KEYSTORE_BASE64  — base64-encoded .jks file
+      #   KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+      # When secrets are absent the step runs unsigned (CI smoke-test only).
+      - name: Decode keystore (if secret present)
+        if: ${{ env.KEYSTORE_BASE64 != '' }}
+        run: echo "$KEYSTORE_BASE64" | base64 -d > /tmp/release.jks
         env:
-          KEYSTORE_PATH: ""
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
 
-      - name: Assemble FOSS release (unsigned)
+      - name: Bundle GMS release (AAB)
+        run: ./gradlew :app:bundleGmsRelease
+        env:
+          KEYSTORE_PATH: ${{ secrets.KEYSTORE_BASE64 != '' && '/tmp/release.jks' || '' }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Assemble FOSS release APK
         run: ./gradlew :app:assembleFossRelease
         env:
-          KEYSTORE_PATH: ""
+          KEYSTORE_PATH: ${{ secrets.KEYSTORE_BASE64 != '' && '/tmp/release.jks' || '' }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload release APKs
+      - name: Verify FOSS APK contains no Sentry classes
+        run: |
+          APK=$(find app/build/outputs/apk/foss/release -name '*.apk' | head -1)
+          if unzip -l "$APK" | grep -q 'io/sentry'; then
+            echo "ERROR: io.sentry classes found in FOSS APK!" && exit 1
+          fi
+          echo "OK: no io.sentry in FOSS APK"
+
+      - name: Upload release artifacts
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: release-apks
-          path: app/build/outputs/apk/
+          name: release-artifacts
+          path: |
+            app/build/outputs/apk/foss/release/*.apk
+            app/build/outputs/bundle/gmsRelease/*.aab

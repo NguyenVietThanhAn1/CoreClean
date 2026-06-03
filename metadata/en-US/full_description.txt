@@ -1,0 +1,38 @@
+CoreClean is a transparent Android device optimizer with no fake metrics or scareware.
+
+SMART SCAN & CLEAN
+• Duplicate image detection using MD5 content hash and AI perceptual hash (pHash)
+• Junk file scanner: temp files, residual APKs, empty folders
+• Scheduled auto-cleaning (TEMP/APK/EMPTY only — never touches photos or app data)
+• Smart cleaning suggestions based on actual storage usage
+
+STORAGE ANALYSIS
+• Doughnut chart breakdown by file type (photos, video, music, apps…)
+• Large file finder (>50 MB) via MediaStore
+• Accurate storage reporting using StatFs + MediaStore
+
+BATTERY MONITOR
+• Real-time battery level, temperature, and charge status
+• Battery life prediction via linear regression (requires ≥4 samples, ~1 hour of data)
+• 24-hour battery history chart
+
+APP MANAGEMENT
+• App usage statistics (7-day / 30-day)
+• APK size analysis, batch uninstall support
+• Real-time RAM monitoring
+
+CONTACTS MANAGEMENT
+• Duplicate contact detection and merging
+• Incomplete contact identification
+
+PRIVACY & SECURITY
+• Privacy dashboard: view and delete all stored data
+• Optional Sentry crash reporting (opt-in, disabled by default in FOSS build)
+• No personal data collection without explicit consent
+• All processing is 100% local — no cloud sync, no servers
+
+NO SCAREWARE
+CoreClean never shows fake numbers, fake alerts, or deletes files without your explicit confirmation.
+
+This is the FOSS build: crash reporting is fully disabled and no proprietary SDKs are included.
+Source code: https://github.com/annguyn/CoreClean

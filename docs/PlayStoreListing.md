@@ -81,25 +81,89 @@ CoreClean is a powerful, transparent Android device optimizer with no fake metri
 **No scareware:**
 CoreClean never shows fake numbers, fake alerts, or deletes files without your explicit confirmation.
 
+---
+
 ## Content Rating
-- Category: Tools / Utilities
-- Contains violence: No
-- Contains sexual content: No
-- Shares location: No
-- Target audience: 13+
+
+**Category:** Tools / Productivity
+
+### IARC / Google Play Rating Questionnaire — answers
+
+| Question | Answer | Notes |
+|---|---|---|
+| Does the app contain violence? | No | |
+| Does the app contain sexual content? | No | |
+| Does the app contain profanity? | No | |
+| Does the app allow users to interact with others? | No | No social features |
+| Does the app share location data? | No | |
+| Does the app target children? | No | Target: general (13+) |
+| Does the app contain gambling? | No | |
+| Does the app contain references to alcohol/tobacco/drugs? | No | |
+| Does the app contain horror/fear content? | No | |
+
+**Resulting rating:** Everyone (ESRB E) / 3+ (PEGI) / All ages
+
+---
 
 ## Data Safety Form
-See docs/Telemetry.md for complete data collection details.
 
-### Data collected:
-- Crash reports (opt-in only, via Sentry) — not shared with third parties
-- No analytics without consent
-- No personal data stored on servers
-- All storage/media processing is local-only
+> Derived from docs/Permissions.md and docs/Telemetry.md. Fill in the Play Console
+> Data safety section using the mapping below.
 
-## Permissions required:
-- READ_MEDIA_IMAGES / READ_EXTERNAL_STORAGE: Media scanning and duplicate detection
-- READ_CONTACTS: Contact management (optional)
-- PACKAGE_USAGE_STATS: App usage stats (optional, requires manual grant)
-- POST_NOTIFICATIONS: Background scan notifications (optional)
-- FOREGROUND_SERVICE: Background scanning worker (WorkManager)
+### Does your app collect or share any of the required user data types?
+
+**GMS flavor (with Sentry opt-in):** Yes — crash reports on opt-in.
+**FOSS flavor:** No data collected or shared.
+
+Use **GMS flavor** for the Play Store listing; configure the form as follows.
+
+### Data types collected
+
+| Data type | Collected? | Shared? | Required? | Purpose | Encrypted in transit |
+|---|---|---|---|---|---|
+| Crash logs | Yes (opt-in only) | No | No (user toggles) | App functionality / bug fixing | Yes (Sentry TLS) |
+| Diagnostics (device model, OS version, memory) | Yes (opt-in only) | No | No | Bug fixing | Yes |
+| Personal files / photos | No | No | — | Processing is local-only, never uploaded | — |
+| Contacts | No | No | — | Processing is local-only, never uploaded | — |
+| App activity / usage | No | No | — | UsageStatsManager data never leaves device | — |
+| Device identifiers | No | No | — | Sentry strips IP; no IDFA/GAID used | — |
+
+### Data shared with third parties
+
+| Third party | Data | Purpose |
+|---|---|---|
+| Sentry (EU endpoint) | Crash logs + device diagnostics | Crash reporting (opt-in only) |
+
+Sentry EU DSN used → data stored in EU (`o0.ingest.sentry.io/eu/`).
+
+### User controls
+- Crash reporting: Settings → "Send crash reports" toggle → OFF by default.
+- Opt-out: toggle off → `Sentry.close()` called immediately (no restart needed).
+- Data deletion: Sentry dashboard, or email privacy@coreclean.app within 30 days.
+- Data retention: 90 days in Sentry; no CoreClean backend.
+
+### Data safety answers (Play Console form fields)
+
+1. **Does your app collect or share any of the required user data types?** → **Yes**
+2. **Is all of the user data collected by your app encrypted in transit?** → **Yes**
+3. **Do you provide a way for users to request that their data is deleted?** → **Yes** (toggle off + email)
+4. Crash logs → Collected: **Optional** (user must enable) → Shared with: **No third parties** (Sentry is a data processor, not a controller)
+
+---
+
+## Permissions required (Play Store declaration)
+
+| Permission | Classification | Declared purpose |
+|---|---|---|
+| READ_MEDIA_IMAGES / READ_EXTERNAL_STORAGE | Storage | Media scanning and duplicate detection |
+| READ_MEDIA_VIDEO | Storage | Video file analysis |
+| READ_CONTACTS | Contacts | Duplicate detection and merge (optional feature) |
+| WRITE_CONTACTS | Contacts | Merge duplicate contacts (optional) |
+| PACKAGE_USAGE_STATS | App activity | App usage statistics (requires manual grant in Settings) |
+| POST_NOTIFICATIONS | Notifications | Background scan results (optional, API 33+) |
+| QUERY_ALL_PACKAGES | App info | APK analyzer — list installed apps for size/version analysis |
+| FOREGROUND_SERVICE + FOREGROUND_SERVICE_DATA_SYNC | — | Background media scan worker |
+| RECEIVE_BOOT_COMPLETED | — | Restart WorkManager after reboot |
+
+**Removed permissions (no longer in manifest):**
+- `MANAGE_EXTERNAL_STORAGE` — removed Sprint 8; replaced with SAF (DocumentFile) for empty-folder scan.

@@ -1,0 +1,38 @@
+CoreClean là ứng dụng tối ưu hóa thiết bị Android minh bạch, không có số liệu giả hay cảnh báo lừa đảo.
+
+QUÉT & DỌN DẸP THÔNG MINH
+• Phát hiện ảnh trùng lặp bằng MD5 content hash và AI perceptual hash (pHash)
+• Quét file rác: file tạm, APK cũ, thư mục rỗng
+• Dọn dẹp tự động theo lịch (chỉ TEMP/APK/EMPTY — không đụng ảnh hay dữ liệu quan trọng)
+• Gợi ý dọn dẹp thông minh dựa trên dung lượng thực tế
+
+PHÂN TÍCH LƯU TRỮ
+• Biểu đồ doughnut phân tích dung lượng theo loại (ảnh, video, nhạc, ứng dụng…)
+• Tìm file lớn (>50 MB) qua MediaStore
+• Báo cáo dung lượng chính xác bằng StatFs + MediaStore
+
+THEO DÕI PIN
+• Mức pin, nhiệt độ, trạng thái sạc theo thời gian thực
+• Dự đoán thời gian còn lại bằng hồi quy tuyến tính (cần ≥4 mẫu, ~1 giờ data)
+• Lịch sử pin 24 giờ
+
+QUẢN LÝ ỨNG DỤNG
+• Thống kê sử dụng ứng dụng (7 ngày / 30 ngày)
+• Phân tích kích thước APK, gỡ cài đặt nhiều ứng dụng cùng lúc
+• Theo dõi RAM theo thời gian thực
+
+QUẢN LÝ DANH BẠ
+• Phát hiện và gộp danh bạ trùng lặp
+• Hiển thị danh bạ thiếu thông tin
+
+BẢO MẬT & QUYỀN RIÊNG TƯ
+• Bảng điều khiển quyền riêng tư: xem và xóa toàn bộ dữ liệu đã lưu
+• Báo cáo lỗi Sentry tùy chọn (opt-in, tắt mặc định; BẢN FOSS: tắt hoàn toàn)
+• Không thu thập dữ liệu cá nhân khi chưa đồng ý
+• Toàn bộ xử lý 100% cục bộ — không đồng bộ đám mây, không có máy chủ
+
+KHÔNG CÓ SCAREWARE
+CoreClean không hiển thị số liệu giả, không cảnh báo sai, không tự xóa file mà không hỏi ý kiến bạn.
+
+Đây là bản FOSS: báo cáo lỗi bị tắt hoàn toàn, không có SDK độc quyền nào.
+Mã nguồn: https://github.com/annguyn/CoreClean

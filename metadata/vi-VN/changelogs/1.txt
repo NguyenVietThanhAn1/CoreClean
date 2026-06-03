@@ -1,0 +1,14 @@
+Phiên bản đầu tiên — CoreClean 1.0.0
+
+• Phát hiện ảnh trùng lặp (MD5 + AI perceptual hash)
+• Quét file rác (temp, APK cũ, thư mục rỗng qua SAF)
+• Phân tích lưu trữ với biểu đồ doughnut
+• Theo dõi pin với lịch sử 24h và dự đoán thời gian còn lại
+• Thống kê sử dụng ứng dụng (7 ngày / 30 ngày)
+• Theo dõi RAM và phân tích APK
+• Gộp danh bạ trùng lặp
+• Dọn dẹp tự động theo lịch (chỉ danh mục an toàn)
+• Gợi ý dọn dẹp thông minh
+• Bảng điều khiển quyền riêng tư với tùy chọn xóa toàn bộ dữ liệu
+• Bản FOSS: không có SDK độc quyền, báo cáo lỗi tắt hoàn toàn
+• Không quảng cáo, không cảnh báo giả, không số liệu bịa đặt
