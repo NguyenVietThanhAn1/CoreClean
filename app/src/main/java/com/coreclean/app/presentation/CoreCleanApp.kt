@@ -31,9 +31,10 @@ fun CoreCleanApp(
         ThemeMode.SYSTEM -> systemDark
     }
 
-    val onboardingDone by dataStore.data
-        .map { prefs -> prefs[AppPreferenceKeys.ONBOARDING_DONE] ?: false }
-        .collectAsState(initial = null)
+    val onboardingFlow = remember(dataStore) {
+        dataStore.data.map { prefs -> prefs[AppPreferenceKeys.ONBOARDING_DONE] ?: false }
+    }
+    val onboardingDone by onboardingFlow.collectAsState(initial = null)
 
     val resolved = onboardingDone ?: return
 
