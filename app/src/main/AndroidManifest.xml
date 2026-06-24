@@ -40,6 +40,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CoreClean"
         tools:targetApi="36">
+        <meta-data
+            android:name="io.sentry.auto-init"
+            android:value="false" />
         <activity
             android:name="com.coreclean.app.MainActivity"
             android:exported="true"
