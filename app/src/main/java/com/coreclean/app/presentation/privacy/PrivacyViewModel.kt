@@ -2,15 +2,17 @@ package com.coreclean.app.presentation.privacy
 
 import android.content.Context
 import android.content.pm.PackageManager
+import androidx.annotation.StringRes
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.coreclean.app.data.local.dao.BatteryHistoryDao
-import com.coreclean.app.data.local.dao.PendingReviewDao
-import com.coreclean.app.data.local.dao.ScanResultDao
+import com.coreclean.app.R
 import com.coreclean.app.domain.model.UsageRange
 import com.coreclean.app.domain.repository.AppUsageRepository
+import com.coreclean.app.domain.repository.BatteryRepository
+import com.coreclean.app.domain.repository.MediaRepository
+import com.coreclean.app.domain.repository.ScanResultRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,16 +32,16 @@ data class PrivacyUiState(
     val pendingReviewCount: Int = 0,
     val dataStoreKeyCount: Int = 0,
     val batteryHistoryCount: Int = 0,
-    val message: String? = null
+    @StringRes val messageRes: Int? = null
 )
 
 @HiltViewModel
 class PrivacyViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val dataStore: DataStore<Preferences>,
-    private val scanResultDao: ScanResultDao,
-    private val pendingReviewDao: PendingReviewDao,
-    private val batteryHistoryDao: BatteryHistoryDao,
+    private val scanResultRepository: ScanResultRepository,
+    private val mediaRepository: MediaRepository,
+    private val batteryRepository: BatteryRepository,
     private val appUsageRepository: AppUsageRepository
 ) : ViewModel() {
 
@@ -72,10 +74,10 @@ class PrivacyViewModel @Inject constructor(
             }
         }
 
-        val scanCount        = scanResultDao.count()
-        val pendingCount     = pendingReviewDao.count()
+        val scanCount        = scanResultRepository.getCount()
+        val pendingCount     = mediaRepository.getPendingReviewCount()
         val dsKeys           = dataStore.data.map { it.asMap().size }.first()
-        val batteryCount     = batteryHistoryDao.count()
+        val batteryCount     = batteryRepository.getHistoryCount()
 
         _state.value = PrivacyUiState(
             isLoading            = false,
@@ -90,19 +92,19 @@ class PrivacyViewModel @Inject constructor(
     }
 
     fun clearHistory() = viewModelScope.launch {
-        scanResultDao.clearAll()
-        pendingReviewDao.clearAll()
+        scanResultRepository.clearAll()
+        mediaRepository.clearPendingReviewIds()
         _state.value = _state.value.copy(
             scanResultCount    = 0,
             pendingReviewCount = 0,
-            message            = "Da xoa lich su quet"
+            messageRes         = R.string.privacy_cleared_scan_history
         )
     }
 
     fun clearBatteryHistory() = viewModelScope.launch {
-        batteryHistoryDao.clearAll()
-        _state.value = _state.value.copy(batteryHistoryCount = 0, message = "Da xoa lich su pin")
+        batteryRepository.clearHistory()
+        _state.value = _state.value.copy(batteryHistoryCount = 0, messageRes = R.string.privacy_cleared_battery_history)
     }
 
-    fun dismissMessage() { _state.value = _state.value.copy(message = null) }
+    fun dismissMessage() { _state.value = _state.value.copy(messageRes = null) }
 }

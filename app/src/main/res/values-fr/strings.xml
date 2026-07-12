@@ -66,6 +66,7 @@
 
     <!-- Junk -->
     <string name="junk_title">Nettoyeur de fichiers</string>
+    <string name="junk_more_files">… et %1$d fichier(s) supplémentaire(s)</string>
     <string name="junk_scan_title">Scanner les fichiers indésirables</string>
     <string name="junk_start_scan">Lancer le scan</string>
     <string name="junk_scanning">Scan en cours…</string>
@@ -81,9 +82,16 @@
     <string name="junk_no_folder">Aucun dossier sélectionné. Appuyez sur « Choisir un dossier » pour commencer.</string>
     <string name="junk_open_settings">Ouvrir les paramètres</string>
     <string name="junk_folders_section">Dossiers sélectionnés pour le scan</string>
+    <string name="junk_cache_count">%1$d cache(s) d\'application: à supprimer manuellement</string>
 
     <!-- Storage -->
     <string name="storage_title">Analyseur de stockage</string>
+    <!-- Storage category names -->
+    <string name="storage_cat_images">Images</string>
+    <string name="storage_cat_video">Vidéo</string>
+    <string name="storage_cat_audio">Audio</string>
+    <string name="storage_cat_apps">Applications</string>
+    <string name="storage_cat_other">Autre</string>
     <string name="storage_used">Utilisé</string>
     <string name="storage_free">Libre</string>
     <string name="storage_total">Total</string>
@@ -94,6 +102,19 @@
 
     <!-- Battery -->
     <string name="battery_title">Moniteur batterie</string>
+    <!-- Battery health values -->
+    <string name="battery_health_good">Bonne</string>
+    <string name="battery_health_overheat">Surchauffe</string>
+    <string name="battery_health_dead">Défaillante</string>
+    <string name="battery_health_over_voltage">Surtension</string>
+    <string name="battery_health_cold">Froide</string>
+    <string name="battery_health_unknown">Inconnue</string>
+    <!-- Battery charge plug values -->
+    <string name="battery_plug_ac">Secteur</string>
+    <string name="battery_plug_usb">USB</string>
+    <string name="battery_plug_wireless">Sans fil</string>
+    <string name="battery_plug_other">Autre</string>
+    <string name="battery_plug_none">Non branché</string>
     <string name="battery_charging">En charge</string>
     <string name="battery_not_charging">Non en charge</string>
     <string name="battery_label_health">Santé</string>
@@ -149,6 +170,7 @@
     <string name="privacy_datastore_keys">Clés DataStore</string>
     <string name="privacy_actions">Actions</string>
     <string name="privacy_clear_history">Effacer tout l\'historique</string>
+    <string name="privacy_cleared_scan_history">Historique de scan effacé</string>
     <string name="privacy_open_app_settings">Ouvrir les paramètres de l\'app</string>
 
     <!-- Onboarding -->
@@ -207,6 +229,7 @@
     <string name="privacy_last_access">Dernier accès</string>
     <string name="privacy_battery_history">Historique batterie</string>
     <string name="privacy_clear_battery_history">Effacer l\'historique batterie</string>
+    <string name="privacy_cleared_battery_history">Historique batterie effacé</string>
     <string name="privacy_policy_link">Politique de confidentialité</string>
     <string name="privacy_battery_count">%1$d point(s) de données batterie</string>
 

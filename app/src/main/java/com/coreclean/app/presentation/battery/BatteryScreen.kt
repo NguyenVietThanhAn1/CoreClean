@@ -25,7 +25,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.coreclean.app.domain.model.BatteryHealth
 import com.coreclean.app.domain.model.BatteryInfo
+import com.coreclean.app.domain.model.ChargePlug
+import com.coreclean.app.presentation.components.ShimmerListPlaceholder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,15 +53,20 @@ fun BatteryScreen(
         }
     ) { paddingValues ->
         when (val state = uiState) {
-            is BatteryUiState.Loading -> Box(
-                Modifier.fillMaxSize().padding(paddingValues), Alignment.Center
-            ) { CircularProgressIndicator() }
+            is BatteryUiState.Loading -> ShimmerListPlaceholder(
+                itemCount = 6,
+                modifier  = Modifier.padding(paddingValues)
+            )
 
             is BatteryUiState.Error -> Box(
                 Modifier.fillMaxSize().padding(paddingValues), Alignment.Center
             ) {
-                Text(state.message, color = MaterialTheme.colorScheme.error,
-                    textAlign = TextAlign.Center, modifier = Modifier.padding(24.dp))
+                Text(
+                    text = state.message.ifEmpty { stringResource(R.string.error_generic) },
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(24.dp)
+                )
             }
 
             is BatteryUiState.Success -> BatteryContent(
@@ -116,11 +124,11 @@ private fun BatteryContent(
         val plugLabel   = stringResource(R.string.battery_label_charge_plug)
         val remLabel    = stringResource(R.string.battery_label_remaining)
         val cards = listOf(
-            healthLabel to info.healthLabel,
-            tempLabel   to "${info.temperatureC} oC",
+            healthLabel to info.healthCode.label(),
+            tempLabel   to "${info.temperatureC} °C",
             voltLabel   to "${info.voltageMv} mV",
             techLabel   to info.technology,
-            plugLabel   to info.chargePlug,
+            plugLabel   to info.chargePlugCode.label(),
             remLabel    to if (info.chargeCounterMah > 0) "${info.chargeCounterMah} mAh" else "N/A"
         )
 
@@ -207,6 +215,25 @@ private fun BatteryCircle(levelPercent: Int, modifier: Modifier = Modifier) {
             topLeft = topLeft, size = arcSize)
     }
 }
+
+@Composable
+private fun BatteryHealth.label(): String = stringResource(when (this) {
+    BatteryHealth.GOOD         -> R.string.battery_health_good
+    BatteryHealth.OVERHEAT     -> R.string.battery_health_overheat
+    BatteryHealth.DEAD         -> R.string.battery_health_dead
+    BatteryHealth.OVER_VOLTAGE -> R.string.battery_health_over_voltage
+    BatteryHealth.COLD         -> R.string.battery_health_cold
+    BatteryHealth.UNKNOWN      -> R.string.battery_health_unknown
+})
+
+@Composable
+private fun ChargePlug.label(): String = stringResource(when (this) {
+    ChargePlug.AC       -> R.string.battery_plug_ac
+    ChargePlug.USB      -> R.string.battery_plug_usb
+    ChargePlug.WIRELESS -> R.string.battery_plug_wireless
+    ChargePlug.OTHER    -> R.string.battery_plug_other
+    ChargePlug.NONE     -> R.string.battery_plug_none
+})
 
 private fun batteryColor(levelPercent: Int): Color = when {
     levelPercent > 60 -> Color(0xFF4CAF50)  // Green

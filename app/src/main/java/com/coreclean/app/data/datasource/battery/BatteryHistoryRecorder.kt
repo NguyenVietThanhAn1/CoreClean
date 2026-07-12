@@ -8,8 +8,8 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.coreclean.app.data.datasource.battery.BatteryDataSource
-import com.coreclean.app.data.local.dao.BatteryHistoryDao
-import com.coreclean.app.data.local.entity.BatteryHistoryEntity
+import com.coreclean.app.domain.model.BatteryHistoryEntry
+import com.coreclean.app.domain.repository.BatteryRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.util.concurrent.TimeUnit
@@ -19,14 +19,14 @@ class BatteryHistoryRecorder @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val batteryDataSource: BatteryDataSource,
-    private val batteryHistoryDao: BatteryHistoryDao,
+    private val batteryRepository: BatteryRepository,
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
         return runCatching {
             val info = batteryDataSource.getBatteryInfo()
-            batteryHistoryDao.insert(
-                BatteryHistoryEntity(
+            batteryRepository.recordHistory(
+                BatteryHistoryEntry(
                     timestamp    = System.currentTimeMillis(),
                     levelPercent = info.levelPercent,
                     isCharging   = info.isCharging

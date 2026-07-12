@@ -4,9 +4,9 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.coreclean.app.data.local.dao.ScanResultDao
-import com.coreclean.app.data.local.entity.ScanResultEntity
+import com.coreclean.app.domain.model.ScanResult
 import com.coreclean.app.domain.repository.MediaRepository
+import com.coreclean.app.domain.repository.ScanResultRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
@@ -16,23 +16,22 @@ class MediaScanWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
     private val mediaRepository: MediaRepository,
-    private val scanResultDao: ScanResultDao
+    private val scanResultRepository: ScanResultRepository
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
         return try {
             val images = mediaRepository.getAllImages().first()
             mediaRepository.findDuplicates(images) // side-effect: warms duplicate cache
-            val entities = images.map { img ->
-                ScanResultEntity(
+            val results = images.map { img ->
+                ScanResult(
                     filePath     = img.path,
                     fileSize     = img.size,
                     fileType     = img.mimeType,
                     lastModified = img.dateAdded
                 )
             }
-            scanResultDao.clearAll()
-            scanResultDao.insertAll(entities)
+            scanResultRepository.replaceAll(results)
             Result.success()
         } catch (_: Exception) {
             Result.failure()

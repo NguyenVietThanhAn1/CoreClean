@@ -2,12 +2,11 @@ package com.coreclean.app.presentation.media
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.coreclean.app.data.local.dao.PendingReviewDao
-import com.coreclean.app.data.local.entity.PendingReviewEntity
 import com.coreclean.app.domain.model.DuplicateGroup
 import com.coreclean.app.domain.model.MediaImage
 import com.coreclean.app.domain.usecase.media.FindDuplicateImagesUseCase
 import com.coreclean.app.domain.usecase.media.GetAllImagesUseCase
+import com.coreclean.app.domain.usecase.media.PreparePendingReviewUseCase
 import com.coreclean.app.presentation.navigation.ReviewRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -18,13 +17,11 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private const val ROUTE_ID_LIMIT = 200
-
 @HiltViewModel
 class MediaViewModel @Inject constructor(
     private val getAllImagesUseCase: GetAllImagesUseCase,
     private val findDuplicateImagesUseCase: FindDuplicateImagesUseCase,
-    private val pendingReviewDao: PendingReviewDao
+    private val preparePendingReviewUseCase: PreparePendingReviewUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<MediaUiState>(MediaUiState.Idle)
@@ -46,7 +43,7 @@ class MediaViewModel @Inject constructor(
         loadJob = viewModelScope.launch {
             _uiState.value = MediaUiState.Loading
             getAllImagesUseCase()
-                .catch { e -> _uiState.value = MediaUiState.Error(e.message ?: "Khong the tai anh") }
+                .catch { e -> _uiState.value = MediaUiState.Error(e.message ?: "") }
                 .collect { images -> _uiState.value = MediaUiState.Success(images = images) }
         }
     }
@@ -81,20 +78,14 @@ class MediaViewModel @Inject constructor(
 
     /**
      * Builds a [ReviewRoute] and calls [onNavigate].
-     * If the selection exceeds [ROUTE_ID_LIMIT] the IDs are persisted in Room
+     * If the selection is too large to fit inline, the IDs are persisted in Room
      * and an empty-list route is returned (SafetyReviewViewModel reads from DB).
      */
     fun prepareReview(onNavigate: (ReviewRoute) -> Unit) {
         val ids = _selectedImages.value.toList()
         viewModelScope.launch {
-            val route = if (ids.size <= ROUTE_ID_LIMIT) {
-                ReviewRoute("media", ids)
-            } else {
-                pendingReviewDao.clearAll()
-                pendingReviewDao.insertAll(ids.map { PendingReviewEntity(it) })
-                ReviewRoute("media", emptyList())  // signal: read from pending_review DB
-            }
-            onNavigate(route)
+            val routeIds = preparePendingReviewUseCase(ids)
+            onNavigate(ReviewRoute("media", routeIds))
         }
     }
 }
