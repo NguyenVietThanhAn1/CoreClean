@@ -197,6 +197,8 @@ dependencies {
     androidTestImplementation("io.mockk:mockk-android:1.13.12")
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation(libs.work.testing)
+    androidTestImplementation(libs.room.testing)
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
 
