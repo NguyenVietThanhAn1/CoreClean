@@ -1,7 +1,7 @@
 package com.coreclean.app
 
-import com.coreclean.app.data.local.dao.BatteryHistoryDao
-import com.coreclean.app.data.local.entity.BatteryHistoryEntity
+import com.coreclean.app.domain.model.BatteryHistoryEntry
+import com.coreclean.app.domain.repository.BatteryRepository
 import com.coreclean.app.domain.usecase.battery.PredictBatteryRemainingUseCase
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -15,12 +15,12 @@ import org.junit.Test
 
 class PredictBatteryRemainingUseCaseTest {
 
-    private lateinit var dao: BatteryHistoryDao
+    private lateinit var batteryRepository: BatteryRepository
     private lateinit var useCase: PredictBatteryRemainingUseCase
 
     @Before fun setUp() {
-        dao     = mockk()
-        useCase = PredictBatteryRemainingUseCase(dao)
+        batteryRepository = mockk()
+        useCase = PredictBatteryRemainingUseCase(batteryRepository)
     }
 
     @Test fun `returns null duration when charging`() = runTest {
@@ -30,7 +30,7 @@ class PredictBatteryRemainingUseCaseTest {
     }
 
     @Test fun `returns null duration when fewer than 4 samples`() = runTest {
-        coEvery { dao.getDischargingSince(any()) } returns listOf(
+        coEvery { batteryRepository.getDischargingHistorySince(any()) } returns listOf(
             makeSample(100, System.currentTimeMillis() - 3_600_000L, false),
             makeSample(95,  System.currentTimeMillis() - 1_800_000L, false),
         )
@@ -46,7 +46,7 @@ class PredictBatteryRemainingUseCaseTest {
         val samples = (0 until 8).map { i ->
             makeSample(100 - i, now - (7 - i) * intervalMs, false)
         }
-        coEvery { dao.getDischargingSince(any()) } returns samples
+        coEvery { batteryRepository.getDischargingHistorySince(any()) } returns samples
 
         val result = useCase(92, isCharging = false)
         assertNotNull(result.estimated)
@@ -59,11 +59,11 @@ class PredictBatteryRemainingUseCaseTest {
         val samples = (0 until 5).map { i ->
             makeSample(80, now - i * 60_000L, false)
         }
-        coEvery { dao.getDischargingSince(any()) } returns samples
+        coEvery { batteryRepository.getDischargingHistorySince(any()) } returns samples
         val result = useCase(80, isCharging = false)
         assertNull(result.estimated)
     }
 
     private fun makeSample(level: Int, ts: Long, charging: Boolean) =
-        BatteryHistoryEntity(timestamp = ts, levelPercent = level, isCharging = charging)
+        BatteryHistoryEntry(timestamp = ts, levelPercent = level, isCharging = charging)
 }

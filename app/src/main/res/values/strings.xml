@@ -1,261 +1,310 @@
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingTranslation">
+    tools:ignore="MissingTranslation"
+    tools:locale="vi">
 
     <string name="app_name">CoreClean</string>
 
     <!-- Navigation -->
-    <string name="nav_back">Quay lai</string>
+    <string name="nav_back">Quay lại</string>
 
     <!-- Home -->
     <string name="home_title">CoreClean</string>
-    <string name="home_settings_cd">Cai dat</string>
+    <string name="home_settings_cd">Cài đặt</string>
     <string name="home_card_media_title">Media Scanner</string>
-    <string name="home_card_media_sub">Quet &amp; don anh trung</string>
+    <string name="home_card_media_sub">Quét &amp; dọn ảnh trùng</string>
     <string name="home_card_storage_title">Storage Analyzer</string>
-    <string name="home_card_storage_sub">Phan tich bo nho</string>
+    <string name="home_card_storage_sub">Phân tích bộ nhớ</string>
     <string name="home_card_battery_title">Battery Monitor</string>
-    <string name="home_card_battery_sub">Giam sat pin</string>
+    <string name="home_card_battery_sub">Giám sát pin</string>
     <string name="home_card_usage_title">App Usage</string>
-    <string name="home_card_usage_sub">Thong ke su dung</string>
+    <string name="home_card_usage_sub">Thống kê sử dụng</string>
     <string name="home_card_contacts_title">Contacts</string>
-    <string name="home_card_contacts_sub">Quan ly danh ba</string>
+    <string name="home_card_contacts_sub">Quản lý danh bạ</string>
     <string name="home_card_junk_title">Junk Cleaner</string>
-    <string name="home_card_junk_sub">Don dep file rac</string>
+    <string name="home_card_junk_sub">Dọn dẹp file rác</string>
     <string name="home_card_ram_title">RAM Monitor</string>
-    <string name="home_card_ram_sub">Giam sat bo nho</string>
+    <string name="home_card_ram_sub">Giám sát bộ nhớ</string>
     <string name="home_card_apk_title">App Analyzer</string>
-    <string name="home_card_apk_sub">Phan tich ung dung</string>
-    <string name="home_card_coming_soon">Sap ra mat</string>
+    <string name="home_card_apk_sub">Phân tích ứng dụng</string>
+    <string name="home_card_coming_soon">Sắp ra mắt</string>
 
     <!-- RAM -->
     <string name="ram_title">RAM Monitor</string>
-    <string name="ram_used">Su dung: %1$d MB</string>
-    <string name="ram_total">Tong: %1$d MB</string>
-    <string name="ram_available">Con trong: %1$d MB</string>
-    <string name="ram_low_memory">⚠ Bo nho thap</string>
-    <string name="ram_top_processes">Tien trinh su dung nhieu nhat</string>
-    <string name="ram_process_note">* Android 5+ chi hien thi tien trinh cua ung dung nay</string>
+    <string name="ram_used">Sử dụng: %1$d MB</string>
+    <string name="ram_total">Tổng: %1$d MB</string>
+    <string name="ram_available">Còn trống: %1$d MB</string>
+    <string name="ram_low_memory">⚠ Bộ nhớ thấp</string>
+    <string name="ram_top_processes">Tiến trình sử dụng nhiều nhất</string>
+    <string name="ram_process_note">* Android 5+ chỉ hiển thị tiến trình của ứng dụng này</string>
     <string name="ram_mb">%1$d MB</string>
 
     <!-- App Analyzer -->
     <string name="app_analyzer_title">App Analyzer</string>
-    <string name="app_analyzer_selected">Da chon: %1$d ung dung</string>
-    <string name="app_analyzer_uninstall">Go cai dat</string>
+    <string name="app_analyzer_selected">Đã chọn: %1$d ứng dụng</string>
+    <string name="app_analyzer_uninstall">Gỡ cài đặt</string>
 
     <!-- Contact -->
-    <string name="contact_title">Danh ba</string>
-    <string name="contact_tab_all">Tat ca</string>
-    <string name="contact_tab_duplicate">Trung</string>
-    <string name="contact_tab_incomplete">Thieu TT</string>
-    <string name="contact_no_items">Khong co danh ba</string>
-    <string name="contact_no_duplicate">Khong co danh ba trung</string>
-    <string name="contact_missing_phone">Thieu so dien thoai</string>
-    <string name="contact_no_name">(Khong ten)</string>
-    <string name="contact_no_permission">Can quyen READ_CONTACTS de hien thi danh ba.</string>
-    <string name="contact_open_settings">Mo Cai dat ung dung</string>
-    <string name="contact_duplicate_group">Nhom trung (%1$d)</string>
-    <string name="contact_merge_title">Gop lien he</string>
-    <string name="contact_merge_subtitle">Gop %1$d lien he thanh mot?</string>
-    <string name="contact_merge_note">Android se ket hop cac lien he nay lai voi nhau.</string>
-    <string name="contact_merge_confirm">Gop</string>
+    <string name="contact_title">Danh bạ</string>
+    <string name="contact_tab_all">Tất cả</string>
+    <string name="contact_tab_duplicate">Trùng</string>
+    <string name="contact_tab_incomplete">Thiếu TT</string>
+    <string name="contact_no_items">Không có danh bạ</string>
+    <string name="contact_no_duplicate">Không có danh bạ trùng</string>
+    <string name="contact_missing_phone">Thiếu số điện thoại</string>
+    <string name="contact_no_name">(Không tên)</string>
+    <string name="contact_no_permission">Cần quyền READ_CONTACTS để hiển thị danh bạ.</string>
+    <string name="contact_open_settings">Mở Cài đặt ứng dụng</string>
+    <string name="contact_duplicate_group">Nhóm trùng (%1$d)</string>
+    <string name="contact_merge_title">Gộp liên hệ</string>
+    <string name="contact_merge_subtitle">Gộp %1$d liên hệ thành một?</string>
+    <string name="contact_merge_note">Android sẽ kết hợp các liên hệ này lại với nhau.</string>
+    <string name="contact_merge_confirm">Gộp</string>
 
     <!-- Junk -->
     <string name="junk_title">Junk Cleaner</string>
-    <string name="junk_scan_title">Quet de tim file rac</string>
-    <string name="junk_start_scan">Bat dau quet</string>
-    <string name="junk_scanning">Dang quet…</string>
-    <string name="junk_clean">Don dep</string>
-    <string name="junk_selected">Da chon: %1$s</string>
+    <string name="junk_more_files">… và %1$d file khác</string>
+    <string name="junk_scan_title">Quét để tìm file rác</string>
+    <string name="junk_start_scan">Bắt đầu quét</string>
+    <string name="junk_scanning">Đang quét…</string>
+    <string name="junk_clean">Dọn dẹp</string>
+    <string name="junk_selected">Đã chọn: %1$s</string>
     <string name="junk_app_cache">App Cache</string>
-    <string name="junk_empty_folders">Thu muc rong</string>
-    <string name="junk_temp_files">File tam</string>
-    <string name="junk_residual_apk">APK con lai</string>
-    <string name="junk_cache_note">Android 8+ khong cho xoa truc tiep — can mo Settings.</string>
-    <string name="junk_open_app_manager">Mo App Manager</string>
-    <string name="junk_pick_folder">Chon thu muc de quet</string>
-    <string name="junk_no_folder">Chua chon thu muc nao. Nhan "Chon thu muc" de bat dau.</string>
-    <string name="junk_open_settings">Mo Settings</string>
-    <string name="junk_folders_section">Thu muc da chon de quet</string>
+    <string name="junk_empty_folders">Thư mục rỗng</string>
+    <string name="junk_temp_files">File tạm</string>
+    <string name="junk_residual_apk">APK còn lại</string>
+    <string name="junk_cache_note">Android 8+ không cho xóa trực tiếp — cần mở Settings.</string>
+    <string name="junk_open_app_manager">Mở App Manager</string>
+    <string name="junk_pick_folder">Chọn thư mục để quét</string>
+    <string name="junk_no_folder">Chưa chọn thư mục nào. Nhấn \"Chọn thư mục\" để bắt đầu.</string>
+    <string name="junk_open_settings">Mở Settings</string>
+    <string name="junk_folders_section">Thư mục đã chọn để quét</string>
+    <string name="junk_cache_count">%1$d app cache: có thể xóa thủ công</string>
 
     <!-- Storage -->
     <string name="storage_title">Storage Analyzer</string>
-    <string name="storage_used">Da dung</string>
-    <string name="storage_free">Trong</string>
-    <string name="storage_total">Tong</string>
-    <string name="storage_breakdown">Chi tiet theo danh muc</string>
-    <string name="storage_large_files">File lon (&gt; 50 MB)</string>
-    <string name="storage_delete_selected">Xoa %1$d file da chon</string>
-    <string name="storage_refresh">Lam moi</string>
+    <!-- Storage category names -->
+    <string name="storage_cat_images">Ảnh</string>
+    <string name="storage_cat_video">Video</string>
+    <string name="storage_cat_audio">Âm thanh</string>
+    <string name="storage_cat_apps">Ứng dụng</string>
+    <string name="storage_cat_other">Khác</string>
+    <string name="storage_used">Đã dùng</string>
+    <string name="storage_free">Trống</string>
+    <string name="storage_total">Tổng</string>
+    <string name="storage_breakdown">Chi tiết theo danh mục</string>
+    <string name="storage_large_files">File lớn (&gt; 50 MB)</string>
+    <string name="storage_delete_selected">Xóa %1$d file đã chọn</string>
+    <string name="storage_refresh">Làm mới</string>
 
     <!-- Battery -->
     <string name="battery_title">Battery Monitor</string>
-    <string name="battery_charging">Dang sac</string>
-    <string name="battery_not_charging">Khong sac</string>
-    <string name="battery_label_health">Suc khoe</string>
-    <string name="battery_label_temp">Nhiet do</string>
-    <string name="battery_label_voltage">Dien ap</string>
-    <string name="battery_label_tech">Cong nghe</string>
-    <string name="battery_label_charge_plug">Nguon sac</string>
-    <string name="battery_label_remaining">Con lai (uoc)</string>
+    <!-- Battery health values -->
+    <string name="battery_health_good">Tốt</string>
+    <string name="battery_health_overheat">Quá nóng</string>
+    <string name="battery_health_dead">Hỏng</string>
+    <string name="battery_health_over_voltage">Điện áp cao</string>
+    <string name="battery_health_cold">Quá lạnh</string>
+    <string name="battery_health_unknown">Không xác định</string>
+    <!-- Battery charge plug values -->
+    <string name="battery_plug_ac">AC</string>
+    <string name="battery_plug_usb">USB</string>
+    <string name="battery_plug_wireless">Không dây</string>
+    <string name="battery_plug_other">Khác</string>
+    <string name="battery_plug_none">Không sạc</string>
+    <string name="battery_charging">Đang sạc</string>
+    <string name="battery_not_charging">Không sạc</string>
+    <string name="battery_label_health">Sức khỏe</string>
+    <string name="battery_label_temp">Nhiệt độ</string>
+    <string name="battery_label_voltage">Điện áp</string>
+    <string name="battery_label_tech">Công nghệ</string>
+    <string name="battery_label_charge_plug">Nguồn sạc</string>
+    <string name="battery_label_remaining">Còn lại (ước)</string>
 
     <!-- App Usage -->
     <string name="usage_title">App Usage</string>
-    <string name="usage_no_permission">Can quyen Usage Stats de xem thong ke su dung app.</string>
-    <string name="usage_open_settings">Mo Cai dat</string>
-    <string name="usage_days_7">7 ngay</string>
-    <string name="usage_days_30">30 ngay</string>
-    <string name="usage_just_now">Vua xong</string>
-    <string name="usage_hours_ago">%1$d gio truoc</string>
-    <string name="usage_days_ago">%1$d ngay truoc</string>
+    <string name="usage_no_permission">Cần quyền Usage Stats để xem thống kê sử dụng app.</string>
+    <string name="usage_open_settings">Mở Cài đặt</string>
+    <string name="usage_days_7">7 ngày</string>
+    <string name="usage_days_30">30 ngày</string>
+    <string name="usage_just_now">Vừa xong</string>
+    <string name="usage_hours_ago">%1$d giờ trước</string>
+    <string name="usage_days_ago">%1$d ngày trước</string>
 
     <!-- Settings -->
-    <string name="settings_title">Cai dat</string>
-    <string name="settings_section_theme">Giao dien</string>
-    <string name="settings_theme_system">Theo he thong</string>
-    <string name="settings_theme_light">Sang</string>
-    <string name="settings_theme_dark">Toi</string>
-    <string name="settings_dynamic_color">Mau dong (Material You)</string>
-    <string name="settings_amoled_black">Nen den tuyet doi (AMOLED)</string>
-    <string name="settings_section_scan">Quet nen</string>
-    <string name="settings_bg_scan">Bat quet nen</string>
-    <string name="settings_scan_now">Quet ngay bay gio</string>
-    <string name="settings_interval_hours">%1$d gio</string>
-    <string name="settings_section_language">Ngon ngu</string>
-    <string name="settings_lang_system">Theo he thong</string>
-    <string name="settings_lang_vi">Tieng Viet</string>
+    <string name="settings_title">Cài đặt</string>
+    <string name="settings_section_theme">Giao diện</string>
+    <string name="settings_theme_system">Theo hệ thống</string>
+    <string name="settings_theme_light">Sáng</string>
+    <string name="settings_theme_dark">Tối</string>
+    <string name="settings_dynamic_color">Màu động (Material You)</string>
+    <string name="settings_amoled_black">Nền đen tuyệt đối (AMOLED)</string>
+    <string name="settings_section_scan">Quét nền</string>
+    <string name="settings_bg_scan">Bật quét nền</string>
+    <string name="settings_scan_now">Quét ngay bây giờ</string>
+    <string name="settings_interval_hours">%1$d giờ</string>
+    <string name="settings_section_language">Ngôn ngữ</string>
+    <string name="settings_lang_system">Theo hệ thống</string>
+    <string name="settings_lang_vi">Tiếng Việt</string>
     <string name="settings_lang_en">English</string>
-    <string name="settings_lang_fr">Tieng Phap</string>
-    <string name="settings_section_crash">Bao cao loi</string>
-    <string name="settings_crash_toggle">Gui bao cao loi (opt-in)</string>
-    <string name="settings_crash_restart_hint">Can khoi dong lai ung dung de bat bao cao</string>
-    <string name="settings_section_privacy">Quyen rieng tu</string>
+    <string name="settings_lang_fr">Tiếng Pháp</string>
+    <string name="settings_section_crash">Báo cáo lỗi</string>
+    <string name="settings_crash_toggle">Gửi báo cáo lỗi (opt-in)</string>
+    <string name="settings_crash_restart_hint">Cần khởi động lại ứng dụng để bật báo cáo</string>
+    <string name="settings_section_privacy">Quyền riêng tư</string>
     <string name="settings_privacy_dashboard">Privacy Dashboard</string>
     <string name="settings_section_debug">Debug</string>
     <string name="settings_reset_onboarding">Reset onboarding</string>
-    <string name="settings_section_about">Thong tin ung dung</string>
-    <string name="settings_version">Phien ban</string>
+    <string name="settings_section_about">Thông tin ứng dụng</string>
+    <string name="settings_version">Phiên bản</string>
 
     <!-- Privacy -->
     <string name="privacy_title">Privacy Dashboard</string>
-    <string name="privacy_permissions">Quyen ung dung</string>
-    <string name="privacy_stored_data">Du lieu da luu</string>
-    <string name="privacy_scan_results">Ket qua quet</string>
-    <string name="privacy_pending_review">Cho xem xet</string>
+    <string name="privacy_permissions">Quyền ứng dụng</string>
+    <string name="privacy_stored_data">Dữ liệu đã lưu</string>
+    <string name="privacy_scan_results">Kết quả quét</string>
+    <string name="privacy_pending_review">Chờ xem xét</string>
     <string name="privacy_datastore_keys">DataStore keys</string>
-    <string name="privacy_actions">Hanh dong</string>
-    <string name="privacy_clear_history">Xoa toan bo lich su quet</string>
-    <string name="privacy_open_app_settings">Mo cai dat ung dung</string>
+    <string name="privacy_actions">Hành động</string>
+    <string name="privacy_clear_history">Xóa toàn bộ lịch sử quét</string>
+    <string name="privacy_cleared_scan_history">Đã xóa lịch sử quét</string>
+    <string name="privacy_open_app_settings">Mở cài đặt ứng dụng</string>
 
     <!-- Onboarding -->
-    <string name="onboarding_step_storage_title">Luu tru &amp; Media</string>
-    <string name="onboarding_step_storage_desc">CoreClean can quyen truy cap anh va video de quet, phat hien trung lap va giai phong bo nho.</string>
-    <string name="onboarding_step_usage_title">Thong ke su dung</string>
-    <string name="onboarding_step_usage_desc">Quyen Usage Stats giup CoreClean hien thi app nao ban su dung nhieu nhat.</string>
-    <string name="onboarding_step_notif_title">Thong bao</string>
-    <string name="onboarding_step_notif_desc">Nhan ket qua quet nen va nhac nho don dep dinh ky.</string>
-    <string name="onboarding_skip">Bo qua</string>
-    <string name="onboarding_grant_storage">Cap quyen luu tru</string>
-    <string name="onboarding_open_settings">Mo Cai dat</string>
-    <string name="onboarding_start">Bat dau</string>
+    <string name="onboarding_step_storage_title">Lưu trữ &amp; Media</string>
+    <string name="onboarding_step_storage_desc">CoreClean cần quyền truy cập ảnh và video để quét, phát hiện trùng lặp và giải phóng bộ nhớ.</string>
+    <string name="onboarding_step_usage_title">Thống kê sử dụng</string>
+    <string name="onboarding_step_usage_desc">Quyền Usage Stats giúp CoreClean hiển thị app nào bạn sử dụng nhiều nhất.</string>
+    <string name="onboarding_step_notif_title">Thông báo</string>
+    <string name="onboarding_step_notif_desc">Nhận kết quả quét nền và nhắc nhở dọn dẹp định kỳ.</string>
+    <string name="onboarding_skip">Bỏ qua</string>
+    <string name="onboarding_grant_storage">Cấp quyền lưu trữ</string>
+    <string name="onboarding_open_settings">Mở Cài đặt</string>
+    <string name="onboarding_start">Bắt đầu</string>
 
     <!-- Suggestions (Home) -->
-    <string name="home_suggestions_title">Goi y don dep</string>
-    <string name="suggestion_duplicate_title">Anh trung lap</string>
-    <string name="suggestion_unused_app_title">Go cap dat %1$s</string>
-    <string name="suggestion_download_title">File tai xuong lon</string>
-    <string name="suggestion_screenshot_title">%1$d anh chup man hinh cu</string>
-    <string name="suggestion_storage_full_title">Bo nho sap day</string>
-    <string name="suggestion_save_mb">Tiet kiem khoang %1$d MB</string>
-    <string name="suggestion_storage_free_pct">Con %1$d%% bo nho</string>
+    <string name="home_suggestions_title">Gợi ý dọn dẹp</string>
+    <string name="suggestion_duplicate_title">Ảnh trùng lặp</string>
+    <string name="suggestion_unused_app_title">Gỡ cài đặt %1$s</string>
+    <string name="suggestion_download_title">File tải xuống lớn</string>
+    <string name="suggestion_screenshot_title">%1$d ảnh chụp màn hình cũ</string>
+    <string name="suggestion_storage_full_title">Bộ nhớ sắp đầy</string>
+    <string name="suggestion_save_mb">Tiết kiệm khoảng %1$d MB</string>
+    <string name="suggestion_storage_free_pct">Còn %1$d%% bộ nhớ</string>
 
     <!-- Battery prediction -->
-    <string name="battery_prediction_estimate">Con khoang %1$d gio %2$d phut</string>
-    <string name="battery_prediction_collecting">Dang thu thap du lieu...</string>
-    <string name="battery_prediction_disclaimer">(Uoc tinh dua tren thoi quen 24 gio)</string>
+    <string name="battery_prediction_estimate">Còn khoảng %1$d giờ %2$d phút</string>
+    <string name="battery_prediction_collecting">Đang thu thập dữ liệu...</string>
+    <string name="battery_prediction_disclaimer">(Ước tính dựa trên thói quen 24 giờ)</string>
 
     <!-- Auto-clean settings -->
-    <string name="settings_section_auto_clean">Don dep tu dong</string>
-    <string name="settings_auto_clean_enable">Bat don dep tu dong</string>
-    <string name="settings_auto_clean_freq">Tan suat</string>
-    <string name="settings_auto_clean_daily">Hang ngay</string>
-    <string name="settings_auto_clean_weekly">Hang tuan</string>
-    <string name="settings_auto_clean_monthly">Hang thang</string>
-    <string name="settings_auto_clean_time">Gio chay</string>
-    <string name="settings_auto_clean_categories">Danh muc don dep</string>
+    <string name="settings_section_auto_clean">Dọn dẹp tự động</string>
+    <string name="settings_auto_clean_enable">Bật dọn dẹp tự động</string>
+    <string name="settings_auto_clean_freq">Tần suất</string>
+    <string name="settings_auto_clean_daily">Hàng ngày</string>
+    <string name="settings_auto_clean_weekly">Hàng tuần</string>
+    <string name="settings_auto_clean_monthly">Hàng tháng</string>
+    <string name="settings_auto_clean_time">Giờ chạy</string>
+    <string name="settings_auto_clean_categories">Danh mục dọn dẹp</string>
 
     <!-- Notification channels -->
-    <string name="notif_channel_auto_clean">Ket qua don dep tu dong</string>
-    <string name="notif_channel_recommendations">Goi y toi uu</string>
-    <string name="notif_channel_recommendations_desc">Thong bao goi y don dep dinh ky</string>
-    <string name="notif_auto_clean_title">Don dep tu dong hoan tat</string>
-    <string name="notif_auto_clean_body">Giai phong %1$d MB</string>
-    <string name="notif_storage_full_title">Bo nho gan day</string>
-    <string name="notif_storage_full_body">Chi con %1$d%% — xem goi y don dep</string>
-    <string name="notif_duplicate_title">Phat hien anh trung lap</string>
-    <string name="notif_duplicate_body">Uoc tinh %1$d MB co the giai phong</string>
+    <string name="notif_channel_auto_clean">Kết quả dọn dẹp tự động</string>
+    <string name="notif_channel_recommendations">Gợi ý tối ưu</string>
+    <string name="notif_channel_recommendations_desc">Thông báo gợi ý dọn dẹp định kỳ</string>
+    <string name="notif_auto_clean_title">Dọn dẹp tự động hoàn tất</string>
+    <string name="notif_auto_clean_body">Giải phóng %1$d MB</string>
+    <string name="notif_storage_full_title">Bộ nhớ gần đầy</string>
+    <string name="notif_storage_full_body">Chỉ còn %1$d%% — xem gợi ý dọn dẹp</string>
+    <string name="notif_duplicate_title">Phát hiện ảnh trùng lặp</string>
+    <string name="notif_duplicate_body">Ước tính %1$d MB có thể giải phóng</string>
 
     <!-- Settings — Recommendations notifications -->
-    <string name="settings_section_notifications">Thong bao</string>
-    <string name="settings_recommendations_notif">Thong bao goi y don dep</string>
+    <string name="settings_section_notifications">Thông báo</string>
+    <string name="settings_recommendations_notif">Thông báo gợi ý dọn dẹp</string>
 
     <!-- Privacy additions -->
-    <string name="privacy_last_access">Lan truy cap cuoi</string>
-    <string name="privacy_battery_history">Lich su pin</string>
-    <string name="privacy_clear_battery_history">Xoa lich su pin</string>
-    <string name="privacy_policy_link">Chinh sach quyen rieng tu</string>
-    <string name="privacy_battery_count">%1$d diem du lieu pin</string>
+    <string name="privacy_last_access">Lần truy cập cuối</string>
+    <string name="privacy_battery_history">Lịch sử pin</string>
+    <string name="privacy_clear_battery_history">Xóa lịch sử pin</string>
+    <string name="privacy_cleared_battery_history">Đã xóa lịch sử pin</string>
+    <string name="privacy_policy_link">Chính sách quyền riêng tư</string>
+    <string name="privacy_battery_count">%1$d điểm dữ liệu pin</string>
 
     <!-- Review screen -->
-    <string name="review_title">Xac nhan xoa</string>
-    <string name="review_confirm_delete">Xac nhan xoa %1$d anh</string>
-    <string name="review_no_images">Khong co anh nao duoc chon</string>
-    <string name="review_free_space">Se giai phong %1$s</string>
+    <string name="review_title">Xác nhận xóa</string>
+    <string name="review_confirm_delete">Xác nhận xóa %1$d ảnh</string>
+    <string name="review_no_images">Không có ảnh nào được chọn</string>
+    <string name="review_free_space">Sẽ giải phóng %1$s</string>
 
     <!-- Media screen -->
-    <string name="media_title">Quan ly anh</string>
-    <string name="media_tab_all">Tat ca anh</string>
-    <string name="media_tab_duplicates">Anh trung lap</string>
-    <string name="media_deselect">Bo chon</string>
-    <string name="media_selected_count">Da chon %1$d anh</string>
-    <string name="media_delete">Xoa</string>
-    <string name="media_no_permission">Can quyen truy cap anh de tiep tuc.</string>
-    <string name="media_retry">Thu lai</string>
-    <string name="media_open_settings">Mo Settings</string>
-    <string name="media_requesting_permission">Dang yeu cau quyen truy cap...</string>
-    <string name="media_loading">Dang tai anh...</string>
-    <string name="media_no_images">Khong tim thay anh nao</string>
-    <string name="media_no_duplicates">Khong tim thay anh trung lap</string>
-    <string name="media_duplicate_groups">%1$d nhom anh trung lap</string>
-    <string name="media_can_free">Co the giai phong %1$s</string>
-    <string name="media_group_header">Nhom %1$d · %2$d anh · %3$s moi anh</string>
-    <string name="media_image_count">%1$d anh</string>
+    <string name="media_title">Quản lý ảnh</string>
+    <string name="media_tab_all">Tất cả ảnh</string>
+    <string name="media_tab_duplicates">Ảnh trùng lặp</string>
+    <string name="media_deselect">Bỏ chọn</string>
+    <string name="media_selected_count">Đã chọn %1$d ảnh</string>
+    <string name="media_delete">Xóa</string>
+    <string name="media_no_permission">Cần quyền truy cập ảnh để tiếp tục.</string>
+    <string name="media_retry">Thử lại</string>
+    <string name="media_open_settings">Mở Settings</string>
+    <string name="media_requesting_permission">Đang yêu cầu quyền truy cập...</string>
+    <string name="media_loading">Đang tải ảnh...</string>
+    <string name="media_no_images">Không tìm thấy ảnh nào</string>
+    <string name="media_no_duplicates">Không tìm thấy ảnh trùng lặp</string>
+    <string name="media_duplicate_groups">%1$d nhóm ảnh trùng lặp</string>
+    <string name="media_can_free">Có thể giải phóng %1$s</string>
+    <string name="media_group_header">Nhóm %1$d · %2$d ảnh · %3$s mỗi ảnh</string>
+    <string name="media_image_count">%1$d ảnh</string>
 
     <!-- Content descriptions (A11y) -->
-    <string name="cd_settings">Mo cai dat</string>
-    <string name="cd_back">Quay lai</string>
-    <string name="cd_image_selected">Da chon</string>
-    <string name="cd_battery_circle">Muc pin hien tai: %1$d phan tram</string>
-    <string name="cd_battery_prediction">Du bao pin: %1$s</string>
-    <string name="cd_storage_donut">Bieu do luu tru: %1$s da dung trong tong so %2$s</string>
-    <string name="cd_permission_granted">Quyen %1$s da duoc cap</string>
-    <string name="cd_permission_denied">Quyen %1$s bi tu choi</string>
-    <string name="cd_check">Da cap quyen</string>
-    <string name="cd_close">Bi tu choi</string>
+    <string name="cd_settings">Mở cài đặt</string>
+    <string name="cd_back">Quay lại</string>
+    <string name="cd_image_selected">Đã chọn</string>
+    <string name="cd_battery_circle">Mức pin hiện tại: %1$d phần trăm</string>
+    <string name="cd_battery_prediction">Dự báo pin: %1$s</string>
+    <string name="cd_storage_donut">Biểu đồ lưu trữ: %1$s đã dùng trong tổng số %2$s</string>
+    <string name="cd_permission_granted">Quyền %1$s đã được cấp</string>
+    <string name="cd_permission_denied">Quyền %1$s bị từ chối</string>
+    <string name="cd_check">Đã cấp quyền</string>
+    <string name="cd_close">Bị từ chối</string>
 
     <!-- Common -->
-    <string name="cancel">Huy</string>
-    <string name="confirm">Xac nhan</string>
+    <string name="cancel">Hủy</string>
+    <string name="confirm">Xác nhận</string>
     <string name="ok">OK</string>
-    <string name="loading">Dang tai…</string>
-    <string name="error_generic">Da xay ra loi. Vui long thu lai.</string>
+    <string name="loading">Đang tải…</string>
+    <string name="error_generic">Đã xảy ra lỗi. Vui lòng thử lại.</string>
 
     <!-- Settings — AI Dedupe -->
-    <string name="settings_section_ai">Quet thong minh</string>
-    <string name="settings_perceptual_dedupe">Phat hien anh tuong tu bang AI (cham hon, chinh xac hon)</string>
+    <string name="settings_section_ai">Quét thông minh</string>
+    <string name="settings_perceptual_dedupe">Phát hiện ảnh tương tự bằng AI (chậm hơn, chính xác hơn)</string>
 
     <!-- Notification permission banner (Home) -->
-    <string name="notif_permission_banner_title">Bat quyen thong bao de nhan goi y don dep</string>
-    <string name="notif_permission_banner_action">Bat</string>
-    <string name="notif_permission_banner_dismiss">Dong</string>
+    <string name="notif_permission_banner_title">Bật quyền thông báo để nhận gợi ý dọn dẹp</string>
+    <string name="notif_permission_banner_action">Bật</string>
+    <string name="notif_permission_banner_dismiss">Đóng</string>
+
+    <!-- Home Dashboard -->
+    <string name="home_hero_storage_used">Đã sử dụng</string>
+    <string name="home_hero_storage_free">%1$s trống</string>
+    <string name="home_scan_now">Quét ngay</string>
+    <string name="home_scanning_label">Đang quét…</string>
+    <string name="home_clean_junk">Dọn %1$s</string>
+    <string name="home_view_details">Xem chi tiết</string>
+    <string name="home_scan_found">Tìm thấy %1$s rác</string>
+    <string name="home_scan_clean">Thiết bị sạch!</string>
+    <string name="home_scan_error">Quét thất bại, thử lại</string>
+    <string name="home_section_activity">Hoạt động</string>
+    <string name="home_section_manage">Quản lý</string>
+    <string name="home_module_junk_sub_found">%1$s rác tìm thấy</string>
+    <string name="home_module_junk_sub_idle">Nhấn để quét</string>
+    <string name="home_module_media_sub_found">%1$d nhóm ảnh trùng</string>
+    <string name="home_module_media_sub_idle">Nhấn để quét</string>
+    <string name="home_module_ram_sub">%1$s / %2$s</string>
+    <string name="home_module_battery_sub">%1$d%%</string>
+    <string name="home_stat_ram">RAM</string>
+    <string name="home_stat_storage">Lưu trữ</string>
+    <string name="home_stat_duplicates">Ảnh trùng</string>
+    <string name="home_usage_no_permission">Cấp quyền để xem hoạt động</string>
+    <string name="home_usage_grant">Cấp quyền</string>
+    <string name="gauge_loading_cleaning">Đang dọn dẹp…</string>
 
 </resources>

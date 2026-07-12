@@ -39,7 +39,7 @@ class BatteryViewModel @Inject constructor(
             refreshPrediction(info.levelPercent, info.isCharging)
             BatteryUiState.Success(info)
         }
-        .catch { emit(BatteryUiState.Error(it.message ?: "Loi doc pin")) }
+        .catch { emit(BatteryUiState.Error(it.message ?: "")) }
         .stateIn(
             scope        = viewModelScope,
             started      = SharingStarted.WhileSubscribed(5_000),

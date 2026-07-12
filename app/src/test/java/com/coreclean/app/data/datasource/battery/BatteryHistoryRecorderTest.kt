@@ -1,71 +1,107 @@
 package com.coreclean.app.data.datasource.battery
 
-import com.coreclean.app.data.local.entity.BatteryHistoryEntity
+import android.content.Context
+import androidx.work.ListenableWorker.Result
+import androidx.work.testing.TestListenableWorkerBuilder
+import com.coreclean.app.domain.model.BatteryHealth
+import com.coreclean.app.domain.model.BatteryInfo
+import com.coreclean.app.domain.model.BatteryHistoryEntry
+import com.coreclean.app.domain.model.ChargePlug
+import com.coreclean.app.domain.repository.BatteryRepository
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 
-/**
- * Unit tests for BatteryHistoryRecorder scheduling constants and BatteryHistoryEntity model.
- * The actual Worker integration test requires a real Context and belongs in androidTest.
- */
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33], application = android.app.Application::class)
 class BatteryHistoryRecorderTest {
 
-    @Test
-    fun `BatteryHistoryEntity stores level correctly`() {
-        val entity = BatteryHistoryEntity(
-            timestamp    = 1000L,
-            levelPercent = 85,
-            isCharging   = false
-        )
-        assertEquals(85, entity.levelPercent)
-        assertFalse(entity.isCharging)
+    private lateinit var context: Context
+    private lateinit var batteryDataSource: BatteryDataSource
+    private lateinit var batteryRepository: BatteryRepository
+
+    @Before
+    fun setUp() {
+        context = RuntimeEnvironment.getApplication()
+        batteryDataSource = mockk()
+        batteryRepository = mockk()
     }
 
     @Test
-    fun `BatteryHistoryEntity stores charging state correctly`() {
-        val entity = BatteryHistoryEntity(
-            timestamp    = 2000L,
-            levelPercent = 50,
-            isCharging   = true
+    fun `doWork returns success and records history with current battery level`() = runBlocking {
+        val fakeBattery = BatteryInfo(
+            levelPercent = 63, status = 0,
+            healthCode = BatteryHealth.GOOD, temperatureC = 27f, voltageMv = 3900,
+            technology = "Li-ion", chargeCounterMah = 1800,
+            isCharging = false, chargePlugCode = ChargePlug.NONE
         )
-        assertTrue(entity.isCharging)
-        assertEquals(50, entity.levelPercent)
-    }
+        every { batteryDataSource.getBatteryInfo() } returns fakeBattery
+        coEvery { batteryRepository.recordHistory(any()) } returns Unit
 
-    @Test
-    fun `BatteryHistoryEntity timestamp is stored correctly`() {
-        val ts = System.currentTimeMillis()
-        val entity = BatteryHistoryEntity(
-            timestamp    = ts,
-            levelPercent = 75,
-            isCharging   = false
-        )
-        assertEquals(ts, entity.timestamp)
-    }
+        val worker = TestListenableWorkerBuilder<BatteryHistoryRecorder>(context)
+            .setWorkerFactory(FakeWorkerFactory(batteryDataSource, batteryRepository))
+            .build()
 
-    @Test
-    fun `battery level percent range is valid`() {
-        // Battery level should be between 0 and 100
-        val validLevels = listOf(0, 1, 50, 99, 100)
-        validLevels.forEach { level ->
-            assertTrue("Level $level should be in range", level in 0..100)
+        val result = worker.startWork().get()
+        assertEquals(Result.success(), result)
+
+        coVerify(exactly = 1) {
+            batteryRepository.recordHistory(
+                match { it.levelPercent == 63 && !it.isCharging }
+            )
         }
     }
 
     @Test
-    fun `prediction requires minimum 4 samples`() {
-        // From PredictBatteryRemainingUseCase: needs >= 4 samples for linear regression
-        val minSamples = 4
-        val samplesWith3 = (1..3).map {
-            BatteryHistoryEntity(timestamp = it.toLong() * 1000, levelPercent = 90 - it, isCharging = false)
-        }
-        assertTrue(samplesWith3.size < minSamples)
+    fun `doWork returns failure when repository throws`() = runBlocking {
+        val fakeBattery = BatteryInfo(
+            levelPercent = 10, status = 0,
+            healthCode = BatteryHealth.GOOD, temperatureC = 27f, voltageMv = 3900,
+            technology = "Li-ion", chargeCounterMah = 1800,
+            isCharging = false, chargePlugCode = ChargePlug.NONE
+        )
+        every { batteryDataSource.getBatteryInfo() } returns fakeBattery
+        coEvery { batteryRepository.recordHistory(any<BatteryHistoryEntry>()) } throws RuntimeException("db error")
 
-        val samplesWith4 = (1..4).map {
-            BatteryHistoryEntity(timestamp = it.toLong() * 1000, levelPercent = 90 - it, isCharging = false)
-        }
-        assertTrue(samplesWith4.size >= minSamples)
+        val worker = TestListenableWorkerBuilder<BatteryHistoryRecorder>(context)
+            .setWorkerFactory(FakeWorkerFactory(batteryDataSource, batteryRepository))
+            .build()
+
+        val result = worker.startWork().get()
+        assertEquals(Result.failure(), result)
     }
+
+    @Test
+    fun `doWork returns failure when reading battery info throws`() = runBlocking {
+        every { batteryDataSource.getBatteryInfo() } throws IllegalStateException("no receiver")
+
+        val worker = TestListenableWorkerBuilder<BatteryHistoryRecorder>(context)
+            .setWorkerFactory(FakeWorkerFactory(batteryDataSource, batteryRepository))
+            .build()
+
+        val result = worker.startWork().get()
+        assertEquals(Result.failure(), result)
+        coVerify(exactly = 0) { batteryRepository.recordHistory(any()) }
+    }
+}
+
+/** Minimal WorkerFactory that injects test doubles into [BatteryHistoryRecorder]. */
+private class FakeWorkerFactory(
+    private val dataSource: BatteryDataSource,
+    private val repository: BatteryRepository
+) : androidx.work.WorkerFactory() {
+    override fun createWorker(
+        appContext: Context,
+        workerClassName: String,
+        workerParameters: androidx.work.WorkerParameters
+    ): androidx.work.ListenableWorker = BatteryHistoryRecorder(appContext, workerParameters, dataSource, repository)
 }

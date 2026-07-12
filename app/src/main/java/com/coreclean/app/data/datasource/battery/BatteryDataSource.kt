@@ -5,7 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import com.coreclean.app.domain.model.BatteryHealth
 import com.coreclean.app.domain.model.BatteryInfo
+import com.coreclean.app.domain.model.ChargePlug
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +23,7 @@ class BatteryDataSource @Inject constructor(
     /** Returns a one-shot snapshot of current battery state via sticky broadcast. */
     fun getBatteryInfo(): BatteryInfo {
         val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-            ?: return BatteryInfo(0, 0, "Khong xac dinh", 0f, 0, "Unknown", 0, false, "Khong sac")
+            ?: return BatteryInfo(0, 0, BatteryHealth.UNKNOWN, 0f, 0, "Unknown", 0, false, ChargePlug.NONE)
         return intent.toBatteryInfo(context)
     }
 
@@ -42,8 +44,8 @@ class BatteryDataSource @Inject constructor(
 }
 
 internal fun Intent.toBatteryInfo(context: Context): BatteryInfo {
-    val level  = getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
-    val scale  = getIntExtra(BatteryManager.EXTRA_SCALE, 100)
+    val level        = getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+    val scale        = getIntExtra(BatteryManager.EXTRA_SCALE, 100)
     val levelPercent = if (scale > 0) (level * 100f / scale).roundToInt() else level
 
     val status = getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN)
@@ -51,13 +53,13 @@ internal fun Intent.toBatteryInfo(context: Context): BatteryInfo {
             status == BatteryManager.BATTERY_STATUS_FULL
 
     val health = getIntExtra(BatteryManager.EXTRA_HEALTH, BatteryManager.BATTERY_HEALTH_UNKNOWN)
-    val healthLabel = when (health) {
-        BatteryManager.BATTERY_HEALTH_GOOD          -> "Tot"
-        BatteryManager.BATTERY_HEALTH_OVERHEAT      -> "Qua nong"
-        BatteryManager.BATTERY_HEALTH_DEAD          -> "Hong"
-        BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE  -> "Dien ap cao"
-        BatteryManager.BATTERY_HEALTH_COLD          -> "Qua lanh"
-        else                                        -> "Khong xac dinh"
+    val healthCode = when (health) {
+        BatteryManager.BATTERY_HEALTH_GOOD          -> BatteryHealth.GOOD
+        BatteryManager.BATTERY_HEALTH_OVERHEAT      -> BatteryHealth.OVERHEAT
+        BatteryManager.BATTERY_HEALTH_DEAD          -> BatteryHealth.DEAD
+        BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE  -> BatteryHealth.OVER_VOLTAGE
+        BatteryManager.BATTERY_HEALTH_COLD          -> BatteryHealth.COLD
+        else                                        -> BatteryHealth.UNKNOWN
     }
 
     val temperatureC = getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) / 10f
@@ -65,11 +67,11 @@ internal fun Intent.toBatteryInfo(context: Context): BatteryInfo {
     val technology   = getStringExtra(BatteryManager.EXTRA_TECHNOLOGY) ?: "Unknown"
 
     val plugged = getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)
-    val chargePlug = when (plugged) {
-        BatteryManager.BATTERY_PLUGGED_AC       -> "AC"
-        BatteryManager.BATTERY_PLUGGED_USB      -> "USB"
-        BatteryManager.BATTERY_PLUGGED_WIRELESS -> "Khong day"
-        else -> if (isCharging) "Khac" else "Khong sac"
+    val chargePlugCode = when (plugged) {
+        BatteryManager.BATTERY_PLUGGED_AC       -> ChargePlug.AC
+        BatteryManager.BATTERY_PLUGGED_USB      -> ChargePlug.USB
+        BatteryManager.BATTERY_PLUGGED_WIRELESS -> ChargePlug.WIRELESS
+        else -> if (isCharging) ChargePlug.OTHER else ChargePlug.NONE
     }
 
     val batteryManager = context.getSystemService(BatteryManager::class.java)
@@ -80,12 +82,12 @@ internal fun Intent.toBatteryInfo(context: Context): BatteryInfo {
     return BatteryInfo(
         levelPercent     = levelPercent,
         status           = status,
-        healthLabel      = healthLabel,
+        healthCode       = healthCode,
         temperatureC     = temperatureC,
         voltageMv        = voltageMv,
         technology       = technology,
         chargeCounterMah = chargeCounterMah,
         isCharging       = isCharging,
-        chargePlug       = chargePlug
+        chargePlugCode   = chargePlugCode
     )
 }

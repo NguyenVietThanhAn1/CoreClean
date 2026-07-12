@@ -1,7 +1,7 @@
 package com.coreclean.app.domain.usecase.battery
 
-import com.coreclean.app.data.local.dao.BatteryHistoryDao
-import com.coreclean.app.data.local.entity.BatteryHistoryEntity
+import com.coreclean.app.domain.model.BatteryHistoryEntry
+import com.coreclean.app.domain.repository.BatteryRepository
 import java.time.Duration
 import javax.inject.Inject
 
@@ -15,7 +15,7 @@ data class BatteryPrediction(
 )
 
 class PredictBatteryRemainingUseCase @Inject constructor(
-    private val batteryHistoryDao: BatteryHistoryDao
+    private val batteryRepository: BatteryRepository
 ) {
     /**
      * Estimates remaining battery time using simple linear regression on the last 24 h of
@@ -28,7 +28,7 @@ class PredictBatteryRemainingUseCase @Inject constructor(
         if (isCharging) return BatteryPrediction(null, 0, isCharging = true)
 
         val sinceMs  = System.currentTimeMillis() - WINDOW_HOURS * 60 * 60 * 1000
-        val samples  = batteryHistoryDao.getDischargingSince(sinceMs)
+        val samples  = batteryRepository.getDischargingHistorySince(sinceMs)
 
         if (samples.size < MIN_SAMPLES) {
             return BatteryPrediction(null, samples.size, isCharging = false)
@@ -49,7 +49,7 @@ class PredictBatteryRemainingUseCase @Inject constructor(
      * Simple linear regression on (timestamp, level) pairs returns drain rate in %/ms.
      * Slope is negated so a positive value means battery is draining.
      */
-    private fun linearRegressionDrainRate(samples: List<BatteryHistoryEntity>): Double {
+    private fun linearRegressionDrainRate(samples: List<BatteryHistoryEntry>): Double {
         val n    = samples.size.toDouble()
         val xMid = samples.map { it.timestamp.toDouble() }.average()
         val yMid = samples.map { it.levelPercent.toDouble() }.average()

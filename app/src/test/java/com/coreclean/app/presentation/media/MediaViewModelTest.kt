@@ -2,11 +2,11 @@ package com.coreclean.app.presentation.media
 
 import app.cash.turbine.test
 import com.coreclean.app.MainDispatcherRule
-import com.coreclean.app.data.local.dao.PendingReviewDao
 import com.coreclean.app.domain.model.DuplicateGroup
 import com.coreclean.app.domain.model.MediaImage
 import com.coreclean.app.domain.usecase.media.FindDuplicateImagesUseCase
 import com.coreclean.app.domain.usecase.media.GetAllImagesUseCase
+import com.coreclean.app.domain.usecase.media.PreparePendingReviewUseCase
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -30,15 +30,15 @@ class MediaViewModelTest {
 
     private lateinit var getAllImagesUseCase: GetAllImagesUseCase
     private lateinit var findDuplicateImagesUseCase: FindDuplicateImagesUseCase
-    private lateinit var pendingReviewDao: PendingReviewDao
+    private lateinit var preparePendingReviewUseCase: PreparePendingReviewUseCase
     private lateinit var viewModel: MediaViewModel
 
     @Before
     fun setUp() {
         getAllImagesUseCase     = mockk()
         findDuplicateImagesUseCase = mockk()
-        pendingReviewDao        = mockk(relaxed = true)
-        viewModel = MediaViewModel(getAllImagesUseCase, findDuplicateImagesUseCase, pendingReviewDao)
+        preparePendingReviewUseCase = mockk(relaxed = true)
+        viewModel = MediaViewModel(getAllImagesUseCase, findDuplicateImagesUseCase, preparePendingReviewUseCase)
     }
 
     /**

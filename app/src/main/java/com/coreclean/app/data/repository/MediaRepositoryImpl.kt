@@ -7,6 +7,8 @@ import android.provider.MediaStore
 import com.coreclean.app.core.di.IoDispatcher
 import com.coreclean.app.data.datasource.media.DuplicateDetector
 import com.coreclean.app.data.datasource.media.MediaDataSource
+import com.coreclean.app.data.local.dao.PendingReviewDao
+import com.coreclean.app.data.local.entity.PendingReviewEntity
 import com.coreclean.app.domain.model.DuplicateGroup
 import com.coreclean.app.domain.model.MediaImage
 import com.coreclean.app.domain.repository.MediaRepository
@@ -22,6 +24,7 @@ class MediaRepositoryImpl @Inject constructor(
     private val mediaDataSource: MediaDataSource,
     private val duplicateDetector: DuplicateDetector,
     private val contentResolver: ContentResolver,
+    private val pendingReviewDao: PendingReviewDao,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : MediaRepository {
 
@@ -60,5 +63,22 @@ class MediaRepositoryImpl @Inject constructor(
         } else {
             throw UnsupportedOperationException("createDeleteRequest requires Android 11+")
         }
+    }
+
+    override suspend fun savePendingReviewIds(ids: List<Long>) = withContext(ioDispatcher) {
+        pendingReviewDao.clearAll()
+        pendingReviewDao.insertAll(ids.map { PendingReviewEntity(it) })
+    }
+
+    override suspend fun getPendingReviewIds(): List<Long> = withContext(ioDispatcher) {
+        pendingReviewDao.getAllIds()
+    }
+
+    override suspend fun clearPendingReviewIds() = withContext(ioDispatcher) {
+        pendingReviewDao.clearAll()
+    }
+
+    override suspend fun getPendingReviewCount(): Int = withContext(ioDispatcher) {
+        pendingReviewDao.count()
     }
 }

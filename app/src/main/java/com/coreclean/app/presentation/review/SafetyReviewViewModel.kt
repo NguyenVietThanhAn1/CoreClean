@@ -6,7 +6,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.coreclean.app.data.local.dao.PendingReviewDao
 import com.coreclean.app.domain.model.MediaImage
 import com.coreclean.app.domain.repository.MediaRepository
 import com.coreclean.app.presentation.navigation.ReviewRoute
@@ -29,8 +28,7 @@ sealed class ReviewUiState {
 @HiltViewModel
 class SafetyReviewViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val repository: MediaRepository,
-    private val pendingReviewDao: PendingReviewDao
+    private val repository: MediaRepository
 ) : ViewModel() {
 
     private val route = savedStateHandle.toRoute<ReviewRoute>()
@@ -49,7 +47,7 @@ class SafetyReviewViewModel @Inject constructor(
             val ids: Set<Long> = if (route.imageIds.isNotEmpty()) {
                 route.imageIds.toHashSet()
             } else {
-                pendingReviewDao.getAllIds().toHashSet()
+                repository.getPendingReviewIds().toHashSet()
             }
             _selectedImages.value = repository.getAllImages()
                 .first()
@@ -65,17 +63,17 @@ class SafetyReviewViewModel @Inject constructor(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 runCatching { repository.createDeleteRequest(images) }
                     .onSuccess { _uiState.value = ReviewUiState.RequestIntent(it) }
-                    .onFailure { _uiState.value = ReviewUiState.Error(it.message ?: "Loi tao yeu cau xoa") }
+                    .onFailure { _uiState.value = ReviewUiState.Error(it.message ?: "") }
             } else {
                 repository.deleteImages(images)
                     .onSuccess { _uiState.value = ReviewUiState.Done(it) }
-                    .onFailure { _uiState.value = ReviewUiState.Error(it.message ?: "Loi xoa anh") }
+                    .onFailure { _uiState.value = ReviewUiState.Error(it.message ?: "") }
             }
         }
     }
 
     fun onSystemDeleteDone() {
         _uiState.value = ReviewUiState.Done(_selectedImages.value.size)
-        viewModelScope.launch { pendingReviewDao.clearAll() }
+        viewModelScope.launch { repository.clearPendingReviewIds() }
     }
 }

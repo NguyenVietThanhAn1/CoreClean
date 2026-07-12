@@ -4,11 +4,10 @@ import android.content.Context
 import org.robolectric.RuntimeEnvironment
 import androidx.work.ListenableWorker.Result
 import androidx.work.testing.TestListenableWorkerBuilder
-import com.coreclean.app.data.local.dao.ScanResultDao
-import com.coreclean.app.data.local.entity.ScanResultEntity
 import com.coreclean.app.domain.model.DuplicateGroup
 import com.coreclean.app.domain.model.MediaImage
 import com.coreclean.app.domain.repository.MediaRepository
+import com.coreclean.app.domain.repository.ScanResultRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -27,17 +26,17 @@ class MediaScanWorkerTest {
 
     private lateinit var context: Context
     private lateinit var mediaRepository: MediaRepository
-    private lateinit var scanResultDao: ScanResultDao
+    private lateinit var scanResultRepository: ScanResultRepository
 
     @Before
     fun setUp() {
-        context          = RuntimeEnvironment.getApplication()
-        mediaRepository  = mockk()
-        scanResultDao    = mockk(relaxed = true)  // relaxed: suspend funs return defaults
+        context               = RuntimeEnvironment.getApplication()
+        mediaRepository       = mockk()
+        scanResultRepository  = mockk(relaxed = true)  // relaxed: suspend funs return defaults
     }
 
     @Test
-    fun `doWork returns success and inserts rows into DB`() = runBlocking {
+    fun `doWork returns success and replaces rows in repository`() = runBlocking {
         val fakeImages = listOf(
             fakeImage(1L, "img1.jpg", 1024L),
             fakeImage(2L, "img2.jpg", 2048L)
@@ -47,16 +46,46 @@ class MediaScanWorkerTest {
 
         val worker = TestListenableWorkerBuilder<MediaScanWorker>(context)
             .setWorkerFactory(
-                FakeWorkerFactory(mediaRepository, scanResultDao)
+                FakeWorkerFactory(mediaRepository, scanResultRepository)
             )
             .build()
 
         val result = worker.startWork().get()
         assertEquals(Result.success(), result)
 
-        // DB should have been cleared then populated with 2 entities
-        coVerify(exactly = 1) { scanResultDao.clearAll() }
-        coVerify(exactly = 1) { scanResultDao.insertAll(match { it.size == 2 }) }
+        coVerify(exactly = 1) { scanResultRepository.replaceAll(match { it.size == 2 }) }
+    }
+
+    @Test
+    fun `doWork returns failure when repository throws`() = runBlocking {
+        val fakeImages = listOf(fakeImage(1L, "img1.jpg", 1024L))
+        coEvery { mediaRepository.getAllImages() } returns flowOf(fakeImages)
+        coEvery { mediaRepository.findDuplicates(any()) } returns emptyList<DuplicateGroup>()
+        coEvery { scanResultRepository.replaceAll(any()) } throws RuntimeException("db error")
+
+        val worker = TestListenableWorkerBuilder<MediaScanWorker>(context)
+            .setWorkerFactory(
+                FakeWorkerFactory(mediaRepository, scanResultRepository)
+            )
+            .build()
+
+        val result = worker.startWork().get()
+        assertEquals(Result.failure(), result)
+    }
+
+    @Test
+    fun `doWork returns failure when mediaRepository throws`() = runBlocking {
+        coEvery { mediaRepository.getAllImages() } throws RuntimeException("query failed")
+
+        val worker = TestListenableWorkerBuilder<MediaScanWorker>(context)
+            .setWorkerFactory(
+                FakeWorkerFactory(mediaRepository, scanResultRepository)
+            )
+            .build()
+
+        val result = worker.startWork().get()
+        assertEquals(Result.failure(), result)
+        coVerify(exactly = 0) { scanResultRepository.replaceAll(any()) }
     }
 
     private fun fakeImage(id: Long, name: String, size: Long) = MediaImage(
@@ -68,11 +97,11 @@ class MediaScanWorkerTest {
 /** Minimal WorkerFactory that injects test doubles into [MediaScanWorker]. */
 private class FakeWorkerFactory(
     private val repo: MediaRepository,
-    private val dao:  ScanResultDao
+    private val scanResultRepository: ScanResultRepository
 ) : androidx.work.WorkerFactory() {
     override fun createWorker(
         appContext: Context,
         workerClassName: String,
         workerParameters: androidx.work.WorkerParameters
-    ): androidx.work.ListenableWorker = MediaScanWorker(appContext, workerParameters, repo, dao)
+    ): androidx.work.ListenableWorker = MediaScanWorker(appContext, workerParameters, repo, scanResultRepository)
 }

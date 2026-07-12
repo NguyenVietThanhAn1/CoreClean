@@ -7,11 +7,10 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
-import com.coreclean.app.data.local.dao.ScanResultDao
-import com.coreclean.app.data.local.entity.ScanResultEntity
 import com.coreclean.app.domain.model.DuplicateGroup
 import com.coreclean.app.domain.model.MediaImage
 import com.coreclean.app.domain.repository.MediaRepository
+import com.coreclean.app.domain.repository.ScanResultRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -32,17 +31,17 @@ class MediaScanWorkerInstrumentationTest {
 
     private lateinit var context: Context
     private lateinit var mediaRepository: MediaRepository
-    private lateinit var scanResultDao: ScanResultDao
+    private lateinit var scanResultRepository: ScanResultRepository
 
     @Before
     fun setUp() {
-        context         = ApplicationProvider.getApplicationContext()
-        mediaRepository = mockk()
-        scanResultDao   = mockk(relaxed = true)
+        context               = ApplicationProvider.getApplicationContext()
+        mediaRepository       = mockk()
+        scanResultRepository  = mockk(relaxed = true)
     }
 
     @Test
-    fun doWork_withImages_returnsSuccessAndInsertsRows() = runBlocking {
+    fun doWork_withImages_returnsSuccessAndReplacesRows() = runBlocking {
         val fakeImages = listOf(
             fakeImage(1L, "photo1.jpg", 512_000L),
             fakeImage(2L, "photo2.jpg", 1_024_000L)
@@ -51,30 +50,43 @@ class MediaScanWorkerInstrumentationTest {
         coEvery { mediaRepository.findDuplicates(any()) } returns emptyList<DuplicateGroup>()
 
         val worker = TestListenableWorkerBuilder<MediaScanWorker>(context)
-            .setWorkerFactory(FakeWorkerFactory(mediaRepository, scanResultDao))
+            .setWorkerFactory(FakeWorkerFactory(mediaRepository, scanResultRepository))
             .build()
 
         val result = worker.startWork().get()
 
         assertEquals(ListenableWorker.Result.success(), result)
-        coVerify(exactly = 1) { scanResultDao.clearAll() }
-        coVerify(exactly = 1) { scanResultDao.insertAll(match { it.size == 2 }) }
+        coVerify(exactly = 1) { scanResultRepository.replaceAll(match { it.size == 2 }) }
     }
 
     @Test
-    fun doWork_withEmptyMedia_returnsSuccessAndClearsTable() = runBlocking {
+    fun doWork_withEmptyMedia_returnsSuccessAndReplacesWithEmpty() = runBlocking {
         coEvery { mediaRepository.getAllImages() } returns flowOf(emptyList())
         coEvery { mediaRepository.findDuplicates(any()) } returns emptyList<DuplicateGroup>()
 
         val worker = TestListenableWorkerBuilder<MediaScanWorker>(context)
-            .setWorkerFactory(FakeWorkerFactory(mediaRepository, scanResultDao))
+            .setWorkerFactory(FakeWorkerFactory(mediaRepository, scanResultRepository))
             .build()
 
         val result = worker.startWork().get()
 
         assertEquals(ListenableWorker.Result.success(), result)
-        coVerify(exactly = 1) { scanResultDao.clearAll() }
-        coVerify(exactly = 1) { scanResultDao.insertAll(emptyList()) }
+        coVerify(exactly = 1) { scanResultRepository.replaceAll(emptyList()) }
+    }
+
+    @Test
+    fun doWork_whenRepositoryThrows_returnsFailure() = runBlocking {
+        coEvery { mediaRepository.getAllImages() } returns flowOf(listOf(fakeImage(1L, "photo1.jpg", 512_000L)))
+        coEvery { mediaRepository.findDuplicates(any()) } returns emptyList<DuplicateGroup>()
+        coEvery { scanResultRepository.replaceAll(any()) } throws RuntimeException("db error")
+
+        val worker = TestListenableWorkerBuilder<MediaScanWorker>(context)
+            .setWorkerFactory(FakeWorkerFactory(mediaRepository, scanResultRepository))
+            .build()
+
+        val result = worker.startWork().get()
+
+        assertEquals(ListenableWorker.Result.failure(), result)
     }
 
     private fun fakeImage(id: Long, name: String, size: Long) = MediaImage(
@@ -89,12 +101,12 @@ class MediaScanWorkerInstrumentationTest {
 
     private class FakeWorkerFactory(
         private val repo: MediaRepository,
-        private val dao:  ScanResultDao
+        private val scanResultRepository: ScanResultRepository
     ) : WorkerFactory() {
         override fun createWorker(
             appContext: Context,
             workerClassName: String,
             workerParameters: WorkerParameters
-        ): ListenableWorker = MediaScanWorker(appContext, workerParameters, repo, dao)
+        ): ListenableWorker = MediaScanWorker(appContext, workerParameters, repo, scanResultRepository)
     }
 }

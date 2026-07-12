@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.coreclean.app.R
+import com.coreclean.app.presentation.components.ShimmerListPlaceholder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,12 +32,12 @@ fun PrivacyDashboardScreen(
     val state   by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    state.message?.let { msg ->
-        LaunchedEffect(msg) {
+    state.messageRes?.let { messageRes ->
+        LaunchedEffect(messageRes) {
             kotlinx.coroutines.delay(2_000)
             viewModel.dismissMessage()
         }
-        Snackbar(modifier = Modifier.padding(16.dp)) { Text(msg) }
+        Snackbar(modifier = Modifier.padding(16.dp)) { Text(stringResource(messageRes)) }
     }
 
     Scaffold(
@@ -54,9 +55,7 @@ fun PrivacyDashboardScreen(
         }
     ) { padding ->
         if (state.isLoading) {
-            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            ShimmerListPlaceholder(itemCount = 5, modifier = Modifier.padding(padding))
             return@Scaffold
         }
 
