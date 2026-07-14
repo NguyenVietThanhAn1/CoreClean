@@ -2,6 +2,7 @@ package com.coreclean.app.presentation.usage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.coreclean.app.domain.CrashReporter
 import com.coreclean.app.domain.model.AppUsageInfo
 import com.coreclean.app.domain.model.UsageRange
 import com.coreclean.app.domain.repository.AppUsageRepository
@@ -22,7 +23,8 @@ sealed interface AppUsageUiState {
 @HiltViewModel
 class AppUsageViewModel @Inject constructor(
     private val getAppUsage: GetAppUsageUseCase,
-    private val repository: AppUsageRepository
+    private val repository: AppUsageRepository,
+    private val crashReporter: CrashReporter
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<AppUsageUiState>(AppUsageUiState.Loading)
@@ -44,6 +46,7 @@ class AppUsageViewModel @Inject constructor(
                 val items = getAppUsage(range)
                 _uiState.value = AppUsageUiState.Success(items, range)
             } catch (e: Exception) {
+                crashReporter.captureException(e)
                 _uiState.value = AppUsageUiState.Error(e.message ?: "Unknown error")
             }
         }

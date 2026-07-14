@@ -1,5 +1,13 @@
 package com.coreclean.app.data.datasource.media
 
+import android.content.ContentResolver
+import android.net.Uri
+import com.coreclean.app.domain.CrashReporter
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -33,6 +41,21 @@ class PerceptualHasherTest {
         val a = 0L              // 0 bits set
         val b = Long.MAX_VALUE  // 63 bits set → 63 > 16
         assertTrue(hasher.hammingDistance(a, b) > 16)
+    }
+
+    @Test
+    fun `computeHash reports exception to crashReporter and still returns null`() = runTest {
+        val contentResolver = mockk<ContentResolver>()
+        val crashReporter = mockk<CrashReporter>(relaxed = true)
+        val uri = mockk<Uri>()
+        val exception = RuntimeException("boom")
+        every { contentResolver.openInputStream(uri) } throws exception
+
+        val realHasher = PerceptualHasher(contentResolver, crashReporter)
+        val result = realHasher.computeHash(uri)
+
+        assertNull(result)
+        verify(exactly = 1) { crashReporter.captureException(exception) }
     }
 }
 

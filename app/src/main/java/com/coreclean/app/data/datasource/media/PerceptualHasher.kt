@@ -4,13 +4,17 @@ import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import com.coreclean.app.domain.CrashReporter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class PerceptualHasher @Inject constructor(private val contentResolver: ContentResolver) {
+class PerceptualHasher @Inject constructor(
+    private val contentResolver: ContentResolver,
+    private val crashReporter: CrashReporter
+) {
 
     suspend fun computeHash(uri: Uri): Long? = withContext(Dispatchers.Default) {
         try {
@@ -32,6 +36,7 @@ class PerceptualHasher @Inject constructor(private val contentResolver: ContentR
             }
             hash
         } catch (e: Exception) {
+            crashReporter.captureException(e)
             null
         }
     }
