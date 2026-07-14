@@ -34,16 +34,88 @@ Cũng trong androidTest source set: `AppDatabaseMigrationTest` (từ Sprint 7, c
 
 ## Cleanup (deferred from /review on fix/contact-viewmodel-i18n)
 
-### Snackbar/transient-message pattern duplicated between Privacy and Contact
+### Snackbar/transient-message pattern duplicated between Privacy and Contact (+ bypasses SnackbarHostState)
 
-**What:** `PrivacyViewModel`/`PrivacyDashboardScreen` and `ContactViewModel`/`ContactScreen` now both hand-roll an identical `@StringRes messageRes: Int?` state field + `dismissXxxMessage()` (copy-with-null) + `LaunchedEffect(...) { delay(2_000); dismiss() }` + `Snackbar(Modifier.padding(16.dp)) { Text(stringResource(...)) }` block, with no shared composable/base helper.
+**What:** `PrivacyViewModel`/`PrivacyDashboardScreen` and `ContactViewModel`/`ContactScreen` now both hand-roll an identical `@StringRes messageRes: Int?` state field + `dismissXxxMessage()` (copy-with-null) + `LaunchedEffect(...) { delay(2_000); dismiss() }` + `Snackbar(Modifier.padding(16.dp)) { Text(stringResource(...)) }` block, with no shared composable/base helper. Additionally, both screens emit the `Snackbar` as a bare composable directly in content (Contact: inside the `Scaffold` content lambda; Privacy: even outside `Scaffold` entirely) instead of wiring through `SnackbarHostState`/`Scaffold(snackbarHost = ...)` — no bottom-anchoring, no accessibility live-region announcement, no dismiss-stacking/queueing.
 
-**Why:** Flagged during `/review` on the ContactViewModel i18n fix (2026-07-14) — real duplication, but extracting a shared `TimedMessageSnackbar`/message-state helper is a cross-ViewModel refactor beyond the scope of a single-ViewModel i18n bugfix.
+**Why:** Flagged during `/review` on the ContactViewModel i18n fix (2026-07-14) — real duplication, and the adversarial review pass on the same branch confirmed the `SnackbarHostState` bypass is pre-existing (verified identical in `PrivacyDashboardScreen.kt`, not introduced by the Contact fix). Extracting a shared `TimedMessageSnackbar`/message-state helper + migrating to `SnackbarHostState` is a cross-ViewModel refactor beyond the scope of a single-ViewModel i18n bugfix.
 
-**Context:** Consider a shared composable (e.g. `TimedMessageSnackbar(messageRes, formatArgs, onDismiss)`) and/or a small reusable state holder once a third ViewModel needs the same transient-message pattern.
+**Context:** Consider a shared composable (e.g. `TimedMessageSnackbar(messageRes, formatArgs, onDismiss)`) built on `remember { SnackbarHostState() }` + `Scaffold(snackbarHost = { SnackbarHost(hostState) })`, once a third ViewModel needs the same transient-message pattern.
 
 **Effort:** S
 **Priority:** P4
+**Depends on:** None
+
+### LaunchedEffect key can still collide on two identical-outcome merges within 2s
+
+**What:** `ContactScreen.kt`'s `LaunchedEffect(messageRes, uiState.mergedCount)` was fixed during `/review` to restart the auto-dismiss timer when the merge outcome or count changes, but if two merges in a row both succeed with the *same* contact count within the 2s window, the key is identical both times and Compose does not restart the effect — the second Snackbar can be dismissed almost immediately.
+
+**Why:** Flagged by adversarial review during `/ship` (2026-07-14) — narrower remaining edge case of the bug already substantially fixed in this PR; a full fix needs a monotonic nonce (e.g. `messageId: Long` bumped on every message set) rather than value-equality keying.
+
+**Context:** Add `messageId: Long` to `ContactUiState`, increment it in `confirmMerge`, key `LaunchedEffect` on it instead of `(messageRes, mergedCount)`.
+
+**Effort:** S
+**Priority:** P4
+**Depends on:** None
+
+### contact_merge_success has no plural form ("Merged 1 contacts")
+
+**What:** `"Merged %1$d contacts"` (and vi/fr equivalents) reads wrong for `mergedCount == 1`. In practice this path isn't reachable from the UI today (merge dialogs only open from a `ContactDuplicateGroup`, which by definition has 2+ contacts), but it's a latent i18n correctness gap in a PR specifically about i18n.
+
+**Why:** Flagged by adversarial review during `/ship` (2026-07-14). Converting to Android `<plurals>` + `pluralStringResource` across 3 locales is a bigger scope increase than this bugfix's minimal-change goal, especially since the count==1 case isn't currently reachable.
+
+**Context:** If a merge-count-of-1 path is ever added, convert `contact_merge_success` to a `<plurals>` resource with proper quantity handling per locale.
+
+**Effort:** S
+**Priority:** P4
+**Depends on:** None
+
+### No format-arg parity check across locale strings.xml files
+
+**What:** `contact_merge_error` has no `%1$d` placeholder in any of the 3 shipped locales, so `stringResource(messageRes, uiState.mergedCount)` silently ignores the extra arg today. Nothing guards against a future translator (this project uses Crowdin community translations per recent commits) adding a mismatched format specifier to one locale's copy of a string, which would throw an uncaught `IllegalFormatConversionException`/`MissingFormatArgumentException` from `stringResource` at runtime for that locale only.
+
+**Why:** Flagged by adversarial review during `/ship` (2026-07-14) — real latent risk but requires new tooling (a lint check or test that parses all `values*/strings.xml` and validates format-specifier parity per resource name), which is infrastructure work, not part of an i18n bugfix.
+
+**Context:** Consider a unit test that parses all `strings.xml` variants and asserts every resource using `%N$` format specifiers has matching specifier types/counts across all locales.
+
+**Effort:** M
+**Priority:** P3
+**Depends on:** None
+
+### confirmMerge has no re-entrancy guard against double-tap
+
+**What:** `MergeContactDialog`'s confirm button has no disable-after-click/debounce. A fast double-tap before the dialog closes can invoke `ContactViewModel.confirmMerge` twice concurrently with the same contact list, causing duplicate `ContentResolver.applyBatch` writes and a possible spurious "merge failed" message on the second call even though the first succeeded.
+
+**Why:** Flagged by adversarial review during `/ship` (2026-07-14) — pre-existing gap in `MergeContactDialog.kt`, not touched by this diff; previously invisible since no success/failure message was ever shown, now user-visible since the i18n fix makes the message real.
+
+**Context:** Add an `isMerging: Boolean` to `ContactUiState`, set it at the start of `confirmMerge`, and disable/no-op the confirm button (or skip re-entrant calls in the ViewModel) while `true`.
+
+**Effort:** S
+**Priority:** P3
+**Depends on:** None
+
+### Stale mergingGroupIndex can point at the wrong duplicate group after a reload race
+
+**What:** `startMerge(groupIndex)` captures an index into `uiState.duplicates`. `confirmMerge` calls `load()` afterward, which refetches `duplicates` and can reorder/shrink the list. If a second merge dialog is opened before the first `load()` completes, `mergingGroupIndex` can end up pointing at a different group once the list refreshes underneath it — silently merging the wrong contacts while still reporting "Merged N contacts" success.
+
+**Why:** Flagged by adversarial review during `/ship` (2026-07-14) — pre-existing race, unrelated to this diff's line-level changes, previously invisible since no success message existed; now that success is reported, a wrong-group merge could look like a correct one.
+
+**Context:** Consider keying merge dialogs by a stable group identity (e.g. a hash of the contact IDs in the group) instead of a list index, or disabling the duplicates list while a merge dialog is open.
+
+**Effort:** M
+**Priority:** P3
+**Depends on:** None
+
+### MergeContactsUseCase reports Result.success on its early-exit no-op paths
+
+**What:** `MergeContactsUseCase.invoke` returns `Result.success(Unit)` from `if (contacts.size < 2) return@runCatching` and `if (rawIds.size < 2) return@runCatching` without performing any aggregation. `ContactViewModel.confirmMerge` maps `result.isSuccess` straight to "Merged N contacts" — so if raw-contact lookup unexpectedly returns fewer than 2 rows (contact deleted concurrently, provider hiccup), the user is told a merge happened when nothing was aggregated.
+
+**Why:** Flagged by adversarial review during `/ship` (2026-07-14) — bug lives in `MergeContactsUseCase.kt`, a file this diff never touches; previously invisible since no success message was ever rendered, now surfaced by the i18n fix that makes the message real.
+
+**Context:** `MergeContactsUseCase` should distinguish "nothing to do" from "merged" (e.g. a sealed result type), and `ContactViewModel` should map the no-op case to a different message than `contact_merge_success`.
+
+**Effort:** S
+**Priority:** P2
 **Depends on:** None
 
 ### ContactUiState.messageRes + mergedCount are independent fields (invalid state representable)
