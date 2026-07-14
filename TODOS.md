@@ -2,6 +2,54 @@
 
 ## Cleanup (deferred from /ship on fix/silent-exception-logging)
 
+### CrashReporter.captureException calls are unguarded across all 5 call sites (crash-in-catch risk)
+
+**What:** In `PerceptualHasher.computeHash`, `JunkViewModel.scan()`, `AppUsageViewModel.load()` (this branch), and the pre-existing `ContactViewModel.confirmMerge`/`SettingsViewModel`, `crashReporter.captureException(e)` runs unwrapped inside a catch block, with no defensive `try/catch` around the reporting call itself. If the `CrashReporter` implementation (`SentryCrashReporter` on gms) ever throws, a previously fully-recovered failure (return null / set Error state) becomes an unhandled crash — for `JunkViewModel`/`AppUsageViewModel` this happens inside `viewModelScope.launch` with no `CoroutineExceptionHandler`, so it's fatal.
+
+**Why:** Flagged by adversarial review during `/ship` (2026-07-15) on `fix/silent-exception-logging` — rated highest severity since it technically contradicts that branch's "no control-flow changes" mandate, but real-world risk is low (Sentry SDK is designed to never throw from `captureException`) and the unguarded pattern is already shipped identically in `ContactViewModel`/`SettingsViewModel`. Wrapping only the 3 new call sites would create a 4th divergent idiom rather than fixing the actual gap.
+
+**Context:** If addressed, fix consistently across all 5 call sites at once (e.g. a shared `CrashReporter.captureExceptionSafely(e)` extension that catches `Throwable` internally), not just the newest ones.
+
+**Effort:** S
+**Priority:** P3
+**Depends on:** None
+
+### Unscrubbed exception messages (file paths, content URIs, package names) sent to Sentry
+
+**What:** `SentryCrashReporter` has no `beforeSend`/event-processor hook. Exception messages forwarded via `captureException` can embed local file paths, SAF `content://` tree URIs, or installed-package names (from `JunkViewModel.scan()`, `PerceptualHasher.computeHash`, `AppUsageViewModel.load()`, plus the pre-existing `ContactViewModel`/`SettingsViewModel` call sites) — sent unscrubbed to a third-party SaaS for any user who has opted into crash reporting.
+
+**Why:** Flagged by adversarial review during `/ship` (2026-07-15) — real privacy gap, but it's inherent to the existing `CrashReporter`/Sentry setup (predates this branch) and fixing it means touching `SentryCrashReporter.kt`/Sentry init, files this logging-only diff never touches.
+
+**Context:** Add a `beforeSend` hook in `SentryCrashReporter` (or the Sentry Android options config) that strips file paths, `content://` URIs, and package-name-shaped tokens from exception messages before upload, or drop `e.message` from the captured event entirely and keep only type + stack frames.
+
+**Effort:** M
+**Priority:** P2
+**Depends on:** None
+
+### crashReporter.captureException runs on the Main dispatcher in ViewModel catch blocks
+
+**What:** `JunkViewModel.scan()` and `AppUsageViewModel.load()` run under `viewModelScope.launch` (default `Dispatchers.Main.immediate`), so the new `crashReporter.captureException(e)` call executes on the UI thread — same for the pre-existing `ContactViewModel.confirmMerge`. Sentry's Android transport historically does synchronous local envelope-cache disk writes before handing off to its async HTTP executor, so this is a jank/possible-ANR risk on the error path. `SettingsViewModel.setCrashReporting` already dispatches its crashReporter call on `Dispatchers.IO` with a comment explaining exactly this cost — the same care wasn't applied at the other 3 sites.
+
+**Why:** Flagged by adversarial review during `/ship` (2026-07-15) — real inconsistency with the one call site that already got this right, but fixing it broadly is bigger than a single logging-only diff.
+
+**Context:** If addressed, wrap `crashReporter.captureException(e)` in `withContext(Dispatchers.IO) { ... }` consistently across all ViewModel call sites (Contact, Junk, AppUsage), matching `SettingsViewModel`'s existing precedent.
+
+**Effort:** S
+**Priority:** P3
+**Depends on:** None
+
+### PerceptualHasher failures in a large duplicate-scan loop could flood Sentry with unthrottled events
+
+**What:** `DuplicateDetector.detectByPerceptualHash` calls `PerceptualHasher.computeHash` once per image in a plain loop over the whole scanned media set (potentially thousands of items), with no dedup/sampling. A systemic failure (revoked SAF grant, corrupted provider rows, a whole corrupt folder) now fires `captureException` once per failing item — Sentry's client-side rate limiting only engages after the server starts returning 429s, so the first burst is unthrottled.
+
+**Why:** Flagged by adversarial review during `/ship` (2026-07-15) — real risk under a large/partially-corrupt media library, but `DuplicateDetector.kt` is a file this diff never touches (pre-existing loop structure); needs load-testing to confirm real-world impact before deciding on a fix (e.g. sampling, or de-duplicating identical exceptions within one scan run).
+
+**Context:** Consider adding a per-scan-run cap or dedup key (e.g. exception class + first stack frame) before calling `captureException` repeatedly in a tight loop.
+
+**Effort:** M
+**Priority:** P3
+**Depends on:** None
+
 ### Three different catch/report idioms coexist for CrashReporter usage
 
 **What:** `JunkViewModel.scan()` and `AppUsageViewModel.load()` both use `try { ... } catch (e: Exception) { crashReporter.captureException(e); uiState = XState.Error(...) }`; `ContactViewModel.confirmMerge` uses a `Result<Unit>`-based idiom instead: `result.exceptionOrNull()?.let { crashReporter.captureException(it) }`. Three ViewModels, two different shapes for the same "report then surface an error" concern.
