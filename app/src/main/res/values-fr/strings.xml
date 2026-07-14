@@ -63,6 +63,8 @@
     <string name="contact_merge_subtitle">Fusionner %1$d contacts en un seul ?</string>
     <string name="contact_merge_note">Android combinera ces contacts ensemble.</string>
     <string name="contact_merge_confirm">Fusionner</string>
+    <string name="contact_merge_success">%1$d contact(s) fusionné(s)</string>
+    <string name="contact_merge_error">Échec de la fusion des contacts. Veuillez réessayer.</string>
 
     <!-- Junk -->
     <string name="junk_title">Nettoyeur de fichiers</string>
