@@ -57,6 +57,20 @@ class PerceptualHasherTest {
         assertNull(result)
         verify(exactly = 1) { crashReporter.captureException(exception) }
     }
+
+    @Test
+    fun `computeHash does not report to crashReporter when input stream is null`() = runTest {
+        val contentResolver = mockk<ContentResolver>()
+        val crashReporter = mockk<CrashReporter>(relaxed = true)
+        val uri = mockk<Uri>()
+        every { contentResolver.openInputStream(uri) } returns null
+
+        val realHasher = PerceptualHasher(contentResolver, crashReporter)
+        val result = realHasher.computeHash(uri)
+
+        assertNull(result)
+        verify(exactly = 0) { crashReporter.captureException(any()) }
+    }
 }
 
 // Testable inner class that exposes hammingDistance without ContentResolver dependency

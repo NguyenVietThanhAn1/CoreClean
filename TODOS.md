@@ -1,5 +1,31 @@
 # TODOS
 
+## Cleanup (deferred from /ship on fix/silent-exception-logging)
+
+### Three different catch/report idioms coexist for CrashReporter usage
+
+**What:** `JunkViewModel.scan()` and `AppUsageViewModel.load()` both use `try { ... } catch (e: Exception) { crashReporter.captureException(e); uiState = XState.Error(...) }`; `ContactViewModel.confirmMerge` uses a `Result<Unit>`-based idiom instead: `result.exceptionOrNull()?.let { crashReporter.captureException(it) }`. Three ViewModels, two different shapes for the same "report then surface an error" concern.
+
+**Why:** Flagged by the Maintainability specialist during `/ship`'s pre-landing review (2026-07-15) on `fix/silent-exception-logging`. Extracting a shared helper (e.g. a `CrashReporter` extension or small base-ViewModel function) is a refactor beyond that branch's explicit scope ("add logging only, do not change control flow").
+
+**Context:** If a 4th ViewModel needs the same pattern, consider a shared helper — e.g. `suspend fun <T> CrashReporter.reportOnFailure(block: suspend () -> T): Result<T>` — so future call sites don't hand-roll a third variant.
+
+**Effort:** S
+**Priority:** P4
+**Depends on:** None
+
+### CrashReporter-verification test boilerplate duplicated across ViewModel tests
+
+**What:** `JunkViewModelTest.kt` and `AppUsageViewModelTest.kt` each hand-roll near-identical `mockk<CrashReporter>(relaxed = true)` setup plus a "failure reports exception + sets Error state" test and a "success does not report" test. `ContactViewModelTest.kt` and `PerceptualHasherTest.kt` follow the same shape too.
+
+**Why:** Flagged by the Maintainability specialist during `/ship`'s pre-landing review (2026-07-15) — low-confidence, mechanical observation; not worth a shared test helper for 4 call sites yet.
+
+**Context:** If a 5th+ ViewModel test needs the same "verify captureException called/not-called" assertions, consider a small shared JUnit helper/extension.
+
+**Effort:** S
+**Priority:** P4
+**Depends on:** None
+
 ## Refactor (repository layer boundary)
 
 ### Migrate SettingsViewModel to WorkScheduler (WorkManager)
