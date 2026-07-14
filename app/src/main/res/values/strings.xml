@@ -59,6 +59,8 @@
     <string name="contact_merge_subtitle">Gộp %1$d liên hệ thành một?</string>
     <string name="contact_merge_note">Android sẽ kết hợp các liên hệ này lại với nhau.</string>
     <string name="contact_merge_confirm">Gộp</string>
+    <string name="contact_merge_success">Đã gộp %1$d liên hệ</string>
+    <string name="contact_merge_error">Gộp liên hệ thất bại. Vui lòng thử lại.</string>
 
     <!-- Junk -->
     <string name="junk_title">Junk Cleaner</string>

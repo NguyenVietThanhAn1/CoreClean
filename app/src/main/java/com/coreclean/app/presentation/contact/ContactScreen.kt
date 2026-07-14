@@ -100,10 +100,13 @@ fun ContactScreen(
         }
 
         // Snackbar for merge result
-        uiState.mergeMessage?.let { msg ->
-            androidx.compose.runtime.LaunchedEffect(msg) {
+        uiState.messageRes?.let { messageRes ->
+            LaunchedEffect(messageRes, uiState.mergedCount) {
                 kotlinx.coroutines.delay(2_000)
                 viewModel.dismissMergeMessage()
+            }
+            Snackbar(modifier = Modifier.padding(16.dp)) {
+                Text(stringResource(messageRes, uiState.mergedCount))
             }
         }
     }

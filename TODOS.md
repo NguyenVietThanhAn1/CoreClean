@@ -32,16 +32,38 @@ Cũng trong androidTest source set: `AppDatabaseMigrationTest` (từ Sprint 7, c
 **Priority:** P3
 **Depends on:** None
 
-## Bug (i18n)
+## Cleanup (deferred from /review on fix/contact-viewmodel-i18n)
+
+### Snackbar/transient-message pattern duplicated between Privacy and Contact
+
+**What:** `PrivacyViewModel`/`PrivacyDashboardScreen` and `ContactViewModel`/`ContactScreen` now both hand-roll an identical `@StringRes messageRes: Int?` state field + `dismissXxxMessage()` (copy-with-null) + `LaunchedEffect(...) { delay(2_000); dismiss() }` + `Snackbar(Modifier.padding(16.dp)) { Text(stringResource(...)) }` block, with no shared composable/base helper.
+
+**Why:** Flagged during `/review` on the ContactViewModel i18n fix (2026-07-14) — real duplication, but extracting a shared `TimedMessageSnackbar`/message-state helper is a cross-ViewModel refactor beyond the scope of a single-ViewModel i18n bugfix.
+
+**Context:** Consider a shared composable (e.g. `TimedMessageSnackbar(messageRes, formatArgs, onDismiss)`) and/or a small reusable state holder once a third ViewModel needs the same transient-message pattern.
+
+**Effort:** S
+**Priority:** P4
+**Depends on:** None
+
+### ContactUiState.messageRes + mergedCount are independent fields (invalid state representable)
+
+**What:** `mergedCount: Int` only means anything when `messageRes == R.string.contact_merge_success`; nothing enforces the two stay in sync, and `mergedCount` defaults to `0` (misleading) whenever `messageRes` is null.
+
+**Why:** Flagged during `/review` on the ContactViewModel i18n fix (2026-07-14) — real design smell but fixing it means introducing a small sealed/data holder, which is more churn than the minimal i18n fix scope justifies right now.
+
+**Context:** If another field gets added to this "merge result" concept, collapse `messageRes`/`mergedCount` into one nullable holder (e.g. `data class MergeResult(@StringRes val messageRes: Int, val count: Int)`).
+
+**Effort:** S
+**Priority:** P4
+**Depends on:** None
+
+## Completed
 
 ### ContactViewModel dùng message String cứng thay vì messageRes
 
-**What:** `ContactViewModel` dính cùng bug i18n như các ViewModel vừa migrate trong Batch B — dùng message String cứng thay vì `messageRes` (resource id), nên không đi qua strings.xml / không dịch được.
+**What:** `ContactViewModel.confirmMerge` dùng message String cứng (không dấu, không qua strings.xml) thay vì `messageRes: Int?`. Đã sửa theo đúng pattern Batch B (`PrivacyViewModel`): `mergeMessage: String?` → `@StringRes messageRes: Int?` + `mergedCount: Int`, thêm `contact_merge_success`/`contact_merge_error` vào cả 3 locale (values/values-en/values-fr), `ContactScreen.kt` giờ render Snackbar thật qua `stringResource(messageRes, mergedCount)` (trước đó chỉ có timer tự-dismiss, không hiển thị text). Kèm theo đã fix bug liên quan: `load()` từng ghi đè toàn bộ `ContactUiState` bằng constructor mới (không `.copy()`) nên `messageRes` set xong bị `load()` xoá ngay lập tức trước khi UI kịp hiển thị — đổi 2 chỗ gán state trong `load()` sang `.copy()` để giữ `messageRes`/`mergedCount`/`mergingGroupIndex` qua các lần load. Test mới: `ContactViewModelTest` (3 case: success/error/dismiss).
 
-**Why:** Phát hiện trong lúc rà soát các ViewModel liên quan khi làm Batch B (migrate sang repository) — không nằm trong scope của Batch B nên deferred.
+Rà soát không phát hiện ViewModel nào khác trong `presentation/` còn dính pattern `message: String?` hardcode — không có mục follow-up mới.
 
-**Context:** Gộp vào batch error-handling/i18n sau.
-
-**Effort:** S
-**Priority:** P2
-**Depends on:** None
+**Completed:** (nhánh `fix/contact-viewmodel-i18n`, chưa merge)
