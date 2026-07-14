@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.coreclean.app.core.preferences.AppPreferenceKeys
+import com.coreclean.app.domain.CrashReporter
 import com.coreclean.app.domain.model.JunkCategory
 import com.coreclean.app.domain.model.JunkItem
 import com.coreclean.app.domain.usecase.junk.CleanJunkUseCase
@@ -37,7 +38,8 @@ sealed interface JunkUiState {
 class JunkViewModel @Inject constructor(
     private val scanJunk: ScanJunkUseCase,
     private val cleanJunk: CleanJunkUseCase,
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    private val crashReporter: CrashReporter
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<JunkUiState>(JunkUiState.Idle)
@@ -53,6 +55,7 @@ class JunkViewModel @Inject constructor(
             val items = scanJunk(safFolderUris.value)
             _uiState.value = JunkUiState.Ready(items, items.map { it.path }.toSet())
         } catch (e: Exception) {
+            crashReporter.captureException(e)
             _uiState.value = JunkUiState.Error(e.message ?: "Scan failed")
         }
     }
