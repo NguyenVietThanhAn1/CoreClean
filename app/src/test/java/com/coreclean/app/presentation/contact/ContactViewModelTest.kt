@@ -67,6 +67,22 @@ class ContactViewModelTest {
             val state = viewModel.uiState.value
             assertEquals(R.string.contact_merge_success, state.messageRes)
             assertEquals(2, state.mergedCount)
+            verify(exactly = 0) { crashReporter.captureException(any()) }
+        }
+
+    @Test
+    fun `confirmMerge with empty contacts list sets mergedCount to zero`() =
+        runTest(mainDispatcherRule.testScheduler) {
+            coEvery { mergeContacts.invoke(emptyList()) } returns Result.success(Unit)
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.confirmMerge(emptyList())
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertEquals(R.string.contact_merge_success, state.messageRes)
+            assertEquals(0, state.mergedCount)
         }
 
     @Test
@@ -97,6 +113,26 @@ class ContactViewModelTest {
             val state = viewModel.uiState.value
             assertEquals(false, state.isLoading)
             assertEquals(false, state.hasPermission)
+        }
+
+    @Test
+    fun `load with permission revoked after a prior successful load retains stale contact lists`() =
+        runTest(mainDispatcherRule.testScheduler) {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            assertEquals(listOf(contact1, contact2), viewModel.uiState.value.allContacts)
+
+            shadowOf(RuntimeEnvironment.getApplication())
+                .denyPermissions(android.Manifest.permission.READ_CONTACTS)
+            viewModel.load()
+
+            val state = viewModel.uiState.value
+            assertEquals(false, state.hasPermission)
+            // ContactScreen.kt returns early when hasPermission is false and never
+            // renders allContacts/duplicates/incomplete, so this staleness has no
+            // observable UI effect today. Documented here so a future screen change
+            // that removes that early return doesn't silently start leaking stale data.
+            assertEquals(listOf(contact1, contact2), state.allContacts)
         }
 
     @Test
