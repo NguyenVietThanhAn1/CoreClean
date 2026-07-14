@@ -86,6 +86,20 @@ class ContactViewModelTest {
         }
 
     @Test
+    fun `load without READ_CONTACTS permission sets hasPermission false and stops loading`() =
+        runTest(mainDispatcherRule.testScheduler) {
+            shadowOf(RuntimeEnvironment.getApplication())
+                .denyPermissions(android.Manifest.permission.READ_CONTACTS)
+
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertEquals(false, state.isLoading)
+            assertEquals(false, state.hasPermission)
+        }
+
+    @Test
     fun `dismissMergeMessage clears messageRes`() = runTest(mainDispatcherRule.testScheduler) {
         coEvery { mergeContacts.invoke(any()) } returns Result.success(Unit)
         val viewModel = createViewModel()
