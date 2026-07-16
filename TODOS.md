@@ -204,6 +204,128 @@ Cũng trong androidTest source set: `AppDatabaseMigrationTest` (từ Sprint 7, c
 **Priority:** P4
 **Depends on:** None
 
+## Cleanup (deferred from /review on fix/sentry-pii-scrubbing)
+
+### scrubPii's beforeSend hook only covers message/exceptions/breadcrumbs/extras — not tags/contexts/user
+
+**What:** `SentryCrashReporter.kt`'s `scrubPii(event: SentryEvent)` redacts `event.message`, `event.exceptions[].value`, `event.breadcrumbs[].message`/`.data`, and `event.extras`, but does not touch `event.tags`, `event.contexts`, `event.user`, or `event.transaction`. Today nothing in the codebase calls `Sentry.setTag`/`Sentry.setUser`/`Sentry.configureScope { it.setContexts(...) }` — the `CrashReporter` interface only exposes `captureException`/`addBreadcrumb` — so no PII currently flows through these fields; the SDK's auto-populated contexts (device model, OS version, app version) are intentionally-collected data, not PII, per `docs/Telemetry.md`.
+
+**Why:** Flagged by adversarial review (Angle G, altitude check) during the PII-scrubbing work (2026-07-15) on `fix/sentry-pii-scrubbing`. Real defense-in-depth gap for a *future* call site, not a current leak — adding scrub logic for fields nothing populates yet would be speculative code with no test able to prove it does anything today.
+
+**Context:** If a future call site ever adds `Sentry.setTag`/`setUser`/`configureScope` with user-supplied text, extend `scrubPii` to redact those fields too (same `redactPii`/`redactStringValues` helpers already exist and generalize directly).
+
+**Effort:** S
+**Priority:** P3
+**Depends on:** None
+
+### configureSentryOptions wires beforeSend but never beforeSendTransaction — performance transactions bypass scrubbing entirely
+
+**What:** `configureSentryOptions` (`SentryCrashReporter.kt`) sets `options.beforeSend = ... { event, _ -> scrubPii(event) }` but never sets `options.beforeSendTransaction`. `SentryOptions` has two independent callback slots — `io.sentry.protocol.SentryTransaction` extends the same `SentryBaseEvent` base class that owns `breadcrumbs`/`extra`/`tags`, the exact fields `scrubPii` redacts on error events — but transactions are sent through a completely separate pathway that `scrubPii` never touches. `tracesSampleRate = 0.1` (same function, a few lines up) means performance transactions are actively sampled and sent today, not a dormant setting: any breadcrumb/extra/tag data present in Scope when a transaction fires ships to Sentry completely unscrubbed.
+
+**Why:** Flagged by adversarial review (`/ship` Step 11) on `fix/sentry-pii-scrubbing` (2026-07-17) — confirmed by decompiling the actual `io.sentry:sentry:7.18.0` jar (`BeforeSendCallback`/`SentryOptions` have separate `beforeSend`/`beforeSendTransaction` slots). Currently low *realized* risk: per the sibling TODO above, nothing in the codebase populates breadcrumbs/extras/tags with PII yet — `CrashReporter` only exposes `captureException`/`addBreadcrumb`, and `addBreadcrumb` messages go through `scrubPii` fine on error events, just not if the SDK ever bundles that breadcrumb into an auto-captured transaction instead. Deferred rather than fixed immediately because closing it properly (factoring `SentryBaseEvent`-level scrubbing into a shared helper, wiring a second callback, adding tests for the transaction path) is a real design change, not a mechanical fix, and the code comment's claim that scrubbing "can never be wired up at one call site but forgotten at another" is currently overstated for this second pathway.
+
+**Context:** Factor the breadcrumb/extra/tag scrubbing logic already in `scrubPii` into a shared helper (e.g. `scrubBaseEvent(event: SentryBaseEvent)`), call it from both `BeforeSendCallback` and a new `BeforeSendTransactionCallback` registered on `options.beforeSendTransaction`. Add a test asserting a `SentryTransaction` with PII in its breadcrumbs/extras comes out redacted, mirroring the existing `scrubPii` tests.
+
+**Effort:** M
+**Priority:** P2
+**Depends on:** None
+
+### redactStringValues only scrubs direct String map values — a nested Map/List value would be silently skipped
+
+**What:** `redactStringValues(map: MutableMap<String, Any>)` (`SentryCrashReporter.kt`) only redacts entries where `entry.value as? String` succeeds. A nested `Map`/`List`/custom-object value in `breadcrumb.data` or `event.extras` (e.g. `setExtra("details", mapOf("email" to "user@example.com"))`) would pass through `scrubPii` completely untouched — no cast failure, no exception, just silently skipped.
+
+**Why:** Flagged by adversarial review (`/ship` Step 11, INVESTIGATE) on `fix/sentry-pii-scrubbing` (2026-07-17) as speculative: no current call site produces a structured (non-String) `extras`/breadcrumb-data value, for the same reason the sibling `tags/contexts/user` TODO above is low-risk today — `CrashReporter`'s surface is narrow. Not acted on now since there's nothing in the diff or the current call graph that demonstrates this is reachable.
+
+**Context:** If a future call site ever puts a `Map`/`List`/data-class value into `breadcrumb.data` or `event.extras`, either recursively scrub structured values in `redactStringValues`, or (simpler) require call sites to pre-flatten to strings before calling `addBreadcrumb`/`setExtra` and add a lint/test guard rejecting non-String extras.
+
+**Effort:** M
+**Priority:** P4
+**Depends on:** None
+
+### SentryInitializer.kt (gms) has zero test coverage across all 3 branches
+
+**What:** `initializeSentry()` (`app/src/gms/java/com/coreclean/app/SentryInitializer.kt`) has three branches with no test: the `BuildConfig.SENTRY_DSN.isEmpty()` early return, the crash-reporting-preference-disabled `return@launch`, and the enabled path that now delegates to `configureSentryOptions` via `SentryAndroid.init`. This logic mostly predates this branch's changes (only the lambda body changed, from inline options-setting to calling the shared `configureSentryOptions`), so a regression here — e.g. always initializing regardless of the enabled flag, or dropping the empty-DSN guard — would go undetected: `configureSentryOptions` itself is now well-covered directly in `PiiScrubberTest.kt`, but that doesn't prove `initializeSentry` wires the enabled-check correctly.
+
+**Why:** Flagged independently by both the `/ship` Step 7 coverage audit and the Step 9.1 testing specialist (2026-07-17) on `fix/sentry-pii-scrubbing`. Deferred rather than closed in this round because testing it properly requires a heavier harness than the rest of this diff (mocking a real `DataStore<Preferences>` + `CleanerApp` + racing `MainScope().launch(Dispatchers.IO)` against a test dispatcher — `Dispatchers.IO`, not `Dispatchers.Main`, so the project's existing `MainDispatcherRule` doesn't directly control it), and the branches themselves are simple, self-evidently-correct early returns whose risk is low relative to that harness cost.
+
+**Context:** Add `app/src/testGms/java/com/coreclean/app/SentryInitializerTest.kt` using Robolectric + MockK + a real `PreferenceDataStoreFactory`-backed `DataStore` (matching the pattern in `SettingsViewModelTest.kt`): assert `SentryAndroid.init` is/isn't invoked based on the `CRASH_REPORTING` preference, and that it's never invoked when `BuildConfig.SENTRY_DSN` is empty.
+
+**Effort:** S
+**Priority:** P4
+**Depends on:** None
+
+### DOTTED_IDENTIFIER_REGEX only redacts 3+-segment domains — a bare 2-segment domain leaks
+
+**What:** The package-name pass in `redactPii` only fires at `segmentCount >= 3`. A genuine 2-segment second-level domain appearing in free text (e.g. `"Unable to reach consulting-partner.com"`) is not an email (no `@`) and not 3+ segments, so it passes through completely unredacted. Naively lowering the threshold to `>= 2` would instead start swallowing harmless 2-segment tokens like file extensions (`report.pdf`) or version strings (`v2.0`), which is a worse regression.
+
+**Why:** Flagged by adversarial review (`/code-review`, altitude angle) on `fix/sentry-pii-scrubbing` (2026-07-15). Distinguishing a domain-shaped 2-segment token from a file-extension/version-shaped one needs a TLD allowlist or similar structural signal, which is a bigger change than the narrow regex-boundary fixes landed in this pass (space-separated phone numbers, URL-hostname carve-out).
+
+**Context:** Consider gating the 2-segment case on a small known-TLD suffix list (`.com`, `.net`, `.org`, `.io`, etc.) so `"partner-company.com"` is caught while `"report.pdf"`/`"v2.0"` are not.
+
+**Effort:** M
+**Priority:** P3
+**Depends on:** None
+
+### SAFE_NAMESPACE_PREFIXES is a hardcoded allowlist with no test enforcing it stays current
+
+**What:** `SAFE_NAMESPACE_PREFIXES` in `SentryCrashReporter.kt` is a fixed 7-entry list (`androidx`, `android`, `kotlinx`, `kotlin`, `javax`, `java`, `com.coreclean`). Any third-party library namespace not on the list (e.g. `dagger.hilt.*`, `io.sentry.*`, `com.google.android.gms.*`) that appears as a 3+-segment dotted identifier in a crash message gets redacted as `[REDACTED_PACKAGE]` even though it's a framework/library identifier, not user PII. This is fail-safe (over-redaction, not a leak) but an unbounded maintenance burden — nothing prompts updating the list when a new dependency is added.
+
+**Why:** Flagged by adversarial review (`/code-review`, altitude angle) on `fix/sentry-pii-scrubbing` (2026-07-15). Grouped here with the related 2-segment-domain gap above since both stem from the same underlying limitation: `DOTTED_IDENTIFIER_REGEX` classifies by segment count + a maintained allowlist rather than by a structural "looks like a library/package vs. looks like a personal domain" signal.
+
+**Context:** A deeper fix (e.g. checking against a `Build`-time known-installed-package list, or classifying by TLD-likeness for the last segment) would avoid needing to hand-maintain this list at all. Not urgent since the current failure mode is over-redaction, not a leak.
+
+**Effort:** M
+**Priority:** P3
+**Depends on:** None
+
+### No test/lint blocks Contact.displayName from ever reaching captureException/addBreadcrumb
+
+**What:** `docs/Telemetry.md` now states accurately (corrected in this pass) that contact names are not currently sent to Sentry only because no call site interpolates `Contact.displayName` into a crash message/breadcrumb/extra — not because `scrubPii` has any name-detection mechanism. Nothing structurally prevents a future call site from doing so (e.g. `crashReporter.addBreadcrumb("Merging ${contact.displayName}")` would compile cleanly and ship a real name to Sentry unredacted).
+
+**Why:** Flagged by adversarial review (`/code-review`) on `fix/sentry-pii-scrubbing` (2026-07-15). The doc wording was corrected to stop overstating the guarantee as code-enforced, but adding actual enforcement (a test or lint rule) is separate follow-up work — writing a general name-detection regex is not tractable, but a targeted call-site guard is.
+
+**Context:** Add a check that fails the build if any `crashReporter.captureException`/`addBreadcrumb` call site's arguments reference `Contact.displayName`/`.name` — e.g. a simple grep-based unit test over the source tree, or a Detekt custom rule — so a future regression is caught at build time instead of shipping.
+
+**Effort:** S (grep-based test) or M (Detekt rule)
+**Priority:** P2
+**Depends on:** None
+
+### Whitespace-separated (space/tab) NANP phone numbers are not redacted
+
+**What:** `PHONE_REGEX`'s bare (unparenthesized) alternative only matches a `-` or `.`-separated 3-3-4 digit triple, never a space- or tab-separated one. A real phone number written as `"415 555 2671"` (no dash/dot/plus/parens) is therefore not redacted by `redactPii`, regardless of any surrounding context — e.g. `redactPii("Call: 415 555 2671")` stays as-is.
+
+**Why:** Deliberately dropped, not an oversight. A prior iteration tried to close this gap with keyword-proximity gating (redact a space-separated triple only when "call"/"phone"/"tel" appeared nearby), but a full code-review pass found that mechanism itself buggy in multiple ways (cross-match keyword bleed onto unrelated triples, tab-separated triples silently bypassing the gate, `\b`-bounded keywords missing compound words like "telephone") — see the retreat documented in the Completed section below. Rather than keep patching a narrow heuristic, the bare alternative was reverted to dash/dot-only: a whitespace-separated 3-3-4 digit triple is structurally indistinguishable from unrelated whitespace-separated number triples this app's crash/breadcrumb text can legitimately contain — most notably coordinate/dimension triples from the image-dedup pipeline (`PerceptualHasher`/junk-scan frame/region data) — and there is no reliable regex-only way to tell them apart. Over-redacting those would destroy debugging context for no privacy benefit, so the safer failure mode (leave the ambiguous shape alone) was chosen over the failure mode of a buggy keyword heuristic.
+
+**Context:** If real phone numbers are observed leaking through in this exact unformatted style, the fix is not another proximity heuristic — it's either accepting the trade-off permanently, or a structurally different signal (e.g. a Luhn-style NANP validity/format check plus a proper tokenized keyword scan, not a fixed-character-window substring search) if this ever needs revisiting. Note this trade-off is currently low-risk in practice: as of 2026-07-16, no `crashReporter.captureException`/`addBreadcrumb` call site (`ContactViewModel`, `JunkViewModel`, `AppUsageViewModel`, `SettingsViewModel`, `PerceptualHasher`) interpolates raw free-typed user text into a Sentry-bound string — messages are system-/exception-generated. If a future feature adds any free-text field (e.g. a bug-report note) that flows into a crash report, re-evaluate priority above P3.
+
+**Effort:** M
+**Priority:** P3
+**Depends on:** None
+
+### PHONE_REGEX's dash/dot alternative has no NANP validity check, so it over-redacts coincidental dash/dot-separated triples
+
+**What:** Removing the NANP N-digit ([2-9]) check from the dash/dot alternative (to fix the `"015-234-5678"` regression, see Completed section) was applied unconditionally. A dash- or dot-separated 3-3-4 digit triple that is clearly *not* NANP-valid but happens to look coordinate/counter-shaped is now redacted the same as a real phone number, e.g. `redactPii("codes 100-200-3000")` → `"codes [REDACTED_PHONE]"` and `redactPii("codes 100.200.3000")` → `"codes [REDACTED_PHONE]"` — even though the identical digits space-separated (`"codes 100 200 3000"`) are deliberately left untouched by the very next `PiiScrubberTest` case, for the same underlying reason (structurally indistinguishable from unrelated data).
+
+**Why:** This is an accepted, explicit trade-off (not a bug) — requested directly when fixing the dash/dot N-check regression, on the reasoning that dash/dot punctuation is already unambiguous phone-number formatting for real-world (if malformed or non-US) numbers, and an N-check would just as easily discard a genuine number as a coincidental match. It does mean the space/tab residual above and this dash/dot behavior are asymmetric: whitespace triples favor under-redaction (safe, loses debug context), dash/dot triples favor over-redaction (safe from a privacy standpoint, same loses debug context) — both are privacy-safe failure modes, just in opposite directions depending on separator.
+
+**Context:** If dash/dot-separated coordinate/counter data (not phone numbers) is observed being over-redacted in production Sentry data, reconsider re-adding an N-check to the dash/dot alternative specifically — but note that reintroduces the `"015-234-5678"`-style regression this trade-off was chosen to avoid, so any fix here needs to solve both simultaneously (e.g. a validity check that's more permissive than the NANP N-rule but still rejects `100`/`000`-leading groups).
+
+**Effort:** S
+**Priority:** P4
+**Depends on:** None
+
+### PHONE_REGEX's dash/dot alternative can partially match inside a longer dotted/dashed numeric sequence, corrupting it instead of cleanly redacting or preserving it
+
+**What:** The dash/dot alternative has no boundary requirement beyond "3 digits, separator, 3 digits, separator, 4 digits" (and, per the entry above, no validity check), so it can match a *sub-run* inside a longer multi-segment numeric sequence rather than the whole thing. E.g. `redactPii("connected to 192.168.001.2345 failed")` → `"connected to 192.[REDACTED_PHONE] failed"` (the engine fails to match starting at `192` since the next group isn't exactly 4 digits, then succeeds starting at `168.001.2345`) — leaving a mangled `192.[REDACTED_PHONE]` hybrid that's neither a clean redaction nor a preserved debug-useful string. Same shape with dashes: `redactPii("build 192-168-001-2345 done")` → `"build 192-[REDACTED_PHONE] done"`.
+
+**Why:** Flagged by adversarial review (`/code-review` follow-up pass) on `fix/sentry-pii-scrubbing` (2026-07-16) — confirmed real, but requires an uncommon shape (a 4+-segment dotted/dashed numeric string with a specific 4-digit trailing group, e.g. an extended version string or non-standard build ID) that's rarer than the already-covered 2-segment IPv4 case (`"192.168.0.1"`, which doesn't trigger this since it has no 4-digit group). Not part of the original bug report scope.
+
+**Context:** If build IDs, extended version strings, or similar 4+-segment dotted/dashed numeric data are observed getting partially mangled in production Sentry data, consider anchoring the dash/dot alternative so it only matches when not immediately adjacent to another digit-and-separator group (a broader "not part of a longer numeric sequence" guard, similar in spirit to the existing `(?<!\d)`/`(?!\d)` lookaround but extended past the immediate separator).
+
+**Effort:** S
+**Priority:** P4
+**Depends on:** None
+
 ## Completed
 
 ### ContactViewModel dùng message String cứng thay vì messageRes
@@ -213,3 +335,37 @@ Cũng trong androidTest source set: `AppDatabaseMigrationTest` (từ Sprint 7, c
 Rà soát không phát hiện ViewModel nào khác trong `presentation/` còn dính pattern `message: String?` hardcode — không có mục follow-up mới.
 
 **Completed:** (nhánh `fix/contact-viewmodel-i18n`, chưa merge)
+
+### PHONE_REGEX's space-separated NANP alternative has a residual false-positive: two unrelated numbers both starting 2-9
+
+**What:** The space-separator fix (`/code-review` follow-up, 2026-07-15) narrowed `PHONE_REGEX`'s bare-NANP alternative with an N-digit check (area/exchange code must start 2-9) to reject `"100 200 3000"`-style triples, but did not reject a coincidental 3-3-4 space-separated triple where *both* leading groups happen to start with 2-9, e.g. `redactPii("Received frame 480 640 3840")` → `"Received frame [REDACTED_PHONE]"`.
+
+**First attempt (reverted):** `PHONE_REGEX`'s bare-NANP alternative was made a named group (`bareNanp`), and a new `redactPhoneNumbers`/`hasNearbyPhoneKeyword` mechanism required a `"call"/"phone"/"tel"` keyword within a fixed character window before redacting a space-separated match. A dedicated `/code-review` pass on that change found it introduced more real bugs than it fixed: (1) the keyword window wasn't scoped to a specific match, so a keyword next to one phone number wrongly gated-in an unrelated triple elsewhere in the same string (`"Call 415 555 2671, frame 480 640 3840"` redacted *both*); (2) the "is this the space-separated form" check used `contains(' ')` (literal space only) while the regex's own separator class matched any whitespace, so a tab-separated triple silently bypassed the gate entirely and was always redacted, reproducing the exact false-positive class the mechanism existed to prevent; (3) `\b`-bounded keywords couldn't match inside compound words like "telephone"/"cellphone", so real numbers with an obvious label went unredacted; (4) merging the three `PHONE_REGEX` alternatives into one shared N-check silently applied the 2-9 validity check to the dash/dot separators too, so non-NANP-valid dash/dot numbers (e.g. `"015-234-5678"`) stopped matching *at all* — a real coverage regression that a since-corrected TODOS.md entry had also inaccurately called "unaffected."
+
+**Final fix:** Reverted to a robust, narrower subset instead of patching the keyword heuristic further. `PHONE_REGEX`'s bare alternative now requires a `-`/`.` separator only (never space/tab) and has **no** NANP N-digit check — any dash/dot 3-3-4 digit triple is redacted unconditionally, NANP-valid or not (fixes the `"015-234-5678"` regression). A whitespace-separated triple (space or tab), phone-shaped or not, keyword nearby or not, is never redacted — this is now a deliberate, documented residual (see "Whitespace-separated (space/tab) NANP phone numbers are not redacted", P3, above) rather than a heuristic that turned out to be unreliable. All keyword-gating code (`PHONE_KEYWORD_REGEX`, `PHONE_KEYWORD_WINDOW`, `hasNearbyPhoneKeyword`, `redactPhoneNumbers`) was removed. `PiiScrubberTest` covers the full FP matrix: dash/dot redacted unconditionally (including a non-N-valid case), space/tab-separated triples never redacted (plain digits, frame-dimension shape, tab-separated, and even with a "Call:" label present).
+
+**Completed:** (nhánh `fix/sentry-pii-scrubbing`, chưa merge)
+
+### isUrlHostname doesn't recognize protocol-relative URLs ("//host/path"), so their hostname gets over-redacted
+
+**What:** `isUrlHostname` (in `SentryCrashReporter.kt`) only recognized hostnames preceded by literal `http://` or `https://`. A protocol-relative URL (no scheme, format `//host/path`, e.g. `"Load //api.example.com/resource failed"`) has only `//` before the hostname, so `isUrlHostname` returned `false` and the hostname got wrongly redacted to `[REDACTED_PACKAGE]`.
+
+**Fix:** `isUrlHostname` now also exempts a bare `//` immediately before the identifier, guarded so it can't reintroduce the custom-scheme leak this carve-out is deliberately narrow to avoid: the character right before the `//` must be neither `:` (which would re-exempt `myapp://com.attacker.malware.MainActivity`-style deep-link authorities) nor a word character (which would treat a mid-identifier `foo//bar.baz.qux` as a URL). New tests in `PiiScrubberTest`: protocol-relative URL kept intact (mid-string and start-of-string), mid-identifier double-slash still redacted, and a non-http(s) scheme (`ftp://`) still redacted (confirming the carve-out stays scoped to `http(s)://` and bare `//` only, not any `scheme://`).
+
+**Follow-up fix (same branch, same review pass):** The `/code-review` pass on the above also found that `precededByHttp`/`precededByHttps` did a raw fixed-offset substring match with no check on what precedes "http"/"https" itself, so a custom scheme whose name merely *ends* in those letters (e.g. `"shttp://com.attacker.malware.MainActivity"`) was wrongly treated as a real `http(s)` URL and exempted — reintroducing the exact custom-scheme leak this carve-out exists to prevent. Added `isSchemeBoundary`: the scheme match only counts when it starts at the beginning of the text or right after a non-letter character. New test in `PiiScrubberTest`: `"shttp://..."` still redacts the package-shaped identifier after it.
+
+**Completed:** (nhánh `fix/sentry-pii-scrubbing`, chưa merge)
+
+### FILE_PATH_REGEX leaked the tail of any file path containing a space; DOTTED_IDENTIFIER_REGEX dropped a digit-leading domain label
+
+**What:** Two real gaps found by the `/ship` Step 11 adversarial review, both confirmed by directly tracing the shipped regexes against realistic input:
+1. `FILE_PATH_REGEX`'s trailing group (`(?:/\S*)?`) stopped at the first whitespace, so any Android filename containing a space — the norm, not the edge case (WhatsApp media, screenshots, human-typed names) — only got partially redacted: `"/storage/.../Download/Jane Doe Resume.pdf"` → `"[REDACTED_PATH] Doe Resume.pdf"`, leaking the filename tail right next to the redaction marker. No test covered a space-containing path.
+2. `DOTTED_IDENTIFIER_REGEX` required every segment to start with a letter, so a domain whose leading label starts with a digit either lost its prefix (`"1.bp.blogspot.com"` → only `"bp.blogspot.com"` matched, leaving `"1."` as an unredacted chopped artifact) or, worse, fell entirely below the 3-segment threshold and leaked in full (`"3rdpartyapi.example.com"` → only the 2-segment `"example.com"` matched, so nothing was redacted at all).
+
+**Fix:**
+1. `FILE_PATH_REGEX`'s trailing group now matches to end-of-line (`(?:/.*)?` instead of `(?:/\S*)?`), favoring over-redaction over a leak — the documented trade-off is that trailing prose on the same line after a path (e.g. `"(No such file or directory)"`) is now swallowed into the redaction too, rather than preserved as debug context. Updated the 3 existing test expectations this changed and added a regression test for space-containing filenames.
+2. `DOTTED_IDENTIFIER_REGEX`'s *first* segment now allows a digit-start (`[a-zA-Z0-9]` instead of `[a-zA-Z]`), while every segment after the first dot still requires a letter-start — narrower than the reviewer's original "widen every segment" suggestion, which would have broken the existing IPv4-exclusion test (`"192.168.0.1"` has 4 digit-led segments and would have matched as a 4-segment package-shaped identifier). Verified empirically (Python regex trace) that the narrow fix closes both digit-leading-domain cases while leaving IPv4 exclusion and all existing package-name tests intact. New tests in `PiiScrubberTest` for both digit-leading-domain shapes.
+
+Both fixes closed the `/ship` Step 7 coverage gate (78% → 90%+ before this round; 34 total test cases after). Two related but out-of-scope gaps found in the same adversarial pass were deferred rather than fixed here — see "configureSentryOptions wires beforeSend but never beforeSendTransaction" (P2) and "redactStringValues only scrubs direct String map values" (P4) above.
+
+**Completed:** (nhánh `fix/sentry-pii-scrubbing`, chưa merge)
