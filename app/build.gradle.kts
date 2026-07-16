@@ -206,8 +206,16 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
 
+// Reports on the gmsDebug variant: this project has no flavor-less "debug" variant (only
+// fossDebug/gmsDebug), so a bare "debug" path or "testDebugUnitTest" task/exec name never
+// exists — depending on/reading either one fails task dependency resolution outright. gmsDebug
+// is the superset variant (foss stubs out the Sentry/crash-reporting code gms includes), so it
+// covers more source than fossDebug would. Merging classDirectories from BOTH flavors into one
+// report was tried and rejected: JaCoco throws "Can't add different class with same name" for
+// any class that gets compiled once per flavor with different bytecode (which is most of
+// src/main) — that's a real JaCoco limitation, not something fileFilter/exclude can route around.
 tasks.register<JacocoReport>("jacocoTestReport") {
-    dependsOn("testDebugUnitTest")
+    dependsOn("testGmsDebugUnitTest")
 
     reports {
         xml.required.set(true)
@@ -221,16 +229,19 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         "**/*_Factory*.*", "**/*_HiltModules*.*", "**/*_MembersInjector*.*",
         "**/Hilt_*.*", "**/*Module_*.*"
     )
-    val debugTree = fileTree("${layout.buildDirectory.get()}/intermediates/javac/debug") {
+    val debugTree = fileTree("${layout.buildDirectory.get()}/intermediates/javac/gmsDebug") {
         exclude(fileFilter)
     }
-    val kotlinDebugTree = fileTree("${layout.buildDirectory.get()}/tmp/kotlin-classes/debug") {
+    val kotlinDebugTree = fileTree("${layout.buildDirectory.get()}/tmp/kotlin-classes/gmsDebug") {
         exclude(fileFilter)
     }
 
     classDirectories.setFrom(files(debugTree, kotlinDebugTree))
     sourceDirectories.setFrom(files("$projectDir/src/main/java", "$projectDir/src/main/kotlin"))
     executionData.setFrom(fileTree(layout.buildDirectory.get()) {
-        include("jacoco/testDebugUnitTest.exec", "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
+        include(
+            "jacoco/testGmsDebugUnitTest.exec",
+            "outputs/unit_test_code_coverage/gmsDebugUnitTest/testGmsDebugUnitTest.exec"
+        )
     })
 }
