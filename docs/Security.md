@@ -35,10 +35,14 @@ CoreClean là app local-only. Threat surface chính:
 - Worker không nhận data từ external — chỉ enqueue từ trong app.
 
 ### T5 — Crash leaking PII
-**Risk:** Sentry stack trace chứa file path / contact name.
+**Risk:** Sentry event chứa file path / content URI / package name / email / số điện thoại.
 **Mitigation:**
-- `SentryCrashReporter` có scrubber: regex strip `/storage/.../filename.ext` → `/storage/.../<redacted>`.
-- Test: `SentryCrashReporterTest.assertNoFilePathLeak()`.
+- `SentryCrashReporter.kt` có `scrubPii` chạy qua `beforeSend`, áp dụng cho mọi event
+  (message, exception value, breadcrumb, extras) ở cả 2 nơi gọi `Sentry.init`. Xem chi tiết ở
+  `docs/Telemetry.md#scrubbing`.
+- Test: `PiiScrubberTest` (34 case, gồm cả false-positive: short digit run, memory address,
+  error code, epoch timestamp, IPv4 address, URL hostname, custom URI scheme authority,
+  framework/own-app class name không bị đụng).
 - Disabled by default.
 
 ## Secure Coding Checklist
