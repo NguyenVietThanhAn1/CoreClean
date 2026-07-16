@@ -3,6 +3,7 @@ package com.coreclean.app
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.coreclean.app.core.preferences.AppPreferenceKeys
+import com.coreclean.app.data.crash.configureSentryOptions
 import io.sentry.android.core.SentryAndroid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -15,10 +16,6 @@ internal fun CleanerApp.initializeSentry(dataStore: DataStore<Preferences>) {
     MainScope().launch(Dispatchers.IO) {
         val enabled = dataStore.data.map { it[AppPreferenceKeys.CRASH_REPORTING] ?: false }.first()
         if (!enabled) return@launch
-        SentryAndroid.init(this@initializeSentry) { options ->
-            options.dsn = BuildConfig.SENTRY_DSN
-            options.tracesSampleRate = 0.1
-            options.isEnableUserInteractionTracing = false
-        }
+        SentryAndroid.init(this@initializeSentry) { options -> configureSentryOptions(options) }
     }
 }

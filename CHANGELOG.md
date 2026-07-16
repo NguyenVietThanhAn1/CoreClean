@@ -1,5 +1,13 @@
 # Changelog
 
+## [Sprint 9.2] - 2026-07-17 — Crash-report privacy hardening
+
+### Fixed
+- Crash reports (for users who opt into crash reporting) no longer leak the tail of a file name that contains a space — e.g. a WhatsApp download or a human-typed file name — the whole path is now redacted instead of stopping at the first space
+- A domain name starting with a digit (e.g. `1.bp.blogspot.com`) is now fully redacted instead of leaking a chopped prefix or, in some cases, passing through completely untouched
+- A crash report can no longer slip a real installed-package name past redaction by prefixing it with a fake "http"-like scheme (e.g. `shttp://`)
+- Phone numbers written with no punctuation (just spaces between the digits) are intentionally left unredacted, to avoid mistakenly redacting unrelated numeric data such as image dimensions
+
 ## [Sprint 9.1] - 2026-06-03 — Post-review: French locale reachable + metadata fix
 
 ### Added
